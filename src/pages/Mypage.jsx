@@ -1,8 +1,12 @@
+// eslint-disable-next-line
 import React from 'react';
+import styled from 'styled-components';
 
 export default function Mypage() {
 
     return (
-        <div>마이 페이지</div> // 코드 작성 시 삭제해주세요!
+        <section>
+            마이페이지 ^~^
+        </section>
     )
 }
