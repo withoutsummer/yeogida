@@ -154,7 +154,7 @@ export default function Header() {
                 <li onClick={() => navigate('/community')}>여행공유</li>
                 <li>
                   {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
-                  <MyPageContainer onClick={() => navigate('/EditInfo')}>
+                  <MyPageContainer onClick={() => navigate('/mypage')}>
                     마이페이지
                     <FaChevronDown style={{ marginLeft: '5px' }} />
                   </MyPageContainer>

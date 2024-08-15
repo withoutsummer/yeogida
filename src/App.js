@@ -22,9 +22,7 @@ function App() {
           <Route path="/history" element={<Signup />} /> {/* 여행공유 */}
           <Route path="/mytrip" element={<Mytrip />} /> {/* 마이페이지 */}
           <Route path="/sharetrip" element={<Sharetrip />} /> {/* 마이페이지 */}
-          <Route path="/mypage" element={<Mypage />} /> {/* 마이페이지 */}
-          <Route path="/editinfo" element={<EditInfo />} /> {/* 마이페이지 */}
-
+          <Route path="/mypage/*" element={<Mypage />} /> {/* 마이페이지 */}
         </Routes>
         <Footer />
       </div>

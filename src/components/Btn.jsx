@@ -10,13 +10,13 @@ const StyledButton = styled.button.attrs(({ style }) => ({
     color: ${({ color }) => color || '#fff'};
     background-color: ${({ backgroundColor }) => backgroundColor || '#F4A192'};
     border-color: ${({ borderColor }) => borderColor || '#e0e0e0'};
-    font-size: 16px;
+    font-size: ${({ fontSize }) => fontSize || '16px'};
     cursor: pointer;
     border-width: 1px;
     border-style: solid;
 `;
 
-export default function BtnPink({ width, height, borderRadius, color, backgroundColor, borderColor, style, text }) {
+export default function BtnPink({ width, height, borderRadius, color, backgroundColor, borderColor, fontSize, style, text, onClick }) {
     return (
         <StyledButton 
         width={width} 
@@ -25,7 +25,9 @@ export default function BtnPink({ width, height, borderRadius, color, background
         color={color}
         backgroundColor={backgroundColor}
         borderColor={borderColor}
-        style={style}>
+        fontSize={fontSize}
+        style={style}
+        onClick={onClick}>
             {text}
         </StyledButton>
     )

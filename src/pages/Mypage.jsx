@@ -1,12 +1,14 @@
-// eslint-disable-next-line
 import React from 'react';
-import styled from 'styled-components';
+import { Routes, Route, Navigate } from 'react-router-dom';
+// import styled from 'styled-components';
+import EditInfo from './EditInfo';
 
 export default function Mypage() {
 
     return (
-        <section>
-            마이페이지 ^~^
-        </section>
+        <Routes>
+            <Route path="/" element={<Navigate to="editinfo" />} />
+            <Route path="editinfo" element={<EditInfo />} />
+        </Routes>
     )
 }
