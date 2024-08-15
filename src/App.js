@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Mytrip from "./pages/Mytrip";
 import Sharetrip from "./pages/Sharetrip";
 import Mypage from "./pages/Mypage";
+import EditInfo from "./pages/EditInfo";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -21,8 +22,7 @@ function App() {
           <Route path="/history" element={<Signup />} /> {/* 여행공유 */}
           <Route path="/mytrip" element={<Mytrip />} /> {/* 마이페이지 */}
           <Route path="/sharetrip" element={<Sharetrip />} /> {/* 마이페이지 */}
-          <Route path="/mypage" element={<Mypage />} /> {/* 마이페이지 */}
-
+          <Route path="/mypage/*" element={<Mypage />} /> {/* 마이페이지 */}
         </Routes>
         <Footer />
       </div>
