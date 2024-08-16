@@ -1,8 +1,14 @@
 import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+// import styled from 'styled-components';
+import EditInfo from './EditInfo';
 
 export default function Mypage() {
 
     return (
-        <div>마이 페이지</div> // 코드 작성 시 삭제해주세요!
+        <Routes>
+            <Route path="/" element={<Navigate to="editinfo" />} />
+            <Route path="editinfo" element={<EditInfo />} />
+        </Routes>
     )
 }

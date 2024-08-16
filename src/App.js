@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -23,7 +24,7 @@ function App() {
                     {/* 마이페이지 */}
                     <Route path="/sharetrip" element={<Sharetrip />} />{' '}
                     {/* 마이페이지 */}
-                    <Route path="/mypage" element={<Mypage />} />{' '}
+                    <Route path="/mypage/*" element={<Mypage />} /> 
                     {/* 마이페이지 */}
                     <Route path="/signup" element={<Signup />} />{' '}
                 </Routes>
@@ -31,6 +32,5 @@ function App() {
             </div>
         </Router>
     );
-}
 
 export default App;
