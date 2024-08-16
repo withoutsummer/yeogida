@@ -77,7 +77,17 @@ const CheckPasswordInput = styled.input `
 `;
 
 const AfterCheckStyle = styled.div `
+    width: 857px;
+    height: 1203px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: red;
+`;
 
+const IsAbleToEdit = styled.div `
+    margin-left: auto;
+    font-size: 18px;
 `;
 
 function BeforeCheck ({ btnClick }) {
@@ -112,7 +122,7 @@ function BeforeCheck ({ btnClick }) {
 function AfterCheck () {
     return (
         <AfterCheckStyle>
-            <div>*수정가능사항</div>
+            <IsAbleToEdit>*수정가능사항</IsAbleToEdit>
             <div>
                 <table>
                     <tr>
@@ -134,6 +144,7 @@ function AfterCheck () {
                     <tr>
                         <th>이메일*</th>
                         <td><input /></td>
+                        <td><button>중복 확인</button></td>
                     </tr>
                     <tr>
                         <th>휴대폰</th>
@@ -155,10 +166,20 @@ function AfterCheck () {
             </div>
             <div>
                 <Btn 
-                width='490px'
+                width='240px'
                 height='82px'
                 borderRadius='15px'
                 fontSize='26px'
+                backgroundColor='#fff'
+                color='#F4A192'
+                borderColor='#F4A192'
+                text='회원 탈퇴' />
+                <Btn 
+                width='240px'
+                height='82px'
+                borderRadius='15px'
+                fontSize='26px'
+                fontWeight='bold'
                 text='수정하기'/>
             </div>
         </AfterCheckStyle>
@@ -178,14 +199,14 @@ export default function EditInfo() {
             {/* 비밀번호 확인 */}
             <article>
                 <ArticleStyle>
-                    {isBtnClicked ? (
+                    {/* {isBtnClicked ? (
                         // 비밀번호 확인 성공하면 개인정보 수정 페이지 렌더링
                         <AfterCheck />
                     ) : (
                     // 처음에는 비밀번호 확인 페이지 렌더링
                         <BeforeCheck btnClick={setIsBtnClicked}/>
-                    )}
-                    {/* <AfterCheck /> */}
+                    )} */}
+                    <AfterCheck />
                 </ArticleStyle>
             </article>
         </section>

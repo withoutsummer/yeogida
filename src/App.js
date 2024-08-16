@@ -6,7 +6,6 @@ import Home from "./pages/Home";
 import Mytrip from "./pages/Mytrip";
 import Sharetrip from "./pages/Sharetrip";
 import Mypage from "./pages/Mypage";
-import EditInfo from "./pages/EditInfo";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
