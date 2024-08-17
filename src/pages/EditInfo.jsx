@@ -58,25 +58,6 @@ const CheckPasswordText = styled.div `
     font-size: 24px;
 `;
 
-const CheckPasswordInput = styled.input `
-    margin-top: 20px;
-    margin-bottom: 60px;
-    padding-left: 16px;
-    width: 474px;
-    height: 65px;
-    border-radius: 8px;
-    border: 1px solid #707070;
-    font-size: 16px;
-
-    &:placeholder {
-        color: #707070;
-    }
-
-    &:focus {
-        outline: none;
-    }
-`;
-
 const AfterCheckStyle = styled.div `
     width: 875px;
     height: 1203px;
@@ -104,43 +85,12 @@ const EditInfoText = styled.div `
     text-align: left;
 `;
 
-// const EditInfoInput = styled.input `
-//     margin-top: 35px;
-//     width: 490px;
-//     height: 65px;
-//     border-radius: 15px;
-//     border: 1px solid #707070;
-//     color: #000;
-//     padding-left: 20px;
-//     font-size: 20px;
-//     box-sizing: border-box;
-
-//     &:placeholder {
-//         color: #707070;
-//     }
-
-//     &:focus {
-//         outline: none;
-//     }
-// `;
-
 const AlertTextEditInfo = styled.div `
     font-size: 16px;
     color: #FC6449;
 `;
 
-const BtnContainer = styled.div `
-    margin: auto;
-    margin-top: 72px;
-`;
-
-// function InputEditInfo() {
-
-//     return (
-//         <EditInfoInput />
-//     )
-// }
-
+// ----------비밀번호 확인 전 Component----------
 function BeforeCheck ({ btnClick }) {
     const handleCheck = () => {
         btnClick(true);
@@ -159,10 +109,6 @@ function BeforeCheck ({ btnClick }) {
                 {/* 텍스트 */}  
                 <CheckPasswordText>비밀번호 확인</CheckPasswordText>
                 {/* 입력칸 */}
-                {/* <CheckPasswordInput type='password' placeholder='비밀번호를 한번 더 입력해주세요.'/> */}
-                {/* <InputEditInfo 
-                type='password' placeholder='비밀번호를 한번 더 입력해주세요.' 
-                style={{ marginTop:'20px', marginBottom:'60px' }}/> */}
                 <EditInfoInput 
                     type='password' 
                     placeholder='비밀번호를 한번 더 입력해주세요.' 
@@ -182,16 +128,19 @@ function BeforeCheck ({ btnClick }) {
     )
 }
 
+// ----------비밀번호 확인 후 Component----------
 function AfterCheck () {
     return (
         <AfterCheckStyle>
             <IsAbleToEdit><Pink>*</Pink>수정가능사항</IsAbleToEdit>
             <div>
                 <table style={{ margin: 'auto' }}>
+                    {/* 아이디 */}
                     <tr>
                         <th><EditInfoText>아이디</EditInfoText></th>
                         <td><EditInfoText>baeksy1234</EditInfoText></td>
                     </tr>
+                    {/* 비밀번호 */}
                     <tr>
                         <th><EditInfoText>비밀번호<Pink>*</Pink></EditInfoText></th>
                         <td>
@@ -210,6 +159,7 @@ function AfterCheck () {
                             <AlertTextEditInfo>영문/숫자/특수 문자(공백 제외)만 허용하며, 3가지 모두 조합</AlertTextEditInfo>
                         </td>
                     </tr>
+                    {/* 비밀번호 확인 */}
                     <tr>
                         <th><EditInfoText>비밀번호 확인<Pink>*</Pink></EditInfoText></th>
                         <td>
@@ -228,10 +178,12 @@ function AfterCheck () {
                             <AlertTextEditInfo>동일한 비밀번호를 입력</AlertTextEditInfo>
                         </td>
                     </tr>
+                    {/* 이름 */}
                     <tr>
                         <th><EditInfoText>이름</EditInfoText></th>
                         <td><EditInfoText>백서영</EditInfoText></td>
                     </tr>
+                    {/* 이메일 */}
                     <tr>
                         <th><EditInfoText>이메일<Pink>*</Pink></EditInfoText></th>
                         <td>
@@ -263,6 +215,7 @@ function AfterCheck () {
                             <AlertTextEditInfo>이메일 형식으로 입력해 주세요.</AlertTextEditInfo>
                         </td>
                     </tr>
+                    {/* 휴대폰 */}
                     <tr>
                         <th><EditInfoText>휴대폰</EditInfoText></th>
                         <td><EditInfoText>010 - 1234 - 5678</EditInfoText></td>
@@ -279,14 +232,18 @@ function AfterCheck () {
                             />
                         </td>
                     </tr>
+                    {/* 생년월일 */}
                     <tr>
                         <th><EditInfoText>생년월일</EditInfoText></th>
                         <td><EditInfoText>2000  /  07  /  20</EditInfoText></td>
                     </tr>
+                    {/* 프로필 사진 */}
                     <tr>
                         <th><EditInfoText>프로필 사진<Pink>*</Pink></EditInfoText></th>
                         <td><MiniProfileImage style={{ margin:'35px auto 0' }}/></td>
                     </tr>
+
+                    {/* 버튼 */}
                     <tr>
                         <th></th>
                         <td>
@@ -317,6 +274,7 @@ function AfterCheck () {
     )
 }
 
+// ----------메인 Component----------
 export default function EditInfo() {
     const [isBtnClicked, setIsBtnClicked] = useState(false);
 
