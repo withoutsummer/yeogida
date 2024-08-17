@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useState } from 'react';
 import Btn from '../components/Btn';
+import EditInfoInput from '../components/EditInfoInput';
 
 const HeaderStyle = styled.div `
     margin-top: 100px;
@@ -95,7 +96,7 @@ const IsAbleToEdit = styled.div `
     font-size: 18px;
 `;
 
-const TextEditInfo = styled.div `
+const EditInfoText = styled.div `
     margin-top: 35px;
     margin-right: 30px;
     font-size: 20px;
@@ -103,25 +104,25 @@ const TextEditInfo = styled.div `
     text-align: left;
 `;
 
-const InputEditInfo = styled.input `
-    margin-top: 35px;
-    width: 490px;
-    height: 65px;
-    border-radius: 15px;
-    border: 1px solid #707070;
-    color: #000;
-    padding-left: 20px;
-    font-size: 20px;
-    box-sizing: border-box;
+// const EditInfoInput = styled.input `
+//     margin-top: 35px;
+//     width: 490px;
+//     height: 65px;
+//     border-radius: 15px;
+//     border: 1px solid #707070;
+//     color: #000;
+//     padding-left: 20px;
+//     font-size: 20px;
+//     box-sizing: border-box;
 
-    &:placeholder {
-        color: #707070;
-    }
+//     &:placeholder {
+//         color: #707070;
+//     }
 
-    &:focus {
-        outline: none;
-    }
-`;
+//     &:focus {
+//         outline: none;
+//     }
+// `;
 
 const AlertTextEditInfo = styled.div `
     font-size: 16px;
@@ -132,6 +133,13 @@ const BtnContainer = styled.div `
     margin: auto;
     margin-top: 72px;
 `;
+
+// function InputEditInfo() {
+
+//     return (
+//         <EditInfoInput />
+//     )
+// }
 
 function BeforeCheck ({ btnClick }) {
     const handleCheck = () => {
@@ -152,14 +160,23 @@ function BeforeCheck ({ btnClick }) {
                 <CheckPasswordText>비밀번호 확인</CheckPasswordText>
                 {/* 입력칸 */}
                 {/* <CheckPasswordInput type='password' placeholder='비밀번호를 한번 더 입력해주세요.'/> */}
-                <InputEditInfo 
+                {/* <InputEditInfo 
                 type='password' placeholder='비밀번호를 한번 더 입력해주세요.' 
-                style={{ marginTop:'20px', marginBottom:'60px' }}/>
+                style={{ marginTop:'20px', marginBottom:'60px' }}/> */}
+                <EditInfoInput 
+                    type='password' 
+                    placeholder='비밀번호를 한번 더 입력해주세요.' 
+                    style={{ 
+                        marginTop: '20px',
+                        marginBottom: '65px'
+                    }}
+                />
                 {/* 버튼 */}
                 <Btn 
-                text='확인'
-                style={{marginLeft: 'auto'}}
-                onClick={ handleCheck } />
+                    text='확인'
+                    style={{marginLeft: 'auto'}}
+                    onClick={ handleCheck } 
+                />
             </CheckPassword>
         </BeforeCheckStyle>
     )
@@ -172,13 +189,19 @@ function AfterCheck () {
             <div>
                 <table style={{ margin: 'auto' }}>
                     <tr>
-                        <th><TextEditInfo>아이디</TextEditInfo></th>
-                        <td><TextEditInfo>baeksy1234</TextEditInfo></td>
+                        <th><EditInfoText>아이디</EditInfoText></th>
+                        <td><EditInfoText>baeksy1234</EditInfoText></td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>비밀번호<Pink>*</Pink></TextEditInfo></th>
+                        <th><EditInfoText>비밀번호<Pink>*</Pink></EditInfoText></th>
                         <td>
-                            <InputEditInfo type='password' placeholder='비밀번호를 입력해주세요.'/>
+                            <EditInfoInput 
+                                type='password' 
+                                placeholder='비밀번호를 입력해주세요.'
+                                style={{ 
+                                    marginTop: '35px'
+                                }}
+                            />
                         </td>
                     </tr>
                     <tr>
@@ -188,9 +211,15 @@ function AfterCheck () {
                         </td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>비밀번호 확인<Pink>*</Pink></TextEditInfo></th>
+                        <th><EditInfoText>비밀번호 확인<Pink>*</Pink></EditInfoText></th>
                         <td>
-                            <InputEditInfo type='password' placeholder='비밀번호를 한번 더 입력해주세요.' />
+                            <EditInfoInput 
+                            type='password' 
+                            placeholder='비밀번호를 한번 더 입력해주세요.' 
+                            style={{ 
+                                marginTop: '35px'
+                            }}
+                            />
                         </td>
                     </tr>
                     <tr>
@@ -200,13 +229,19 @@ function AfterCheck () {
                         </td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>이름</TextEditInfo></th>
-                        <td><TextEditInfo>백서영</TextEditInfo></td>
+                        <th><EditInfoText>이름</EditInfoText></th>
+                        <td><EditInfoText>백서영</EditInfoText></td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>이메일<Pink>*</Pink></TextEditInfo></th>
+                        <th><EditInfoText>이메일<Pink>*</Pink></EditInfoText></th>
                         <td>
-                            <InputEditInfo type='email' placeholder='ex: swuweb@travel.com'/>
+                            <EditInfoInput 
+                            type='email' 
+                            placeholder='ex: swuweb@travel.com'
+                            style={{ 
+                                marginTop: '35px'
+                            }}
+                            />
                         </td>
                         <td style={{ display:'inline-block' }}>
                             <Btn 
@@ -229,19 +264,27 @@ function AfterCheck () {
                         </td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>휴대폰</TextEditInfo></th>
-                        <td><TextEditInfo>010 - 1234 - 5678</TextEditInfo></td>
+                        <th><EditInfoText>휴대폰</EditInfoText></th>
+                        <td><EditInfoText>010 - 1234 - 5678</EditInfoText></td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>닉네임<Pink>*</Pink></TextEditInfo></th>
-                        <td><InputEditInfo type='text' placeholder='닉네임을 입력해주세요.'/></td>
+                        <th><EditInfoText>닉네임<Pink>*</Pink></EditInfoText></th>
+                        <td>
+                            <EditInfoInput 
+                                type='text' 
+                                placeholder='닉네임을 입력해주세요.'
+                                style={{ 
+                                    marginTop: '35px'
+                                }}
+                            />
+                        </td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>생년월일</TextEditInfo></th>
-                        <td><TextEditInfo>2000  /  07  /  20</TextEditInfo></td>
+                        <th><EditInfoText>생년월일</EditInfoText></th>
+                        <td><EditInfoText>2000  /  07  /  20</EditInfoText></td>
                     </tr>
                     <tr>
-                        <th><TextEditInfo>프로필 사진<Pink>*</Pink></TextEditInfo></th>
+                        <th><EditInfoText>프로필 사진<Pink>*</Pink></EditInfoText></th>
                         <td><MiniProfileImage style={{ margin:'35px auto 0' }}/></td>
                     </tr>
                     <tr>
