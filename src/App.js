@@ -1,14 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Mytrip from './pages/Mytrip';
-import Sharetrip from './pages/Sharetrip';
-import Mypage from './pages/Mypage';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Mytrip from "./pages/Mytrip";
+import Sharetrip from "./pages/Sharetrip";
+import Mypage from "./pages/Mypage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function App() {
     return (
@@ -32,5 +31,5 @@ function App() {
             </div>
         </Router>
     );
-
+}
 export default App;
