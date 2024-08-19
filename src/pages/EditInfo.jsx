@@ -14,7 +14,8 @@ const HeaderStyle = styled.div `
 `;
 
 const ArticleStyle = styled.div `
-    margin-bottom: 274px;
+    margin-bottom: 100px;
+    // 원래는 274px
 `;
 
 const BeforeCheckStyle = styled.div `
