@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
+import Slider from "react-slick";
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import searchIcon from '../assets/icons/search_icon.png';
 import addIcon from '../assets/icons/friend_add_icon.png';
 import slashIcon from '../assets/icons/slash_icon.png';
@@ -113,6 +116,29 @@ const MiniMenuBtn = styled.button `
     padding: 0;
 `;
 
+const StyledSlider = styled(Slider)`
+    .slick-dots {
+        
+    }
+`;
+
+const SliderContainer = styled.div `
+    width: 520px;
+    height: 535px;
+    margin: auto;
+`;
+
+const FriendListSlide = styled.div `
+    width: 95% !important;
+    height: 110px;
+    // 피그마랑 다름
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    border-left: 10px solid #508c4e;
+    box-sizing: border-box;
+    margin: 10px 0 10px 15px;
+`;
+
 // ---------------친구 검색바 Component---------------
 function FriendSearchBar() {
     const [inputValue, setInputValue] = useState('');
@@ -149,10 +175,43 @@ function FriendSearchBar() {
 
 // ---------------친구 목록 Component---------------
 function FriendList() {
+    const slideCount = 6;
+
+    const settings = {
+        dots: true,
+        infinite: slideCount > 4,
+        speed: 500,
+        slidesToShow: 1,  // 한 번에 1개의 슬라이드만 보여줌
+        slidesToScroll: 1,
+        rows: 4,
+        slidesPerRow: 1
+    };
+
     return (
-        <div>
-            친구 목록
-        </div>
+        <>
+            <SliderContainer>
+                <StyledSlider {...settings}>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                    <FriendListSlide>
+                        
+                    </FriendListSlide>
+                </StyledSlider>
+            </SliderContainer>
+        </>
     )
 }
 
