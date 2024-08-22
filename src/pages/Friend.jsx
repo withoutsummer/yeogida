@@ -9,6 +9,7 @@ import slashIcon from '../assets/icons/slash_icon.png';
 import deleteIcon from '../assets/icons/delete_friend_icon.png';
 import approveIcon from '../assets/icons/approve_request_icon.png';
 import rejectIcon from '../assets/icons/reject_request_icon.png';
+import useDebounce from '../assets/hooks/useDebounce';
 
 const HeaderStyle = styled.div `
     margin-top: 100px;
@@ -186,8 +187,13 @@ const RequestIconStyle = styled.img `
 `;
 
 // ---------------친구 검색바 Component---------------
-function FriendSearchBar({ inputValue, handleChange }) {
+function FriendSearchBar({ inputValue, handleChange, onEnterPress }) {
     // const [isAddClicked, setIsAddClicked] = useState(0);
+    const handleEnterDown = (event) => {
+        if (event.key === 'Enter') {
+            onEnterPress();
+        }
+    }
 
     return (
         <SearchBarStyle>
@@ -199,6 +205,7 @@ function FriendSearchBar({ inputValue, handleChange }) {
                 placeholder='친구 아이디' 
                 value={ inputValue }
                 onChange={ handleChange }
+                onKeyDown={ handleEnterDown }
             />
             {inputValue && (
                 <RightContent>
@@ -211,13 +218,13 @@ function FriendSearchBar({ inputValue, handleChange }) {
                 </RightContent>
             )}
         </SearchBarStyle>
-    )
+    );
 }
 
 // ---------------친구 목록 Component---------------
 function ListAndRequest({ selected, inputValue }) {
-    // 슬라이더 ref
     const sliderRef = useRef(null);
+    const debouncedInputValue = useDebounce(inputValue, 1000); // 1초의 지연 시간 설정
 
     // 임시 데이터
     const friendListData = [
@@ -236,20 +243,24 @@ function ListAndRequest({ selected, inputValue }) {
     const friendRequestData = [
         { id: 1, name: 'hyeri', friendId: 'janghr8765' },
         { id: 2, name: 'eunsu', friendId: 'koes4321' },
-        { id: 4, name: 'seyeon', friendId: 'imsy2109' },
-        { id: 5, name: 'john', friendId: 'john1234' },
-        { id: 6, name: 'alice', friendId: 'alice5678' },
     ];
 
     // isMiniMenuClicked 값에 따라 로딩할 데이터를 선택
     const dataToShow = selected ? friendListData : friendRequestData;
 
     // inputValue로 친구 목록을 필터링
-    const filteredData = dataToShow.filter(friend => 
-        friend.friendId.includes(inputValue)
+    // const filteredData = dataToShow.filter(friend => 
+    //     friend.friendId.includes(inputValue)
+    // );
+
+    // Debounce된 입력값으로 친구 목록을 필터링
+    // 근데 어차피 친구 목록에 친구 다 불러오고 시작하는데 여기서 검색해도 되지 않나??
+    const filteredData = dataToShow.filter(friend =>
+        friend.friendId.toLowerCase().includes(debouncedInputValue.toLowerCase())
     );
 
     const settings = {
+        arrows: false,
         dots: true,
         infinite: filteredData.length > 4,  // 현재 선택된 데이터의 길이에 따라 설정
         speed: 500,
@@ -262,8 +273,15 @@ function ListAndRequest({ selected, inputValue }) {
     useEffect(() => {
         if (sliderRef.current) {
             sliderRef.current.slickGoTo(0);
+            
         }
-    }, [selected, inputValue, filteredData]);
+    }, [selected]);
+
+    useEffect(() => {
+        if (debouncedInputValue === '' && sliderRef.current) {
+            sliderRef.current.slickGoTo(0);
+        }
+    }, [debouncedInputValue]);
     
 
     return (
@@ -313,8 +331,6 @@ function ListAndRequest({ selected, inputValue }) {
         </SliderContainer>
     )
 }
-
-
 
 export default function Friend() {
     const [isMiniMenuClicked, setIsMiniMenuClicked] = useState(0);
