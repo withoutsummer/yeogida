@@ -2,7 +2,7 @@ body {
     font-family: 'NanumGothic', sans-serif;
     margin: 0;
     height: 100vh; /* 전체 화면 높이 설정 */
-    overflow-x: hidden; /* 가로 스크롤 방지 */
+    /* overflow-x: hidden; 가로 스크롤 방지 */
 }
 
 .loginForm {

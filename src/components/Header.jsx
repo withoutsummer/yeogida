@@ -206,7 +206,7 @@ export default function Header() {
                                         마이페이지
                                         {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
                                         {viewDropdown && (
-                                            <StyledDropdown >
+                                            <StyledDropdown>
                                                 <DropdownMenu onClick={() => navigate('/mypage/editinfo')}>개인정보 수정</DropdownMenu>
                                                 <DropdownMenu onClick={() => navigate('/mypage/friend')}>친구목록</DropdownMenu>
                                                 <DropdownMenu onClick={() => navigate('/mypage/scrap')}>스크랩</DropdownMenu>

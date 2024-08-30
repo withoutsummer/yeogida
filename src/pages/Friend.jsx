@@ -10,6 +10,7 @@ import deleteIcon from '../assets/icons/delete_friend_icon.png';
 import approveIcon from '../assets/icons/approve_request_icon.png';
 import rejectIcon from '../assets/icons/reject_request_icon.png';
 import useDebounce from '../assets/hooks/useDebounce';
+import SortDropdown from '../components/SortDropdown';
 
 const HeaderStyle = styled.div `
     margin-top: 100px;
@@ -222,39 +223,51 @@ function FriendSearchBar({ inputValue, handleChange, onEnterPress }) {
 }
 
 // ---------------친구 목록 Component---------------
-function ListAndRequest({ selected, inputValue }) {
+function ListAndRequest({ selected, inputValue, sortOption }) {
     const sliderRef = useRef(null);
     const debouncedInputValue = useDebounce(inputValue, 1000); // 1초의 지연 시간 설정
 
     // 임시 데이터
     const friendListData = [
-        { id: 1, name: 'mijin', friendId: 'kimmj5678' },
-        { id: 2, name: 'sieun', friendId: 'kose0987' },
-        { id: 3, name: 'seorin', friendId: 'chesr6543' },
-        { id: 4, name: 'seyeon', friendId: 'imsy2109' },
-        { id: 5, name: 'john', friendId: 'john1234' },
-        { id: 6, name: 'alice', friendId: 'alice5678' },
-        { id: 7, name: 'bob', friendId: 'bob2468' },
-        { id: 8, name: 'charlie', friendId: 'charlie8765' },
-        { id: 9, name: 'david', friendId: 'david0987' },
-        { id: 10, name: 'eve', friendId: 'eve5432' },
+        { id: 1, name: 'mijin', friendId: 'kimmj5678', dateAdded: '2024-01-15' },
+        { id: 2, name: 'sieun', friendId: 'kose0987', dateAdded: '2024-02-23' },
+        { id: 3, name: 'seorin', friendId: 'chesr6543', dateAdded: '2024-03-05' },
+        { id: 4, name: 'seyeon', friendId: 'imsy2109', dateAdded: '2024-04-18' },
+        { id: 5, name: 'john', friendId: 'john1234', dateAdded: '2024-05-22' },
+        { id: 6, name: 'alice', friendId: 'alice5678', dateAdded: '2024-06-11' },
+        { id: 7, name: 'bob', friendId: 'bob2468', dateAdded: '2024-07-09' },
+        { id: 8, name: 'charlie', friendId: 'charlie8765', dateAdded: '2024-08-14' },
+        { id: 9, name: 'david', friendId: 'david0987', dateAdded: '2024-09-28' },
+        { id: 10, name: 'eve', friendId: 'eve5432', dateAdded: '2024-10-03' },
     ];
 
     const friendRequestData = [
-        { id: 1, name: 'hyeri', friendId: 'janghr8765' },
-        { id: 2, name: 'eunsu', friendId: 'koes4321' },
+        { id: 1, name: 'hyeri', friendId: 'janghr8765', dateRequested: '2024-08-21' },
+        { id: 2, name: 'eunsu', friendId: 'koes4321', dateRequested: '2024-09-14' },
     ];
 
-    // isMiniMenuClicked 값에 따라 로딩할 데이터를 선택
-    const dataToShow = selected ? friendListData : friendRequestData;
+    let dataToShow = []
 
+    if (selected) {
+        dataToShow = [...friendListData];
+        if (sortOption === 1) {
+            // 최신순 정렬
+            dataToShow = [...dataToShow].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+        } else if (sortOption === 2) {
+            // 이름순 정렬
+            dataToShow = [...dataToShow].sort((a, b) => a.name.localeCompare(b.name));
+        }
+    } else {
+        // 오래된 순 정렬
+        dataToShow = [...friendRequestData].sort((a, b) => new Date(a.dateRequested) - new Date(b.dateRequested));
+    }
+    
     // inputValue로 친구 목록을 필터링
     // const filteredData = dataToShow.filter(friend => 
     //     friend.friendId.includes(inputValue)
     // );
 
     // Debounce된 입력값으로 친구 목록을 필터링
-    // 근데 어차피 친구 목록에 친구 다 불러오고 시작하는데 여기서 검색해도 되지 않나??
     const filteredData = dataToShow.filter(friend =>
         friend.friendId.toLowerCase().includes(debouncedInputValue.toLowerCase())
     );
@@ -273,9 +286,8 @@ function ListAndRequest({ selected, inputValue }) {
     useEffect(() => {
         if (sliderRef.current) {
             sliderRef.current.slickGoTo(0);
-            
         }
-    }, [selected]);
+    }, [selected, sortOption]);
 
     useEffect(() => {
         if (debouncedInputValue === '' && sliderRef.current) {
@@ -335,6 +347,7 @@ function ListAndRequest({ selected, inputValue }) {
 export default function Friend() {
     const [isMiniMenuClicked, setIsMiniMenuClicked] = useState(0);
     const [inputValue, setInputValue] = useState('');
+    const [sortOption, setSortOption] = useState(1);
 
     const handleClick = (index) => {
         setIsMiniMenuClicked(index);
@@ -342,6 +355,10 @@ export default function Friend() {
     const handleChange = (event) => {
         setInputValue(event.target.value);
     };
+
+    const handleSortOptionChange = (option) => {
+        setSortOption(option);
+    }
 
     // isMiniMenuClicked 변경 시 inputValue 초기화
     useEffect(() => {
@@ -384,14 +401,19 @@ export default function Friend() {
                                 </MiniMenuBtn>
                             </MiniMenuStyle>
                             {/* 드롭다운 - 최신순 / 이름순 */}
-                            <div>
-                                <div style={{ border: '1px solid #000', display: 'inline-block' }}>최신순</div>
-                            </div>
+                            {isMiniMenuClicked === 0 && (
+                                <SortDropdown
+                                    firstMenu="최신순"
+                                    secondMenu="이름순"
+                                    handleMenuClick={handleSortOptionChange}
+                                />
+                            )}
                         </MiniNavStyle>
                         {/* 목록 */}
                         <ListAndRequest 
                             selected={ isMiniMenuClicked === 0 }
                             inputValue={inputValue}
+                            sortOption={sortOption}
                         />
                     </ArticleStyle>
                 </article>
