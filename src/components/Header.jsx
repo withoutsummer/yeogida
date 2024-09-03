@@ -34,7 +34,9 @@ const SearchBar = styled.div`
     border: 1px solid rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
+
     z-index: 1;
+
     opacity: 1;
     padding: 0 10px;
     box-sizing: border-box;
@@ -95,6 +97,8 @@ const Button = styled.button`
 `;
 
 const MyPageContainer = styled.div`
+
+
     position: relative;
     display: flex;
     align-items: center;
@@ -155,6 +159,7 @@ export const Nav = styled.nav`
 
 export default function Header() {
     const navigate = useNavigate();
+
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -190,13 +195,24 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
+
+                                <li onClick={() => navigate('/mytrip')}>
+
                                 <li onClick={() => navigate('/apply')}>
+
                                     나의여행
                                 </li>
                                 <li onClick={() => navigate('/community')}>
                                     여행공유
                                 </li>
                                 <li>
+
+                                 {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
+                                 <MyPageContainer onClick={() => navigate('/mypage')}>
+                                  마이페이지
+                                 <FaChevronDown style={{ marginLeft: '5px' }} />
+                                 </MyPageContainer>
+
                                     {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
                                     <MyPageContainer 
                                         tabIndex={-1} 
@@ -213,6 +229,7 @@ export default function Header() {
                                             </StyledDropdown>
                                         )}
                                     </MyPageContainer>
+
                                 </li>
                             </ul>
                         </Nav>

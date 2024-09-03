@@ -5,14 +5,20 @@ import EditInfo from './EditInfo';
 import Friend from './Friend';
 import Scrap from './Scrap';
 
+
 export default function Mypage() {
 
     return (
         <Routes>
+
+            <Route path="/" element={<Navigate to="editinfo" />} />
+            <Route path="editinfo" element={<EditInfo />} />
+
             <Route path="/" element={<Navigate to="friend" />} />
             <Route path="editinfo" element={<EditInfo />} />
             <Route path="friend" element={<Friend />} />
             <Route path="scrap" element={<Scrap />} />
+
         </Routes>
     )
 }

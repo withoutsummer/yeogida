@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useState } from 'react';
 import Btn from '../components/Btn';
+
 import EditInfoInput from '../components/EditInfoInput';
 
 const HeaderStyle = styled.div `
@@ -14,8 +15,10 @@ const HeaderStyle = styled.div `
 `;
 
 const ArticleStyle = styled.div `
+
     margin-bottom: 100px;
     // 원래는 274px
+
 `;
 
 const BeforeCheckStyle = styled.div `
@@ -59,6 +62,30 @@ const CheckPasswordText = styled.div `
     font-size: 24px;
 `;
 
+
+const CheckPasswordInput = styled.input `
+    margin-top: 20px;
+    margin-bottom: 60px;
+    padding-left: 16px;
+    width: 474px;
+    height: 65px;
+    border-radius: 8px;
+    border: 1px solid #707070;
+    font-size: 16px;
+
+    &:placeholder {
+        color: #707070;
+    }
+
+    &:focus {
+        outline: none;
+    }
+`;
+
+const AfterCheckStyle = styled.div `
+
+`;
+
 const AfterCheckStyle = styled.div `
     width: 875px;
     height: 1203px;
@@ -92,6 +119,7 @@ const AlertTextEditInfo = styled.div `
 `;
 
 // ----------비밀번호 확인 전 Component----------
+
 function BeforeCheck ({ btnClick }) {
     const handleCheck = () => {
         btnClick(true);
@@ -108,6 +136,16 @@ function BeforeCheck ({ btnClick }) {
             {/* 비밀번호 입력란 */}
             <CheckPassword>
                 {/* 텍스트 */}  
+
+                <CheckPasswordText>비밀번호 입력</CheckPasswordText>
+                {/* 입력칸 */}
+                <CheckPasswordInput type='password' placeholder='비밀번호를 한번 더 입력해주세요.'/>
+                {/* 버튼 */}
+                <Btn 
+                text='확인'
+                style={{marginLeft: 'auto'}}
+                onClick={ handleCheck } />
+
                 <CheckPasswordText>비밀번호 확인</CheckPasswordText>
                 {/* 입력칸 */}
                 <EditInfoInput 
@@ -124,10 +162,65 @@ function BeforeCheck ({ btnClick }) {
                     style={{marginLeft: 'auto'}}
                     onClick={ handleCheck } 
                 />
+
             </CheckPassword>
         </BeforeCheckStyle>
     )
 }
+
+
+function AfterCheck () {
+    return (
+        <AfterCheckStyle>
+            <div>*수정가능사항</div>
+            <div>
+                <table>
+                    <tr>
+                        <th>아이디</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>비밀번호*</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>비밀번호 확인*</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>이름</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>이메일*</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>휴대폰</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>닉네임*</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>생년월일</th>
+                        <td><input /></td>
+                    </tr>
+                    <tr>
+                        <th>프로필 사진*</th>
+                        <td><input /></td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <Btn 
+                width='490px'
+                height='82px'
+                borderRadius='15px'
+                fontSize='26px'
+                text='수정하기'/>
+            </div>
 
 // ----------비밀번호 확인 후 Component----------
 function AfterCheck () {
@@ -271,11 +364,14 @@ function AfterCheck () {
                     </tr>
                 </table>
             </div>
+
         </AfterCheckStyle>
     )
 }
 
+
 // ----------메인 Component----------
+
 export default function EditInfo() {
     const [isBtnClicked, setIsBtnClicked] = useState(false);
 
