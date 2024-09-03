@@ -10,7 +10,7 @@ const MyTripContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    margin-top: 100px;
     margin-bottom: 100px;
 `;
 
