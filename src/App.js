@@ -8,6 +8,8 @@ import Sharetrip from './pages/Sharetrip';
 import Mypage from './pages/Mypage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import FindId from './pages/FindId';
+import FindPassword from './pages/FindPassword';
 
 function App() {
     return (
@@ -23,9 +25,16 @@ function App() {
                     {/* 마이페이지 */}
                     <Route path="/sharetrip" element={<Sharetrip />} />{' '}
                     {/* 마이페이지 */}
-                    <Route path="/mypage" element={<Mypage />} />{' '}
-                    {/* 마이페이지 */}
+                    <Route path="/mypage/*" element={<Mypage />} />{' '}
+                    {/* 회원가입 */}
                     <Route path="/signup" element={<Signup />} />{' '}
+                    {/* 아이디 찾기 */}
+                    <Route path="/find/id" element={<FindId />} />{' '}
+                    {/* 비밀번호 찾기 */}
+                    <Route
+                        path="/find/password"
+                        element={<FindPassword />}
+                    />{' '}
                 </Routes>
                 <Footer />
             </div>
