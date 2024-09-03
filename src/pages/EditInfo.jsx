@@ -83,10 +83,6 @@ const CheckPasswordInput = styled.input `
 `;
 
 const AfterCheckStyle = styled.div `
-
-`;
-
-const AfterCheckStyle = styled.div `
     width: 875px;
     height: 1203px;
     margin: auto;
@@ -167,60 +163,6 @@ function BeforeCheck ({ btnClick }) {
         </BeforeCheckStyle>
     )
 }
-
-
-function AfterCheck () {
-    return (
-        <AfterCheckStyle>
-            <div>*수정가능사항</div>
-            <div>
-                <table>
-                    <tr>
-                        <th>아이디</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>비밀번호*</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>비밀번호 확인*</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>이름</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>이메일*</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>휴대폰</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>닉네임*</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>생년월일</th>
-                        <td><input /></td>
-                    </tr>
-                    <tr>
-                        <th>프로필 사진*</th>
-                        <td><input /></td>
-                    </tr>
-                </table>
-            </div>
-            <div>
-                <Btn 
-                width='490px'
-                height='82px'
-                borderRadius='15px'
-                fontSize='26px'
-                text='수정하기'/>
-            </div>
 
 // ----------비밀번호 확인 후 Component----------
 function AfterCheck () {
