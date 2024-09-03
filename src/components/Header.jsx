@@ -6,14 +6,14 @@ import logo from '../assets/yeogida_logo.png';
 
 const HeaderStyle = styled.div`
     width: 100%;
-    height: 120px;
+    height: 160px;
     background-color: #ffffff;
     display: flex;
     align-items: center;
-    font-size: 15px;
+    font-size: 20px;
     img {
-        margin-left: 81px;
-        margin-right: 42px;
+        margin-left: 50px;
+        margin-right: 80px;
         cursor: pointer;
     }
 `;
@@ -28,9 +28,9 @@ const SearchContainer = styled.div`
 `;
 
 const SearchBar = styled.div`
-    width: 350px;
-    height: 45px;
-    border-radius: 5px;
+    width: 400px;
+    height: 55px;
+    border-radius: 30px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@ const SearchInput = styled.input`
     flex: 1; /* 남은 공간을 차지하도록 설정 */
     border: none;
     height: 100%;
-    padding: 0 10px;
+    padding: 0 15px;
     font-size: 15px;
     -webkit-appearance: none;
     border-radius: 28px; /* 테두리가 끊기지 않도록 둥글게 설정 */
@@ -59,7 +59,7 @@ const SearchInput = styled.input`
 `;
 
 const SearchIcon = styled(FaSearch)`
-    font-size: 15px; /* 아이콘 크기 */
+    font-size: 20px; /* 아이콘 크기 */
     color: #828282;
     margin-left: auto; /* 아이콘을 오른쪽 끝으로 밀기 */
 `;
@@ -70,12 +70,12 @@ const NavBox = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-left: 30px; /* SearchContainer와의 간격 조절 */
+    margin-left: 80px; /* SearchContainer와의 간격 조절 */
 `;
 
 const Bell = styled.div`
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     svg {
         width: 100%;
         height: 100%;
@@ -84,16 +84,23 @@ const Bell = styled.div`
 
 const Button = styled.button`
     width: 100px;
-    height: 45px;
+    height: 50px;
+    font-size: 16px;
     background-color: #000;
     color: #fff;
     padding: 0 10px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    margin-right: 80px;
+    margin-right: 50px;
     border-radius: 5px;
     background: var(--black, #000);
+
+    &:hover {
+        background-color: #29613a;
+        color: white;
+        border-color: #29613a;
+    }
 `;
 
 const MyPageContainer = styled.div`
@@ -106,7 +113,7 @@ const MyPageContainer = styled.div`
     color: #333;
 
     &:hover {
-        color: #707070;
+        color: #f4a192;
     }
 `;
 
@@ -147,13 +154,13 @@ export const Nav = styled.nav`
     }
     li {
         margin-left: 0; /* li의 왼쪽 margin 제거 */
-        margin-right: 25px;
-        padding: 8px 16px;
+        font-size: 20px;
+        margin-right: 60px;
         cursor: pointer;
         color: #333333;
     }
     li:hover {
-        color: #707070;
+        color: #f4a192;
     }
 `;
 
@@ -182,7 +189,7 @@ export default function Header() {
             <HeaderStyle>
                 <span className="logo" onClick={() => navigate('/')}>
                     <img
-                        style={{ width: '90px', height: '45px' }}
+                        style={{ width: '130px', height: '60px' }}
                         src={logo}
                         alt="로고"
                     />
@@ -197,21 +204,12 @@ export default function Header() {
                             <ul>
 
                                 <li onClick={() => navigate('/mytrip')}>
-
-                                <li onClick={() => navigate('/apply')}>
-
                                     나의여행
                                 </li>
-                                <li onClick={() => navigate('/community')}>
+                                <li onClick={() => navigate('/sharetrip')}>
                                     여행공유
                                 </li>
                                 <li>
-
-                                 {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
-                                 <MyPageContainer onClick={() => navigate('/mypage')}>
-                                  마이페이지
-                                 <FaChevronDown style={{ marginLeft: '5px' }} />
-                                 </MyPageContainer>
 
                                     {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
                                     <MyPageContainer 

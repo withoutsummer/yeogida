@@ -11,19 +11,24 @@ const StyledButton = styled.button`
     font-weight: 400;
     font-size: 20px;
     cursor: pointer;
-    margin-left: 18px;
+    margin-left: 20px;
     transition: background 0.2s ease, color 0.2s ease;
     background: #f4a192;
     color: white;
 
     &:hover {
-        background: #ee9484;
+        background: #f89a89;
     }
 `;
 
-export default function SUbButton({ onClick, children, primary }) {
+export default function SUbButton({
+    onClick,
+    children,
+    primary,
+    disabled = false,
+}) {
     return (
-        <StyledButton onClick={onClick} primary={primary}>
+        <StyledButton onClick={onClick} primary={primary} disabled={disabled}>
             {children}
         </StyledButton>
     );
