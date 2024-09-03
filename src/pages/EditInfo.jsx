@@ -81,11 +81,11 @@ const CheckPasswordInput = styled.input `
         outline: none;
     }
 `;
-
+/*
 const AfterCheckStyle = styled.div `
 
 `;
-
+*/
 const AfterCheckStyle = styled.div `
     width: 875px;
     height: 1203px;
@@ -168,7 +168,7 @@ function BeforeCheck ({ btnClick }) {
     )
 }
 
-
+/*
 function AfterCheck () {
     return (
         <AfterCheckStyle>
@@ -221,7 +221,7 @@ function AfterCheck () {
                 fontSize='26px'
                 text='수정하기'/>
             </div>
-
+*/
 // ----------비밀번호 확인 후 Component----------
 function AfterCheck () {
     return (

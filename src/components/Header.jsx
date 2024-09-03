@@ -195,14 +195,10 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-
                                 <li onClick={() => navigate('/mytrip')}>
-
-                                <li onClick={() => navigate('/apply')}>
-
                                     나의여행
                                 </li>
-                                <li onClick={() => navigate('/community')}>
+                                <li onClick={() => navigate('/sharetrip')}>
                                     여행공유
                                 </li>
                                 <li>
