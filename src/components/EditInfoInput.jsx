@@ -86,7 +86,9 @@ export default function InputPassword({ type = 'text', placeholder, style }) {
                             alt="비밀번호 표시 여부"
                             style={{
                                 width: '100%',
-                                height: '100%'
+                                height: '100%',
+                                // 눈 모양 아이콘 색깔 #707070으로 변경
+                                filter: 'invert(44%) sepia(1%) saturate(2129%) hue-rotate(314deg) brightness(94%) contrast(73%)'
                             }}
                         />
                     </EyeIconButton>
