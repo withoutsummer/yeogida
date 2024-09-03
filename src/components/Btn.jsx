@@ -15,6 +15,8 @@ const StyledButton = styled.button.attrs(({ style }) => ({
     opacity: ${({ disabled }) =>
         disabled ? 0.5 : 1}; /* 비활성화 시 투명도 조정 */
     transition: background-color 0.2s, color 0.3s;
+
+    font-weight: ${({ fontWeight }) => fontWeight || 'regular'};
     cursor: pointer;
     border-width: 1px;
     border-style: solid;
@@ -31,6 +33,7 @@ const StyledButton = styled.button.attrs(({ style }) => ({
     }
 `;
 
+
 export default function BtnPink({
     width,
     height,
@@ -39,7 +42,7 @@ export default function BtnPink({
     backgroundColor,
     borderColor,
     fontSize,
-    style,
+    fontWeight, style,
     text,
     onClick = () => {},
     hoverBackgroundColor,
@@ -56,7 +59,10 @@ export default function BtnPink({
             backgroundColor={backgroundColor}
             borderColor={borderColor}
             fontSize={fontSize}
-            style={style}
+    
+
+        fontWeight={fontWeight}
+        style={style}
             onClick={onClick}
             hoverBackgroundColor={hoverBackgroundColor}
             hoverColor={hoverColor}

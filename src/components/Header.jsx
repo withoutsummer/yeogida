@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaSearch, FaChevronDown } from 'react-icons/fa';
@@ -34,7 +34,9 @@ const SearchBar = styled.div`
     border: 1px solid rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
+
     z-index: 1;
+
     opacity: 1;
     padding: 0 10px;
     box-sizing: border-box;
@@ -102,6 +104,9 @@ const Button = styled.button`
 `;
 
 const MyPageContainer = styled.div`
+
+
+    position: relative;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -109,6 +114,34 @@ const MyPageContainer = styled.div`
 
     &:hover {
         color: #f4a192;
+    }
+`;
+
+const StyledDropdown = styled.div `
+    width: 270px;
+    position: absolute;
+    top: 30px;
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    background-color: #fff;
+    padding: 10px 0;
+`;
+
+const DropdownMenu = styled.div `
+    width: 100%;
+    font-size: 16px;
+    padding: 20px 0 20px 20px;
+    box-sizing: border-box;
+    color: black;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f6f6f6;
+        font-weight: bold;
     }
 `;
 
@@ -134,6 +167,23 @@ export const Nav = styled.nav`
 export default function Header() {
     const navigate = useNavigate();
 
+    const [viewDropdown, setViewDropdown] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+
+    useEffect(() => {
+        let timeout;
+        if (!isHovered && viewDropdown) {
+            timeout = setTimeout(() => setViewDropdown(false), 300);
+        } else if (isHovered) {
+            setViewDropdown(true);
+            if (timeout) clearTimeout(timeout);
+        }
+
+        return () => {
+            if (timeout) clearTimeout(timeout);
+        };
+    }, [isHovered, viewDropdown]);
+
     return (
         <header>
             <HeaderStyle>
@@ -152,21 +202,32 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-                                <li onClick={() => navigate('/apply')}>
+
+                                <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
-                                <li onClick={() => navigate('/community')}>
+                                <li onClick={() => navigate('/sharetrip')}>
                                     여행공유
                                 </li>
                                 <li>
-                                    <MyPageContainer
-                                        onClick={() => navigate('/mypage')}
+
+                                    {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
+                                    <MyPageContainer 
+                                        tabIndex={-1} 
+                                        onMouseEnter={ () => setIsHovered(true) }
+                                        onMouseLeave={ () => setIsHovered(false) }
                                     >
                                         마이페이지
-                                        <FaChevronDown
-                                            style={{ marginLeft: '5px' }}
-                                        />
+                                        {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
+                                        {viewDropdown && (
+                                            <StyledDropdown>
+                                                <DropdownMenu onClick={() => navigate('/mypage/editinfo')}>개인정보 수정</DropdownMenu>
+                                                <DropdownMenu onClick={() => navigate('/mypage/friend')}>친구목록</DropdownMenu>
+                                                <DropdownMenu onClick={() => navigate('/mypage/scrap')}>스크랩</DropdownMenu>
+                                            </StyledDropdown>
+                                        )}
                                     </MyPageContainer>
+
                                 </li>
                             </ul>
                         </Nav>
