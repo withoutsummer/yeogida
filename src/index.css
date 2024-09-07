@@ -2,51 +2,18 @@ body {
     font-family: 'NanumGothic', sans-serif;
     margin: 0;
     height: 100vh; /* 전체 화면 높이 설정 */
+    white-space: pre-line;
 }
 
-.loginForm {
-    display: flex;
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
-    width: 100%; /* 전체 너비 사용 */
-    max-width: 400px; /* 최대 너비 설정 */
-    padding: 20px; /* 여백 추가 */
-    flex-direction: column; /* 세로 방향으로 정렬 */
-    margin: 0 auto; /* 중앙 정렬을 위한 여백 */
+input[aria-invalid='true'] {
+    border: 1px solid red; /* 오류가 있는 경우 빨간색 테두리 */
 }
 
-.login_input {
-    display: flex; /* Flexbox 사용 */
-    flex-direction: column; /* 세로 방향으로 정렬 */
-    align-items: center; /* 내부 요소 중앙 정렬 */
-    width: 100%; /* 전체 너비 사용 */
+input[aria-invalid='false'] {
+    border: 1px solid #e0e0e0; /* 오류가 없는 경우 초록색 테두리 */
 }
 
-h3 {
-    font-size: 40px;
-}
-
-h3#login_title {
-    margin-bottom: 30px; /* 제목과 입력 필드 간의 간격 */
-}
-
-/* 회원가입 페이지 */
-.signUpForm {
-    display: flex;
-    flex-direction: column; /* 세로 방향으로 요소 배치 */
-    align-items: center; /* 중앙 정렬 */
-    width: auto; /* 폼의 최대 너비 */
-    padding: 20px; /* 여백 추가 */
-    margin: 0 auto; /* 중앙 정렬을 위한 여백 */
-    margin-top: 70px;
-}
-
-.input_field {
-    display: flex;
-    flex-direction: column; /* 입력 필드를 세로 방향으로 배치 */
-}
-
-h3#signUp_title {
-    text-align: center; /* 제목 중앙 정렬 */
-    margin-bottom: 110px; /* 제목과 입력 필드 간의 간격 */
+.error-message {
+    color: red; /* 에러 메시지를 빨간색으로 설정 */
+    font-size: 12px; /* 필요에 따라 글자 크기 조정 */
 }
