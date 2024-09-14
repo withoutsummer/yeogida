@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import deleteIcon from '../assets/icons/trash_outline_icon.png';
+import menuIcon from '../assets/icons/dot_menu_icon.png';
 
 // Styled Components 설정
 const CardContainer = styled.div`
@@ -70,25 +71,39 @@ const CardAuthor = styled.h5`
   text-transform: uppercase;
 `;
 
+const CardAddDate = styled.span`
+  color: #bbb;
+  font-weight: bold;
+  // font-size: 1.25em;
+  font-size: 1em;
+`;
+
 // Card 컴포넌트 정의
-export default function Card({ img, title, author, icon }) {
+export default function Card({ img, title, icon = 'none', author, date, onClick }) {
   return (
-    <CardContainer>
+    <CardContainer onClick={onClick}>
       <CardImage src={img} alt={title} />
       <CardBody>
-        {icon && (
+        {icon === 'delete' && (
           <CardTitleAndIcon>
             <CardTitle>{title}</CardTitle>
-            <CardIcon src={deleteIcon} alt={deleteIcon} />
+            <CardIcon src={deleteIcon} alt="Delete" />
           </CardTitleAndIcon>
         )}
-        {!icon && (
+        {icon === 'menu' && (
+          <CardTitleAndIcon>
+            <CardTitle>{title}</CardTitle>
+            <CardIcon src={menuIcon} alt="Menu" />
+          </CardTitleAndIcon>
+        )}
+        {icon === 'none' && (
           <CardTitle>{title}</CardTitle>
         )}
         <CardDescription>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
         </CardDescription>
         <CardAuthor>{author}</CardAuthor>
+        <CardAddDate>{date}</CardAddDate>
       </CardBody>
     </CardContainer>
   );
