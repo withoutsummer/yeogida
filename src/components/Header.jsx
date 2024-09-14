@@ -202,7 +202,6 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-
                                 <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
