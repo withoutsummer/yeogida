@@ -1,81 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaSearch, FaChevronDown } from 'react-icons/fa';
 import logo from '../assets/yeogida_logo.png';
+import { FaSearch } from 'react-icons/fa'; // 아이콘 임포트
 
 const HeaderStyle = styled.div`
     width: 100%;
-    height: 160px;
+    height: 120px;
     background-color: #ffffff;
     display: flex;
     align-items: center;
-    font-size: 20px;
-    img {
-        margin-left: 50px;
-        margin-right: 80px;
-        cursor: pointer;
-    }
+    padding: 0 50px; /* 좌우 패딩 추가 */
+    box-sizing: border-box;
+    font-size: 15px;
 `;
 
 const SearchContainer = styled.div`
     display: flex;
     align-items: center;
-    flex: 1 0 0;
-    align-self: stretch;
-    margin-left: auto; /* 오른쪽 끝으로 밀기 위한 스타일 */
-    margin-right: 0; /* 오른쪽 여백 제거 */
+    margin-left: 30px; /* 로고와의 간격 조정 */
+    margin-right: auto; /* 오른쪽 끝으로 밀기 위한 스타일 */
 `;
 
 const SearchBar = styled.div`
-    width: 400px;
-    height: 55px;
+    width: 350px;
+    height: 45px;
     border-radius: 30px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
-
-    z-index: 1;
-
-    opacity: 1;
     padding: 0 10px;
     box-sizing: border-box;
-    overflow: hidden; /* 내부 내용이 넘치지 않도록 설정 */
+    overflow: hidden;
+    margin-left: 40px;
 `;
 
 const SearchInput = styled.input`
-    flex: 1; /* 남은 공간을 차지하도록 설정 */
+    flex: 1;
     border: none;
     height: 100%;
     padding: 0 15px;
     font-size: 15px;
-    -webkit-appearance: none;
-    border-radius: 28px; /* 테두리가 끊기지 않도록 둥글게 설정 */
+    border-radius: 28px;
 
     &:focus {
         outline: none;
-        width: 100%; /* 포커스 시 입력 필드 전체 너비 사용 */
     }
 `;
 
 const SearchIcon = styled(FaSearch)`
-    font-size: 20px; /* 아이콘 크기 */
+    font-size: 15px;
     color: #828282;
-    margin-left: auto; /* 아이콘을 오른쪽 끝으로 밀기 */
 `;
 
 const NavBox = styled.div`
-    width: auto;
-    height: 35px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-left: 80px; /* SearchContainer와의 간격 조절 */
+    gap: 15px; /* 간격 유지 */
+    margin-left: 70px;
 `;
 
 const Bell = styled.div`
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
+    margin-left: 5px; /* 벨과 로그인 버튼 사이 간격 조정 */
+    
     svg {
         width: 100%;
         height: 100%;
@@ -84,57 +73,55 @@ const Bell = styled.div`
 
 const Button = styled.button`
     width: 100px;
-    height: 50px;
+    height: 45px;
     font-size: 16px;
     background-color: #000;
     color: #fff;
     padding: 0 10px;
-    justify-content: center;
+    display: flex;
     align-items: center;
-    flex-shrink: 0;
-    margin-right: 50px;
+    justify-content: center;
     border-radius: 5px;
-    background: var(--black, #000);
+    border: none;
+    cursor: pointer;
+    margin-right: 30px; /* 오른쪽 여백 조정 */
 
     &:hover {
         background-color: #29613a;
         color: white;
-        border-color: #29613a;
     }
 `;
 
 const MyPageContainer = styled.div`
-
-
     position: relative;
     display: flex;
     align-items: center;
     cursor: pointer;
     color: #333;
+    margin-right: 30px; /* 스타일드롭다운과의 간격 유지 */
 
     &:hover {
         color: #f4a192;
     }
 `;
 
-const StyledDropdown = styled.div `
+const StyledDropdown = styled.div`
     width: 270px;
     position: absolute;
-    top: 30px;
+    top: 50px; /* 로그인 버튼과의 간격 조정 */
+    right: 0;
     box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-content: flex-start;
-    flex-wrap: wrap;
     background-color: #fff;
     padding: 10px 0;
 `;
 
-const DropdownMenu = styled.div `
+const DropdownMenu = styled.div`
     width: 100%;
     font-size: 16px;
-    padding: 20px 0 20px 20px;
+    padding: 15px 20px;
     box-sizing: border-box;
     color: black;
     cursor: pointer;
@@ -150,19 +137,21 @@ export const Nav = styled.nav`
         list-style: none;
         display: flex;
         padding: 0;
-        margin: 0; /* ul의 기본 margin 제거 */
+        margin: 0;
+        gap: 30px; /* li 간격 조정 */
     }
     li {
-        margin-left: 0; /* li의 왼쪽 margin 제거 */
         font-size: 20px;
-        margin-right: 60px;
         cursor: pointer;
         color: #333333;
+        transition: color 0.3s;
     }
     li:hover {
         color: #f4a192;
     }
 `;
+
+
 
 export default function Header() {
     const navigate = useNavigate();
