@@ -14,10 +14,8 @@ const HeaderStyle = styled.div`
 `;
 
 const ArticleStyle = styled.div `
-
     margin-bottom: 100px;
     // 원래는 274px
-
 `;
 
 const BeforeCheckStyle = styled.div`
@@ -62,24 +60,24 @@ const CheckPasswordText = styled.div`
 `;
 
 
-const CheckPasswordInput = styled.input`
-    margin-top: 20px;
-    margin-bottom: 60px;
-    padding-left: 16px;
-    width: 474px;
-    height: 65px;
-    border-radius: 8px;
-    border: 1px solid #707070;
-    font-size: 16px;
+// const CheckPasswordInput = styled.input`
+//     margin-top: 20px;
+//     margin-bottom: 60px;
+//     padding-left: 16px;
+//     width: 474px;
+//     height: 65px;
+//     border-radius: 8px;
+//     border: 1px solid #707070;
+//     font-size: 16px;
 
-    &:placeholder {
-        color: #707070;
-    }
+//     &:placeholder {
+//         color: #707070;
+//     }
 
-    &:focus {
-        outline: none;
-    }
-`;
+//     &:focus {
+//         outline: none;
+//     }
+// `;
 
 const AfterCheckStyle = styled.div `
     width: 875px;
@@ -130,18 +128,7 @@ function BeforeCheck ({ btnClick }) {
 
             {/* 비밀번호 입력란 */}
             <CheckPassword>
-                {/* 텍스트 */}  
-                <CheckPasswordText>비밀번호 입력</CheckPasswordText>
-                {/* 입력칸 */}
-                <CheckPasswordInput
-                    type="password"
-                    placeholder="비밀번호를 한번 더 입력해주세요."
-                />
-                {/* 버튼 */}
-                <Btn 
-                text='확인'
-                style={{marginLeft: 'auto'}}
-                onClick={ handleCheck } />
+                
 
                 <CheckPasswordText>비밀번호 확인</CheckPasswordText>
                 {/* 입력칸 */}
@@ -164,6 +151,7 @@ function BeforeCheck ({ btnClick }) {
         </BeforeCheckStyle>
     );
 }
+
 // ----------비밀번호 확인 후 Component----------
 function AfterCheck () {
     return (
@@ -310,7 +298,6 @@ function AfterCheck () {
         </AfterCheckStyle>
     );
 }
-
 
 // ----------메인 Component----------
 
