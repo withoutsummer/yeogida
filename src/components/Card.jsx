@@ -4,9 +4,10 @@ import styled from 'styled-components';
 // Styled Components 설정
 const CardContainer = styled.div`
   background: #fff;
-  width: 24em;
+  width: 620px;
+  height: 510px;
   border-radius: 0.6em;
-  margin: 1em;
+  margin: 13px;
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 13px 27px -5px hsla(240, 30.1%, 28%, 0.25), 
@@ -24,46 +25,54 @@ const CardContainer = styled.div`
 
 const CardImage = styled.img`
   width: 100%;
+  height: 340px;
   object-fit: cover;
 `;
 
 const CardBody = styled.div`
-  padding: 1.2em;
+  padding: 5px;
 `;
 
 const CardTitle = styled.h2`
-  color: #222;
-  margin-top: -0.2em;
-  line-height: 1.4;
-  font-size: 1.3em;
-  font-weight: 500;
-  font-family: 'Montserrat', sans-serif;
-  transition: all ease-in 100ms;
+  color: #000;
+  font-family: NanumGothic;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 36px */
+  margin-top: 5px;
+  margin-left: 5px;
 `;
 
-const CardDescription = styled.p`
-  color: #777;
+const CardDate = styled.p`
+  color: #707070;
+  font-family: NanumGothic;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 34.79px; /* 173.95% */
+  margin-top: 5px;
+  margin-left: 5px;
 `;
 
 const CardAuthor = styled.h5`
-  color: #bbb;
-  font-weight: 700;
-  font-size: 0.7em;
-  letter-spacing: 0.04em;
-  margin: 1.4em 0 0 0;
-  text-transform: uppercase;
+  font-family: NanumGothic;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-top: 5px;
+  margin-left: 5px;
 `;
 
 // Card 컴포넌트 정의
-export default function Card({ img, title, author }) {
+export default function Card({ img, title, date, author }) {
   return (
     <CardContainer>
       <CardImage src={img} alt={title} />
       <CardBody>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
-        </CardDescription>
+        <CardDate>{date}</CardDate>
         <CardAuthor>{author}</CardAuthor>
       </CardBody>
     </CardContainer>

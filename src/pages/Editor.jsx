@@ -162,9 +162,36 @@ const SearchButton = styled.button`
 
 // 지도 컨테이너
 const MapContainer = styled.div`
+  position: relative;
   width: 1400px;
   height: 500px;
   margin: 20px auto;
+`;
+
+// 검색 결과 리스트를 위한 스타일
+const SearchResultsContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  max-height: 400px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  overflow-y: auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* 지도 위에 오도록 높은 z-index 설정 */
+`;
+
+const SearchResultItem = styled.li`
+  list-style: none;
+  margin-bottom: 10px;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  &:hover {
+    background-color: #f5f5f5;
+  }
 `;
 
 // Quill 에디터를 포함하는 컨테이너
@@ -183,6 +210,7 @@ export default function Editor({ onChange = () => {} }) {
   const [days, setDays] = useState([]);
 
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchResults, setSearchResults] = useState([]); // 검색 결과를 저장할 상태
 
   useEffect(() => {
     if (dateRange) {
@@ -193,20 +221,22 @@ export default function Editor({ onChange = () => {} }) {
     }
   }, [dateRange]);
 
-  // 지도를 초기화하기 위한 상태
   const [map, setMap] = useState(null);
 
   useEffect(() => {
-      if (window.naver && !map) { // window 객체에서 naver가 정의되었는지 확인
+      if (window.naver && !map) { 
+        navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+
         const mapOptions = {
           center: new window.naver.maps.LatLng(37.52133, 126.9522),
-          logoControl: false, // 네이버 로고 표시 X
-          mapDataControl: false, // 지도 데이터 저작권 컨트롤 표시 X
-          scaleControl: true, // 지도 축척 컨트롤의 표시 여부
+          logoControl: false,
+          mapDataControl: false,
+          scaleControl: true,
           zoom: 17,
           minZoom: 15,
-          zoomControl: true, // 줌 컨트롤 표시
-          zoomControlOptions: { position: 9 }, // 줌 컨트롤 우하단에 배치
+          zoomControl: true,
+          zoomControlOptions: { position: 9 },
           tileDuration: 300,
           baseTileOpacity: 1,
           background: 'white',
@@ -214,44 +244,47 @@ export default function Editor({ onChange = () => {} }) {
         };
 
         const mapInstance = new window.naver.maps.Map('map', mapOptions);
-        setMap(mapInstance); // 상태에 지도 객체 저장
-        console.log(mapInstance);
-      }
-    }, [map]); // map 상태가 변경될 때마다 실행
+        setMap(mapInstance);
 
-  // 주소 좌표
-  const [AddressX, setAddressX] = useState(0);
-  const [AddressY, setAddressY] = useState(0);
+        new window.naver.maps.Marker({
+          position: new window.naver.maps.LatLng(latitude, longitude),
+          map: mapInstance,
+        });
+      }, (error) => {
+        console.error('Error fetching location', error);
+      });
+    }
+  }, [map]); 
 
-  useEffect(() => {
-    if (searchKeyword && window.naver && window.naver.maps && map) {
+  const handleSearch = () => {
+    if (searchKeyword.trim() && map && window.naver && window.naver.maps && window.naver.maps.Service) {
       window.naver.maps.Service.geocode({ query: searchKeyword }, (status, response) => {
         if (status === window.naver.maps.Service.Status.ERROR) {
           alert('검색결과가 없습니다. 다른 주소를 시도해 보세요.');
         } else if (status === window.naver.maps.Service.Status.OK) {
-          const result = response.v2.addresses[0];
-          const x = parseFloat(result.x);
-          const y = parseFloat(result.y);
-  
-          setAddressX(x);
-          setAddressY(y);
-  
-          const newCenter = new window.naver.maps.LatLng(y, x);
-          map.setCenter(newCenter);
-  
-          new window.naver.maps.Marker({
-            position: newCenter,
-            map: map,
-          });
+          const results = response.v2.addresses;
+          setSearchResults(results); 
+
+          if (results.length > 0) {
+            const firstResult = results[0];
+            const x = parseFloat(firstResult.x);
+            const y = parseFloat(firstResult.y);
+            const newLocation = new window.naver.maps.LatLng(y, x);
+
+            map.setCenter(newLocation);
+            new window.naver.maps.Marker({ position: newLocation, map });
+          } else {
+            alert('검색결과가 없습니다. 다른 주소를 시도해 보세요.');
+          }
         }
       });
     }
-  }, [searchKeyword, map]);      
+  };
 
-  const handleSearch = () => {
-    if (searchKeyword.trim()) {
-      setSearchKeyword(searchKeyword);
-    }
+  const handleSearchItemClick = (x, y) => {
+    const newLocation = new window.naver.maps.LatLng(parseFloat(y), parseFloat(x));
+    map.setCenter(newLocation);
+    new window.naver.maps.Marker({ position: newLocation, map });
   };
 
   const modules = {
@@ -316,14 +349,26 @@ export default function Editor({ onChange = () => {} }) {
         <SearchContainer>
           <SearchInput 
             type="text" 
-            placeholder="Enter a location" 
+            placeholder="장소, 주소 검색" 
+            value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)} 
           />
           <SearchButton onClick={handleSearch}>Search</SearchButton>
         </SearchContainer>
 
         {/* 네이버 지도 삽입 */}
-        <MapContainer id='map'></MapContainer>
+        <MapContainer id="map">
+          <SearchResultsContainer>
+            {searchResults.map((result, index) => (
+              <SearchResultItem
+                key={index}
+                onClick={() => handleSearchItemClick(result.x, result.y)}
+              >
+                {result.roadAddress || result.jibunAddress}
+              </SearchResultItem>
+            ))}
+          </SearchResultsContainer>
+        </MapContainer>        
 
         {/* Quill 에디터 */}
         <ReactQuill
