@@ -4,8 +4,8 @@ import Pagination from './Pagination';
 import Modal from 'react-modal';
 import Newtrip from './Newtrip';
 import Card from '../components/Card';
+import Tags from '../components/Tags';
 import { Select, MenuItem } from '@mui/material'; // MUI Select 및 MenuItem import
-import zIndex from '@mui/material/styles/zIndex';
 
 const MyTripContainer = styled.div`
     display: flex;
@@ -121,7 +121,7 @@ const Index = styled.div`
     justify-content: space-between; /* 요소들 사이의 공간을 자동으로 분배 */
     margin-top: 10px; /* 상단 마진 */
     border-top: 1px solid #424242; /* 상단 테두리 */
-    border-bottom: 1px solid #E0E0E0; /* 하단 테두리 */
+    border-bottom: 1px solid #424242; /* 하단 테두리 */
 
     .title {
         text-align: center; /* 텍스트 중앙 정렬 */
@@ -169,6 +169,11 @@ const Line = styled.div`
     .max {
         width: 360px; /* 너비 설정 */
     }
+
+    &:hover {
+        background-color: #F4BFB4;
+        color: #FFF;
+    }
 `;
 
 const CardsContainer = styled.div`
@@ -201,19 +206,20 @@ export default function MyTrip() {
         // 추가적으로 구현 예정
     };
 
+    const [tags, setTags] = useState([]); // 빈 배열로 초기화
     // Mock Data 사용
     const posts = [
-        { id: 1, no: 1, 제목: "부산 3박 4일", 여행지: "부산", 소유자: "채서린", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
-        { id: 2, no: 2, 제목: "부산 1박 2일", 여행지: "부산", 소유자: "채서린", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
-        { id: 3, no: 3, 제목: "강릉 2박 3일", 여행지: "강릉", 소유자: "채서린", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
-        { id: 4, no: 4, 제목: "부산 당일치기", 여행지: "부산", 소유자: "채서린", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
-        { id: 5, no: 5, 제목: "대구 당일치기", 여행지: "대구", 소유자: "백서영", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
-        { id: 6, no: 6, 제목: "제주도 3박 4일", 여행지: "제주도", 소유자: "백서영", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
-        { id: 7, no: 7, 제목: "여수, 순천 여행", 여행지: "여수, 순천", 소유자: "고시은", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
-        { id: 8, no: 8, 제목: "글램핑", 여행지: "가평", 소유자: "김미진", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
-        { id: 9, no: 9, 제목: "인천 3박 4일", 여행지: "인천", 소유자: "채서린", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
-        { id: 10, no: 10, 제목: "맛집투어", 여행지: "서울", 소유자: "채서린", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
-        { id: 11, no: 11, 제목: "강릉 여행", 여행지: "강릉", 소유자: "고시은", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
+        { id: 1, no: 1, 제목: "부산 3박 4일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "2", 좋아요: "10"},
+        { id: 2, no: 2, 제목: "부산 1박 2일", 여행지: ["부산"], 소유자: "채서린", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
+        { id: 3, no: 3, 제목: "강릉 2박 3일", 여행지: ["강릉"], 소유자: "채서린", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
+        { id: 4, no: 4, 제목: "부산 당일치기", 여행지: ["부산"], 소유자: "채서린", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
+        { id: 5, no: 5, 제목: "대구 당일치기", 여행지: ["대구"], 소유자: "백서영", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
+        { id: 6, no: 6, 제목: "제주도 3박 4일", 여행지: ["제주도"], 소유자: "백서영", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
+        { id: 7, no: 7, 제목: "여수, 순천 여행", 여행지: ["여수"], 소유자: "고시은", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
+        { id: 8, no: 8, 제목: "글램핑", 여행지: ["가평"], 소유자: "김미진", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
+        { id: 9, no: 9, 제목: "인천 3박 4일", 여행지: ["인천"], 소유자: "채서린", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300"},
+        { id: 10, no: 10, 제목: "맛집투어", 여행지: ["서울"], 소유자: "채서린", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300"},
+        { id: 11, no: 11, 제목: "강릉 여행", 여행지: ["강릉"], 소유자: "고시은", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300"},
     ];
 
     const [isOpen, setIsOpen] = useState(false);
@@ -316,7 +322,9 @@ export default function MyTrip() {
                         <Line key={id}>
                             <div className="list no">{no}</div>
                             <div className="list max">{제목}</div>
-                            <div className="list min">{여행지}</div>
+                            <div className="list min">
+                                <Tags tags={[여행지]}/>
+                            </div>
                             <div className="list min">{소유자}</div>
                             <div className="list min">{날짜}</div>
                             <div className="list no">{아이콘}</div>
@@ -339,6 +347,8 @@ export default function MyTrip() {
                         title={post.제목}
                         date={post.날짜}
                         author={post.소유자}
+                        comment={post.댓글}
+                        likes={post.좋아요}
                         />
                     ))}
                 </CardsContainer>

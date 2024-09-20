@@ -9,7 +9,7 @@ const ButtonContainer = styled.div`
     max-width: 1400px;
     justify-content: right;
     flex-shrink: 0;
-    margin: 100px auto 0px; /* 좌우 가운데 정렬을 위해 margin을 사용 */
+    margin: 220px auto 0px; /* 좌우 가운데 정렬을 위해 margin을 사용 */
 `;
 
 const NavButton = styled.button`
@@ -345,7 +345,7 @@ export default function Editor({ onChange = () => {} }) {
           ))}
         </DayTabs>
 
-        {/* Search Input */}
+        {/* Search*/}
         <SearchContainer>
           <SearchInput 
             type="text" 

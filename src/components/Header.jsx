@@ -9,7 +9,7 @@ const HeaderStyle = styled.div`
     top: 0; /* 화면 상단에 위치 */
     left: 0; /* 화면 좌측에 위치 */
     width: 100%;
-    height: 160px;
+    height: 100px;
     background-color: #ffffff;
     display: flex;
     justify-content: center;
@@ -18,7 +18,6 @@ const HeaderStyle = styled.div`
     z-index: 1000; /* 다른 콘텐츠보다 위에 표시 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 추가 */
     img {
-        margin-right: 42px;
         cursor: pointer;
     }
 `;
@@ -33,54 +32,25 @@ const HeaderContainer = styled.div`
     flex-shrink: 0;
 `
 
-const SearchBar = styled.div`
-    width: 460px;
-    height: 56px;
-    border-radius: 28px;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    opacity: 1;
-    padding: 0 10px;
-    box-sizing: border-box;
-    overflow: hidden; /* 내부 내용이 넘치지 않도록 설정 */
-`;
-
-const SearchInput = styled.input`
-    flex: 1; /* 남은 공간을 차지하도록 설정 */
-    border: none;
-    height: 100%;
-    padding: 0 10px;
-    font-size: 15px;
-    -webkit-appearance: none;
-    border-radius: 28px; /* 테두리가 끊기지 않도록 둥글게 설정 */
-
-    &:focus {
-        outline: none;
-        width: 100%; /* 포커스 시 입력 필드 전체 너비 사용 */
-    }
-`;
-
-const SearchIcon = styled(FaSearch)`
-    font-size: 15px; /* 아이콘 크기 */
-    color: #828282;
-    padding: 10px;
-    margin-left: auto; /* 아이콘을 오른쪽 끝으로 밀기 */
-`;
-
 const NavBox = styled.div`
     width: auto;
     height: 35px;
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-left: 42px; /* SearchContainer와의 간격 조절 */
+    margin-left: 100px; /* Logo와의 간격 조절 */
+    color: #000;
+    font-family: NanumGothic;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 `;
 
 const Bell = styled.div`
     width: 24px;
     height: 24px;
-    margin-left: 17px; /* <li> 태그에 margin-right가 25px이어서 17px로 설정 */
+    margin-left: 407px; /* <li> 태그와의 간격 조절 */
     svg {
         width: 100%;
         height: 100%;
@@ -89,16 +59,22 @@ const Bell = styled.div`
 
 const Button = styled.button`
     width: 110px;
-    height: 52px;
+    height: 50px;
     background-color: #000;
     color: #fff;
     padding: 0 10px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    margin-left: 42px; /* Bell과 간격 조절 */
+    margin-left: 50px; /* Bell과 간격 조절 */
     border-radius: 5px;
     background: var(--black, #000);
+    color: #FFF;
+    font-family: NanumGothic;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 150%; /* 24px */
 `;
 
 const MyPageContainer = styled.div`
@@ -149,9 +125,9 @@ export const Nav = styled.nav`
         margin: 0; /* ul의 기본 margin 제거 */
     }
     li {
+        width: 80px;
         margin-left: 0; /* li의 왼쪽 margin 제거 */
-        margin-right: 25px;
-        padding: 8px 16px;
+        padding: 8px 25px;
         cursor: pointer;
         color: #333333;
     }
@@ -186,15 +162,11 @@ export default function Header() {
                 <HeaderContainer>
                     <span className="logo" onClick={() => navigate('/')}>
                     <img
-                        style={{ width: '158px', height: '70px' }}
+                        style={{ width: '111px', height: '50px' }}
                         src={logo}
                         alt="로고"
                     />
                     </span>
-                    <SearchBar>
-                        <SearchInput placeholder="검색어를 입력해주세요." />
-                        <SearchIcon />
-                    </SearchBar>
                     <NavBox>
                         <Nav>
                             <ul>
