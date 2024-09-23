@@ -11,6 +11,7 @@ import approveIcon from '../assets/icons/approve_request_icon.png';
 import rejectIcon from '../assets/icons/reject_request_icon.png';
 import useDebounce from '../assets/hooks/useDebounce';
 import SortDropdown from '../components/SortDropdown';
+import CommonModal from '../components/CommonModal';
 
 const HeaderStyle = styled.div `
     margin-top: 100px;
@@ -145,6 +146,10 @@ const FriendListSlide = styled.div `
     border-radius: 10px;
     border-left: 10px solid #508c4e;
     margin: 10px 0 10px 15px;
+
+    &:focus {
+        outline: none;
+}
 `;
 
 const FriendImage = styled.div `
@@ -227,35 +232,47 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
     const sliderRef = useRef(null);
     const debouncedInputValue = useDebounce(inputValue, 1000); // 1초의 지연 시간 설정
 
+    // 모달 열림 상태와 삭제할 친구 이름 상태 관리
+    const [modals, setModals] = useState({
+        oneBtnModal: false,
+        deleteModal: false,
+        addModal: false,
+    });
+    const [modalTitle, setModalTitle] = useState('');
+    const [thisFriendName, setThisFriendName] = useState('');
+    const [thisUserId, setThisUserId] = useState('');
+    const [modalAction, setModalAction] = useState(''); // 'reject' 또는 'approve'
+    
     // 임시 데이터
     const friendListData = [
-        { id: 1, name: 'mijin', friendId: 'kimmj5678', dateAdded: '2024-01-15' },
-        { id: 2, name: 'sieun', friendId: 'kose0987', dateAdded: '2024-02-23' },
-        { id: 3, name: 'seorin', friendId: 'chesr6543', dateAdded: '2024-03-05' },
-        { id: 4, name: 'seyeon', friendId: 'imsy2109', dateAdded: '2024-04-18' },
-        { id: 5, name: 'john', friendId: 'john1234', dateAdded: '2024-05-22' },
-        { id: 6, name: 'alice', friendId: 'alice5678', dateAdded: '2024-06-11' },
-        { id: 7, name: 'bob', friendId: 'bob2468', dateAdded: '2024-07-09' },
-        { id: 8, name: 'charlie', friendId: 'charlie8765', dateAdded: '2024-08-14' },
-        { id: 9, name: 'david', friendId: 'david0987', dateAdded: '2024-09-28' },
-        { id: 10, name: 'eve', friendId: 'eve5432', dateAdded: '2024-10-03' },
+        { friendId: 1, friendName: 'alice', userId: 'alice1234', addDate: '2024-01-15' },
+        { friendId: 2, friendName: 'bob', userId: 'bob5678', addDate: '2024-01-20' },
+        { friendId: 3, friendName: 'charlie', userId: 'charlie9101', addDate: '2024-01-25' },
+        { friendId: 4, friendName: 'david', userId: 'david2345', addDate: '2024-02-01' },
+        { friendId: 5, friendName: 'eve', userId: 'eve6789', addDate: '2024-02-05' },
+        { friendId: 6, friendName: 'frank', userId: 'frank1230', addDate: '2024-02-10' },
+        { friendId: 7, friendName: 'grace', userId: 'grace5670', addDate: '2024-02-15' },
+        { friendId: 8, friendName: 'hannah', userId: 'hannah9102', addDate: '2024-02-20' },
+        { friendId: 9, friendName: 'isaac', userId: 'isaac3456', addDate: '2024-02-25' },
+        { friendId: 10, friendName: 'jack', userId: 'jack7890', addDate: '2024-03-01' },
     ];
 
     const friendRequestData = [
-        { id: 1, name: 'hyeri', friendId: 'janghr8765', dateRequested: '2024-08-21' },
-        { id: 2, name: 'eunsu', friendId: 'koes4321', dateRequested: '2024-09-14' },
+        { friendId: 1, friendName: 'kate', userId: 'kate2341', addDate: '2024-03-05' },
+        { friendId: 2, friendName: 'leo', userId: 'leo6782', addDate: '2024-03-10' }
     ];
 
     let dataToShow = []
 
+    /* ----------------------친구 목록/요청 필터링 관련 코드---------------------- */
     if (selected) {
         dataToShow = [...friendListData];
         if (sortOption === 1) {
             // 최신순 정렬
-            dataToShow = [...dataToShow].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+            dataToShow = [...dataToShow].sort((a, b) => new Date(b.addDate) - new Date(a.addDate));
         } else if (sortOption === 2) {
             // 이름순 정렬
-            dataToShow = [...dataToShow].sort((a, b) => a.name.localeCompare(b.name));
+            dataToShow = [...dataToShow].sort((a, b) => a.friendName.localeCompare(b.friendName));
         }
     } else {
         // 오래된 순 정렬
@@ -269,7 +286,7 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
 
     // Debounce된 입력값으로 친구 목록을 필터링
     const filteredData = dataToShow.filter(friend =>
-        friend.friendId.toLowerCase().includes(debouncedInputValue.toLowerCase())
+        friend.userId.toLowerCase().includes(debouncedInputValue.toLowerCase())
     );
 
     const settings = {
@@ -283,6 +300,47 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
         slidesPerRow: 1,
     };
 
+    /* ----------------------Modal 관련 코드---------------------- */
+    // 특정 모달 열기
+    const openModal = (modalKey) => {
+        setModals((prev) => ({ ...prev, [modalKey]: true }));
+    };
+
+    // 특정 모달 닫기
+    const closeModal = (modalKey) => {
+        setModals((prev) => ({ ...prev, [modalKey]: false }));
+    };
+
+    // 친구 삭제 Modal
+    const handleDeleteFriend = (friendName, userId) => {
+        setThisFriendName(friendName);
+        setThisUserId(userId);
+        openModal('deleteModal');
+        setModalTitle(`'${userId}(${friendName})'님을 친구 목록에서 삭제하시겠습니까?`);
+    };
+
+    // 친구 삭제 완료 Modal
+    const completeDeleteFriend = () => {
+        console.log(`'${thisUserId}(${thisFriendName})'을 친구 목록에서 삭제 완료`)
+        openModal('oneBtnModal');
+        setModalTitle('친구를 목록에서 삭제하였습니다.');
+    };
+
+    // 친구 요청 거절 Modal
+    const handleRejectFriend = (friendName, userId) => {
+        setThisFriendName(friendName);
+        setThisUserId(userId);
+        setModalAction('reject');
+    }
+
+    // 친구 요청 수락 Modal
+    const handleApproveFriend = (friendName, userId) => {
+        setThisFriendName(friendName);
+        setThisUserId(userId);
+        setModalAction('approve');
+    }
+
+    // 친구 목록 & 친구 요청 정렬 업데이트
     useEffect(() => {
         if (sliderRef.current) {
             sliderRef.current.slickGoTo(0);
@@ -294,53 +352,90 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
             sliderRef.current.slickGoTo(0);
         }
     }, [debouncedInputValue]);
+
+    // 모달 상태 업데이트
+    useEffect(() => {
+        if (thisFriendName && thisUserId) {
+            if (modalAction === 'reject') {
+                openModal('oneBtnModal');
+                setModalTitle(`'${thisUserId}(${thisFriendName})'님의 친구 요청을 거절하였습니다.`);
+            } else if (modalAction === 'approve') {
+                openModal('oneBtnModal');
+                setModalTitle(`'${thisUserId}(${thisFriendName})'님의 친구 요청을 수락하였습니다.`);
+            }
+        }
+    }, [modalAction]); // 상태가 변경될 때마다 모달 상태 업데이트
     
 
     return (
-        <SliderContainer>
-            <StyledSlider ref={sliderRef} {...settings} key={filteredData.length}>
-            {filteredData.map((friend) => (
-                <FriendListSlide key={friend.id}>
-                    <FriendImage />
-                    <div 
-                        style={{ 
-                            display: 'flex',
-                            flexDirection: 'column'
-                    }}>
-                        <FriendName>{friend.name}</FriendName>
-                        <FriendId>{friend.friendId}</FriendId>
-                    </div>
-                    {/* 친구 삭제 아이콘 */}
-                    {selected && (
-                        <ListIconStyle 
-                            src={deleteIcon} 
-                            alt='친구 삭제 아이콘' 
-                            style={{ margin: '0 20px 0 auto' }}
-                            onClick={() => console.log(`${friend.name} 삭제 버튼 click`)}
-                        />
-                    )}
-                    {/* 친구 요청 거절 아이콘 */}
-                    {!selected && (
-                        <RequestIconStyle 
-                            src={rejectIcon} 
-                            alt='친구요청 거절 아이콘' 
-                            style={{ marginLeft: 'auto' }}
-                            onClick={() => console.log(`${friend.name} 요청 거절 버튼 click`)}
-                        />
-                    )}
-                    {/* 친구 요청 승인 아이콘 */}
-                    {!selected && (
-                        <RequestIconStyle 
-                            src={approveIcon} 
-                            alt='친구요청 승인 아이콘' 
-                            style={{ margin: '0 20px 0 30px' }}
-                            onClick={() => console.log(`${friend.name} 요청 승인 버튼 click`)}
-                        />
-                    )}
-                </FriendListSlide>
-            ))}
-            </StyledSlider>
-        </SliderContainer>
+        <>
+            <SliderContainer>
+                <StyledSlider ref={sliderRef} {...settings} key={filteredData.length}>
+                {filteredData.map((friend) => (
+                    <FriendListSlide key={friend.friendId}>
+                        <FriendImage />
+                        <div 
+                            style={{ 
+                                display: 'flex',
+                                flexDirection: 'column'
+                        }}>
+                            <FriendName>{friend.friendName}</FriendName>
+                            <FriendId>{friend.userId}</FriendId>
+                        </div>
+                        {/* 친구 삭제 아이콘 */}
+                        {selected && (
+                            <ListIconStyle 
+                                src={deleteIcon} 
+                                alt='친구 삭제 아이콘' 
+                                style={{ margin: '0 20px 0 auto' }}
+                                onClick={() => handleDeleteFriend(friend.friendName, friend.userId) }
+                            />
+                        )}
+                        {/* 친구 요청 거절 아이콘 */}
+                        {!selected && (
+                            <RequestIconStyle 
+                                src={rejectIcon} 
+                                alt='친구요청 거절 아이콘' 
+                                style={{ marginLeft: 'auto' }}
+                                onClick={() => handleRejectFriend(friend.friendName, friend.userId)}
+                            />
+                        )}
+                        {/* 친구 요청 승인 아이콘 */}
+                        {!selected && (
+                            <RequestIconStyle 
+                                src={approveIcon} 
+                                alt='친구요청 승인 아이콘' 
+                                style={{ margin: '0 20px 0 30px' }}
+                                onClick={() => handleApproveFriend(friend.friendName, friend.userId)}
+                            />
+                        )}
+                    </FriendListSlide>
+                ))}
+                </StyledSlider>
+            </SliderContainer>
+
+            {/* Modals */}
+            <CommonModal 
+                isOpen={modals.oneBtnModal} 
+                onRequestClose={ () => closeModal('oneBtnModal') }
+                title={modalTitle}
+                type={1}
+            />
+            <CommonModal 
+                isOpen={modals.deleteModal} 
+                onRequestClose={ () => closeModal('deleteModal') }
+                title={modalTitle}
+                type={2}
+                onConfirm={completeDeleteFriend}
+            />
+            {/* <CommonModal 
+                isOpen={isAddModalOpen} 
+                onRequestClose={ () => closeModal('addModal') }
+                title={modalTitle}
+                type={2}
+                onConfirm={''}
+            /> */}
+        </>
     )
 }
 
