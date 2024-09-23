@@ -41,14 +41,14 @@ export default function FindPassword() {
         userName: '',
         userId: '',
         birth: '',
-        phone: '',
+        email: '',
     });
 
     const [errors, setErrors] = useState({
         userName: '',
         userId: '',
         birth: '',
-        phone: '',
+        email: '',
     });
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [timer, setTimer] = useState(180);
@@ -78,8 +78,9 @@ export default function FindPassword() {
                     }
                 }
                 break;
-            case 'phone':
-                if (!value) error = '휴대폰 번호를 입력해주세요.';
+            case 'email':
+                if (!/\S+@\S+\.\S+/.test(value))
+                    error = '이메일 형식이 맞지 않습니다.';
                 break;
             default:
                 break;
@@ -89,32 +90,53 @@ export default function FindPassword() {
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        const numericValue =
-            id === 'phone' ? value.replace(/[^0-9]/g, '') : value;
-        setFormData({ ...formData, [id]: numericValue });
-        validate(id, numericValue);
+        setFormData({ ...formData, [id]: value });
+        validate(id, value);
     };
 
     const isFormValid = () => {
         return (
             !errors.userName &&
-            !errors.birth &&
-            !errors.phone &&
             !errors.userId &&
+            !errors.birth &&
+            !errors.email &&
             formData.userName &&
-            formData.userName &&
+            formData.userId &&
             formData.birth &&
-            formData.phone
+            formData.email
         );
     };
 
-    const checkAccountExists = () => {
-        // 여기에 서버 요청을 통해 계정 존재 여부를 확인하는 로직을 추가하세요.
-        // 예시: return fetch('/api/checkAccount', { method: 'POST', body: JSON.stringify(formData) })
-        // .then(response => response.json());
+    const checkAccountExists = async () => {
+        try {
+            const response = await fetch('users/find/password', {
+                method: 'POST',
+                headers: {
+                    ContentType: 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.userName,
+                    id: formData.userId,
+                    birth: formData.birth,
+                    email: formData.email,
+                }),
+            });
 
-        // 이곳에서는 예시로 계정이 존재한다고 가정합니다.
-        return true; // 또는 false;
+            if (response.status === 200) {
+                return true;
+            } else if (response.status === 404) {
+                openModal('해당하는 회원정보가 없습니다.');
+                return false;
+            } else {
+                openModal(
+                    '서버 에러가 발생했습니다. 나중에 다시 시도해주세요.'
+                );
+                return false;
+            }
+        } catch (error) {
+            openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+            return false;
+        }
     };
     const handleSubmit = async () => {
         if (isFormValid()) {
@@ -123,10 +145,6 @@ export default function FindPassword() {
                 alert('인증번호를 전송했습니다.');
                 setShowCertificationInput(true);
                 setTimer(180); // 타이머 초기화
-            } else {
-                openModal(
-                    '가입 시 입력하신 회원 정보와 맞는지 다시 한번 확인해주세요.'
-                );
             }
         }
     };
@@ -140,6 +158,8 @@ export default function FindPassword() {
         } else if (timer === 0) {
             openModal('유효 시간이 만료되었습니다. 다시 시도해주세요.');
             setShowCertificationInput(false); // 입력 필드 숨기기
+            // 인증번호 삭제 로직 추가
+            // 예시: await fetch('/api/deleteCode', { method: 'DELETE' });
         }
         return () => clearInterval(interval);
     }, [showCertificationInput, timer]);

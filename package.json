@@ -26,6 +26,7 @@
     "react-select": "^5.8.0",
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1",
+    "string-convert": "^0.2.1",
     "styled-components": "^6.1.12",
     "web-vitals": "^2.1.4"
   },

@@ -104,8 +104,6 @@ const Button = styled.button`
 `;
 
 const MyPageContainer = styled.div`
-
-
     position: relative;
     display: flex;
     align-items: center;
@@ -117,7 +115,7 @@ const MyPageContainer = styled.div`
     }
 `;
 
-const StyledDropdown = styled.div `
+const StyledDropdown = styled.div`
     width: 270px;
     position: absolute;
     top: 30px;
@@ -131,7 +129,7 @@ const StyledDropdown = styled.div `
     padding: 10px 0;
 `;
 
-const DropdownMenu = styled.div `
+const DropdownMenu = styled.div`
     width: 100%;
     font-size: 16px;
     padding: 20px 0 20px 20px;
@@ -202,7 +200,9 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-
+                                <li onClick={() => navigate('/findidsuccess')}>
+                                    아이디 찾기 성공
+                                </li>
                                 <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
@@ -210,24 +210,46 @@ export default function Header() {
                                     여행공유
                                 </li>
                                 <li>
-
                                     {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
-                                    <MyPageContainer 
-                                        tabIndex={-1} 
-                                        onMouseEnter={ () => setIsHovered(true) }
-                                        onMouseLeave={ () => setIsHovered(false) }
+                                    <MyPageContainer
+                                        tabIndex={-1}
+                                        onMouseEnter={() => setIsHovered(true)}
+                                        onMouseLeave={() => setIsHovered(false)}
                                     >
                                         마이페이지
                                         {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
                                         {viewDropdown && (
                                             <StyledDropdown>
-                                                <DropdownMenu onClick={() => navigate('/mypage/editinfo')}>개인정보 수정</DropdownMenu>
-                                                <DropdownMenu onClick={() => navigate('/mypage/friend')}>친구목록</DropdownMenu>
-                                                <DropdownMenu onClick={() => navigate('/mypage/scrap')}>스크랩</DropdownMenu>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/editinfo'
+                                                        )
+                                                    }
+                                                >
+                                                    개인정보 수정
+                                                </DropdownMenu>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/friend'
+                                                        )
+                                                    }
+                                                >
+                                                    친구목록
+                                                </DropdownMenu>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/scrap'
+                                                        )
+                                                    }
+                                                >
+                                                    스크랩
+                                                </DropdownMenu>
                                             </StyledDropdown>
                                         )}
                                     </MyPageContainer>
-
                                 </li>
                             </ul>
                         </Nav>

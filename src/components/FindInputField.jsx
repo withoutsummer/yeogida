@@ -50,7 +50,9 @@ const InputField = ({
     errorMessage,
     timerValue, // 타이머 값을 받는 prop 추가
     isVerificationCode, // 인증번호 입력 필드 여부
+    isEmailVerification,
     onResendCode, // 재전송 핸들러 추가
+    handleSubmit,
 }) => {
     return (
         <InputFieldContainer error={error}>
@@ -75,6 +77,24 @@ const InputField = ({
                             fontSize="20px"
                             text="재전송"
                             onClick={onResendCode} // 재전송 클릭 핸들러
+                            hoverBackgroundColor="#F4A192"
+                            hoverColor="white"
+                            hoverBorderColor="#F4A192"
+                        />
+                    </Btntyle>
+                )}
+                {isEmailVerification && (
+                    <Btntyle>
+                        <Button
+                            width="130px"
+                            height="65px"
+                            color="#F4A192"
+                            backgroundColor="white"
+                            borderColor="#F4A192"
+                            borderRadius="10px"
+                            fontSize="20px"
+                            text="인증하기"
+                            onClick={handleSubmit} // 재전송 클릭 핸들러
                             hoverBackgroundColor="#F4A192"
                             hoverColor="white"
                             hoverBorderColor="#F4A192"

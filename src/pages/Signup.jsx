@@ -101,6 +101,7 @@ function SignUp() {
     const [isCertified, setIsCertified] = useState(false);
 
     // 아이디 체크
+    // 아이디 체크
     const handleIdCheck = async (event) => {
         event.preventDefault();
         const userIdValue = watch('userId');
@@ -114,18 +115,41 @@ function SignUp() {
         }
         setIsCheckingId(true);
 
-        const isDuplicate = await checkIdDuplicate(userIdValue);
+        try {
+            const response = await checkIdDuplicate(userIdValue);
 
-        if (!isDuplicate) {
-            setModalMessage('사용 가능한 아이디입니다.');
-            setIsIdChecked(true);
-        } else {
-            setModalMessage('이미 사용 중인 아이디입니다.');
-            setIsIdChecked(false);
+            if (response.status === 200) {
+                setModalMessage(response.message); // '사용할 수 있는 아이디입니다.' 메시지 설정
+                setIsIdChecked(true);
+            } else if (response.status === 409) {
+                setModalMessage(response.message); // '이미 사용 중인 아이디입니다.' 메시지 설정
+                setIsIdChecked(false);
+            }
+        } catch (error) {
+            setModalMessage(
+                '아이디 확인 중 오류가 발생했습니다. 다시 시도해주세요.'
+            );
         }
 
         setIsModalOpen(true);
         setIsCheckingId(false);
+    };
+
+    //ID API 호출
+    const checkIdDuplicate = async (userId) => {
+        const response = await fetch('/users/verify-id', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // 요청 헤더 설정
+            },
+            body: JSON.stringify({ id: userId }), // 요청 본문에 userId 전달
+        });
+
+        // 서버 응답 처리
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json(); // 서버로부터의 응답 데이터 반환
     };
 
     // 전화번호 체크
@@ -133,32 +157,47 @@ function SignUp() {
         event.preventDefault();
         const phoneValue = watch('phone');
 
-        // 빈 값이면 유효성 검사를 하지 않음
-        if (!phoneValue) {
-            return;
-        }
-
         // 전화번호 필드만 유효성 검사 (trigger 함수 호출)
         const isPhoneValid = await trigger('phone');
 
-        if (!isPhoneValid) {
-            return; // 유효성 검사 실패 시 추가 동작을 하지 않음
+        // 빈 값이면 유효성 검사를 하지 않음
+        if (!isPhoneValid || !phoneValue) {
+            return;
         }
-
         setIsCheckingPhone(true);
 
-        const isDuplicate = await checkPhoneDuplicate(phoneValue);
-
-        if (!isDuplicate) {
-            setModalMessage('사용 가능한 전화번호입니다.');
-            setIsPhoneChecked(true);
-        } else {
-            setModalMessage('이미 사용 중인 전화번호입니다.');
-            setIsPhoneChecked(false);
+        try {
+            const response = await checkPhoneDuplicate(phoneValue);
+            if (response.status === 200) {
+                setModalMessage(response.message);
+                setIsPhoneChecked(true);
+            } else if (response.status === 409) {
+                setModalMessage(response.message);
+                setIsPhoneChecked(false);
+            }
+        } catch (error) {
+            setModalMessage(
+                '전화번호 확인 중 오류가 발생했습니다. 다시 시도해주세요.'
+            );
         }
 
         setIsModalOpen(true);
         setIsCheckingPhone(false);
+    };
+
+    //전화번호 API 요청
+    const checkPhoneDuplicate = async (phone) => {
+        const response = await fetch('/users/verify-phone', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application.json',
+            },
+            body: JSON.stringify({ phonenumber: phone }),
+        });
+
+        if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
     };
 
     // 이메일 체크 및 인증번호 요청 함수
@@ -244,16 +283,6 @@ function SignUp() {
     };
 
     // 가정된 API 호출 함수 (실제 API 로직으로 대체 필요)
-    const checkIdDuplicate = async (userId) => {
-        // 예시로 간단히 중복 체크를 시뮬레이션 (여기서 실제 API 요청을 구현하세요)
-        const dummyExistingIds = ['sieun1156', 'test2003'];
-        return dummyExistingIds.includes(userId);
-    };
-
-    const checkPhoneDuplicate = async (phone) => {
-        const dummyExistingPhones = ['01012345678', '01040785939'];
-        return dummyExistingPhones.includes(phone);
-    };
 
     const checkEmailDuplicate = async (email) => {
         const dummyExistingEmails = [
@@ -263,11 +292,46 @@ function SignUp() {
         return dummyExistingEmails.includes(email);
     };
 
+    // 회원가입 처리
+    const onSubmit = async (data) => {
+        try {
+            const response = await fetch(
+                '/users/signup', // API 경로
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // 요청 헤더
+                    },
+                    body: JSON.stringify(data), // 유효한 데이터 전송
+                }
+            );
+
+            if (response.status === 201) {
+                const result = await response.json();
+                setModalMessage(result.message); // 성공 메시지
+                setIsModalOpen(true);
+            } else {
+                const errorData = await response.json();
+                switch (response.status) {
+                    case 409:
+                        setModalMessage(errorData.message); // 이미 회원가입 된 개인정보
+                        break;
+                    case 400:
+                        setModalMessage(errorData.message); // 비밀번호 불일치
+                        break;
+                    default:
+                        setModalMessage('회원가입에 실패했습니다.');
+                }
+                setIsModalOpen(true);
+            }
+        } catch (error) {
+            setModalMessage('회원가입에 실패했습니다. 다시 시도해주세요.');
+            setIsModalOpen(true);
+        }
+    };
+
     return (
-        <FormContainer
-            noValidate
-            onSubmit={handleSubmit((data) => alert(JSON.stringify(data)))}
-        >
+        <FormContainer noValidate onSubmit={handleSubmit(onSubmit)}>
             <TitleLabel>회원가입</TitleLabel>
             {/*아이디 */}
             <InputContainer>
@@ -556,8 +620,60 @@ function SignUp() {
             )}
 
             {/* 닉네임 */}
+            <InputContainer>
+                <Label>
+                    닉네임<Asterisk>*</Asterisk>
+                </Label>
+
+                <InputField
+                    id="subName"
+                    type="text"
+                    placeholder="닉네임"
+                    {...register('subName', {
+                        required: '닉네임은 필수 입력입니다.',
+                    })}
+                    onChange={(e) => {
+                        register('subName').onChange(e);
+                        trigger('subName'); // 유효성 검사 트리거
+                    }}
+                    aria-invalid={errors.subName ? 'true' : 'false'}
+                />
+            </InputContainer>
+            <ErrorStyled>
+                {errors.subName && (
+                    <ErrorMessage>{errors.subName.message}</ErrorMessage>
+                )}
+            </ErrorStyled>
 
             {/* 생년월일 */}
+            <InputContainer>
+                <Label>
+                    생년월일<Asterisk>*</Asterisk>
+                </Label>
+
+                <InputField
+                    id="birth"
+                    type="date"
+                    placeholder="생년월일"
+                    {...register('birth', {
+                        required: '생년월일은 필수 입력입니다.',
+                        pattern: {
+                            value: /^\d{4}-\d{2}-\d{2}$/,
+                            message: '유효한 생년월일을 입력해주세요.',
+                        },
+                    })}
+                    onChange={(e) => {
+                        register('birth').onChange(e);
+                        trigger('birth'); // 유효성 검사 트리거
+                    }}
+                    aria-invalid={errors.birth ? 'true' : 'false'}
+                />
+            </InputContainer>
+            <ErrorStyled>
+                {errors.birth && (
+                    <ErrorMessage>{errors.birth.message}</ErrorMessage>
+                )}
+            </ErrorStyled>
 
             <Button
                 width="490px"
