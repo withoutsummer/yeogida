@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import deleteIcon from '../assets/icons/trash_outline_icon.png';
+import menuIcon from '../assets/icons/dot_menu_icon.png';
 
 // Styled Components 설정
 const CardContainer = styled.div`
@@ -34,29 +36,32 @@ const CardBody = styled.div`
 `;
 
 const CardTitle = styled.h2`
-  color: #000;
-  font-family: NanumGothic;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 700;
-  margin-top: 20px;
-  margin-left: 20px;
+  color: #222;
+  margin: -0.2em 0 0 0;
+  line-height: 1.4;
+  font-size: 1.3em;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  transition: all ease-in 100ms;
 `;
 
-const CardDate = styled.p`
-  color: #707070;
-  font-family: NanumGothic;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 400;
-  margin-top: 20px;
-  margin-left: 20px;
-`;
-
-const CardFooter = styled.div`
-  padding: 5px;
+const CardTitleAndIcon = styled.div`
   display: flex;
+  justify-content: space-between;
+`;
 
+const CardDescription = styled.p`
+  color: #777;
+`;
+
+const CardIcon = styled.img`
+  width: 1.3em;
+  height: 1.3em;
+  filter: invert(99%) sepia(0%) saturate(6%) hue-rotate(146deg) brightness(92%) contrast(92%);
+
+  &:hover {
+    filter: invert(95%) sepia(7%) saturate(4256%) hue-rotate(297deg) brightness(85%) contrast(132%);
+  }
 `;
 
 const CardAuthor = styled.h5`
@@ -120,14 +125,39 @@ const CardLikes = styled.h5`
 
 `;
 
+const CardAddDate = styled.span`
+  color: #bbb;
+  font-weight: bold;
+  // font-size: 1.25em;
+  font-size: 1em;
+`;
+
 // Card 컴포넌트 정의
-export default function Card({ img, title, date, author, comment, likes }) {
+export default function Card({ img, title, icon = 'none', author, date, onClick }) {
   return (
-    <CardContainer>
+    <CardContainer onClick={onClick}>
       <CardImage src={img} alt={title} />
       <CardBody>
-        <CardTitle>{title}</CardTitle>
-        <CardDate>{date}</CardDate>
+        {icon === 'delete' && (
+          <CardTitleAndIcon>
+            <CardTitle>{title}</CardTitle>
+            <CardIcon src={deleteIcon} alt="Delete" />
+          </CardTitleAndIcon>
+        )}
+        {icon === 'menu' && (
+          <CardTitleAndIcon>
+            <CardTitle>{title}</CardTitle>
+            <CardIcon src={menuIcon} alt="Menu" />
+          </CardTitleAndIcon>
+        )}
+        {icon === 'none' && (
+          <CardTitle>{title}</CardTitle>
+        )}
+        <CardDescription>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+        </CardDescription>
+        <CardAuthor>{author}</CardAuthor>
+        <CardAddDate>{date}</CardAddDate>
       </CardBody>
       <CardFooter>
         <CardAuthor><span>by</span> {author}</CardAuthor>
