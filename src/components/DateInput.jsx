@@ -22,6 +22,13 @@ const StyledDatePickerWrapper = styled.div`
         font-size: 16px;
         color: #000;
         font-family: NanumGothic;
+        background-color: #fff;
+        
+        &:focus {
+            outline: none; /* 기본 포커스 윤곽선 제거 */
+            border: 1px solid #424242; /* 포커스 시 테두리 색상 */
+            background-color: #fff; /* 포커스 시 배경색 유지 */
+        }
     }
 
     .react-datepicker__header {
