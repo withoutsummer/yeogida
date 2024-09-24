@@ -193,7 +193,6 @@ export default function Header() {
                                             </StyledDropdown>
                                         )}
                                     </MyPageContainer>
-
                                 </li>
                             </ul>
                         </Nav>
