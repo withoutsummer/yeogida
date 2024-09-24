@@ -53,6 +53,8 @@ const InputField = ({
     isEmailVerification,
     onResendCode, // 재전송 핸들러 추가
     handleSubmit,
+    resendDisabled = false,
+    verifiDisabled = false,
 }) => {
     return (
         <InputFieldContainer error={error}>
@@ -80,6 +82,7 @@ const InputField = ({
                             hoverBackgroundColor="#F4A192"
                             hoverColor="white"
                             hoverBorderColor="#F4A192"
+                            disabled={resendDisabled}
                         />
                     </Btntyle>
                 )}
@@ -98,6 +101,7 @@ const InputField = ({
                             hoverBackgroundColor="#F4A192"
                             hoverColor="white"
                             hoverBorderColor="#F4A192"
+                            disabled={verifiDisabled}
                         />
                     </Btntyle>
                 )}

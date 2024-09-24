@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 const InputContainer = styled.div`
     display: flex;
@@ -35,11 +35,34 @@ const customStyles = {
         ...base,
         minHeight: '44px', // 드롭다운 최소 높이 설정
         border: '1px solid #ccc', // 드롭다운 테두리 색상
+        borderColor: '#ccc',
         boxShadow: 'none', // 드롭다운 그림자 제거
         borderRadius: '4px',
         ':focus': {
             borderColor: '#F4A192', // 포커스 시 드롭다운 테두리 색상
-            boxShadow: `0 0 0 1px #F4A192` // 포커스 시 그림자 색상
+            boxShadow: `0 0 0 1px #F4A192`, // 포커스 시 그림자 색상
+        },
+        ':hover': {
+            borderColor: '#424242'
+        }
+    }),
+    menu: (base) => ({
+        ...base,
+        borderRadius: '4px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        backgroundColor: '#fff'
+    }),
+    menuList: (base) => ({
+        ...base,
+        padding: 0,
+    }),
+    option: (base, state) => ({
+        ...base,
+        backgroundColor: state.isFocused ? '#F4A192' : '#fff', // 호버 색상
+        color: state.isFocused ? '#fff' : '#000', // 텍스트 색상
+        ':active': {
+            backgroundColor: '#F4A192',
+            color: '#fff'
         }
     })
 };

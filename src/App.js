@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Mytrip from './pages/Mytrip';
 import Editor from './pages/Editor';
 import Sharetrip from './pages/Sharetrip';
+import SharetripDetail from './pages/SharetripDetail';
 import Mypage from './pages/Mypage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -34,12 +35,10 @@ function App() {
                     {/*새 여행 만들기*/}
                     <Route path="/sharetrip" element={<Sharetrip />} />
                     {/* 여행 공유 */}
+                    <Route path="/details/:id" element={<SharetripDetail />} />
+                    {/* 여행 공유 상세*/}
                     <Route path="/mypage/*" element={<Mypage />} />{' '}
                     {/* 마이페이지 */}
-                    <Route path="/findidsuccess" element={<FindIdSuccess />} />
-                    {/*아이디 찾기 성공 페이지. 임시*/}
-                    <Route path="/resetpassword" element={<ResetPassword />} />
-                    {/*비밀번호 재설정 페이지. 임시*/}
                 </Routes>
                 <Footer />
             </div>

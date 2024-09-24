@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FindInput from '../components/FindInputField'; // 새로 만든 InputField 컴포넌트 import
+import EmailVerificationField from '../components/EmailVerificationField'; // New component
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Btn';
 import styled from 'styled-components';
@@ -140,9 +141,9 @@ export default function FindPassword() {
     };
     const handleSubmit = async () => {
         if (isFormValid()) {
-            const accountExists = checkAccountExists(); // 계정 존재 여부 확인
+            const accountExists = await checkAccountExists(); // 계정 존재 여부 확인
             if (accountExists) {
-                alert('인증번호를 전송했습니다.');
+                openModal('인증번호를 전송했습니다.');
                 setShowCertificationInput(true);
                 setTimer(180); // 타이머 초기화
             }
@@ -226,17 +227,20 @@ export default function FindPassword() {
                     error={!!errors.birth} // 에러가 있는 경우 true로 설정
                     errorMessage={errors.birth} // 에러 메시지 전달
                 />
-                <TitleLabel>휴대폰 번호</TitleLabel>
+                <TitleLabel>이메일</TitleLabel>
                 <FindInput
-                    type="tel"
-                    id="phone"
-                    placeholder="휴대폰 번호를 입력해주세요."
+                    type="email"
+                    id="email"
+                    placeholder="이메일"
                     height="80px"
-                    marginbottom="15px"
+                    marginbottom="40px"
                     onChange={handleChange}
-                    value={formData.phone}
-                    error={!!errors.phone} // 에러가 있는 경우 true로 설정
-                    errorMessage={errors.phone} // 에러 메시지 전달
+                    value={formData.email}
+                    error={!!errors.email}
+                    errorMessage={errors.email}
+                    isEmailVerification={true}
+                    handleSubmit={handleSubmit}
+                    verifiDisabled={!isFormValid()}
                 />
                 {showCertificationInput && (
                     <>
@@ -264,7 +268,7 @@ export default function FindPassword() {
                         height="80px"
                         borderRadius="10px"
                         fontSize="26px"
-                        text="인증번호 받기"
+                        text="비밀번호 찾기"
                         onClick={handleSubmit}
                         disabled={!isFormValid()} // 유효성 검증에 따라 비활성화
                     />

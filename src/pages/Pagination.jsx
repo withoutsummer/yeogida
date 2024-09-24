@@ -1,73 +1,83 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Pagination = ({total, limit, page, setPage}) => {
-    const numPages = Math.ceil(total/limit);
-    console.log(numPages);
-
-    return(
-        <>
-        <Nav>
-            <Button onClick={() => setPage(page-1)} disabl={page === 1}> 
-            &lt;
-            </Button>
-            {Array(numPages)
-            .fill()
-            .map((_, i)=>(
-                <Button
-                key={i+1}
-                onClick={() => setPage(i+1)}
-                aria-current={page === i+1 ? "page" : null}
-                >{i+1}</Button>
-            ))}
-            <Button
-            onClick={() => setPage(page + 1)}
-            disabled={page === numPages}
-            >&gt;</Button>
-        </Nav>
-        </>
-    )
-}
-
 const Nav = styled.nav`
     display: flex;
-    justify-content: center;
+    justify-content: flex-end; /* 오른쪽 정렬 */
     align-items:center;
     gap: 4px;
     margin: 16px;
 `;
 
 const Button = styled.button`
-    border:none;
-    padding: 8px;
-    margin: 0;
-    background-color:white;
-    /* background: black;
-    border-radius: 8px;
-    color: white; */
-    color:#444;
-    font-size: 1rem;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 24px;
+    gap: 10px;
+    padding: 0;
+    border: 1px solid #F6F6F6;
+    border-radius: 4px;
+    background-color: #F6F6F6;
+    color: var(--gray-01, #424242);
+    font-family: Poppins;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 100%; /* 12px */
+    letter-spacing: -0.12px;
 
-    &:hover{
-        /* background: tomato; */
-        color: darkcyan;
+    &:hover {
+        color: #F4A192;
         font-weight: bolder;
-        cursor:pointer;
-        transform: translateY(-2px);
+        cursor: pointer;
     }
 
     &[disabled] {
-        /* background: grey; */
         cursor: revert;
         transform: revert;
     }
 
-     &[aria-current] {
-        /* background: deeppink; */
+    &[aria-current='page'] {
+        border: 1px solid #F4A192;
+        background-color: #F4A192;
+        color: white;
         font-weight: bold;
-        color: darkcyan;
         cursor: revert;
         transform: revert;
     }
 `;
+
+const Pagination = ({ total, limit, page, setPage }) => {
+    const numPages = Math.ceil(total / limit);
+    console.log(numPages);
+
+    return (
+        <Nav>
+            <Button onClick={() => setPage(page - 1)} disabled={page === 1}>
+                &lt;
+            </Button>
+            {Array(numPages)
+                .fill()
+                .map((_, i) => (
+                    <Button
+                        key={i + 1}
+                        onClick={() => setPage(i + 1)}
+                        aria-current={page === i + 1 ? "page" : null}
+                    >
+                        {i + 1}
+                    </Button>
+                ))}
+            <Button
+                onClick={() => setPage(page + 1)}
+                disabled={page === numPages}
+            >
+                &gt;
+            </Button>
+        </Nav>
+    );
+}
+
 export default Pagination;
