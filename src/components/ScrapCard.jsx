@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import menuIcon from '../assets/icons/dot_menu_icon.png';
 import trashIcon from '../assets/icons/trash_outline_icon.png';
@@ -24,6 +24,7 @@ const CardInfoAndIcon = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 `;
 
 const CardInfo = styled.div`
@@ -43,14 +44,77 @@ const CardDate = styled.span`
     color: #707070;
 `;
 
-const CardIcon = styled.img`
+const MenuIcon = styled.img`
     width: 30px;
     height: 30px;
+    cursor: pointer;
 `;
 
-export default function Card({ type, img, title, date, onClick }) {
+const DeleteIcon = styled.img`
+    width: 30px;
+    height: 30px; 
+    cursor: pointer;
+    filter: invert(100%) sepia(0%) saturate(2166%) hue-rotate(114deg) brightness(120%) contrast(76%);
+
+    &:hover {
+        filter: invert(76%) sepia(19%) saturate(1253%) hue-rotate(314deg) brightness(97%) contrast(98%);
+    }
+`;
+
+const StyledDropdown = styled.div `
+    width: 98px;
+    height: 74px;
+    position: absolute;
+    bottom: 25%;
+    right: 8%;
+    border-radius: 8px;
+    border: 1px solid #707070;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    background-color: #fff;
+    padding: 10px 0;
+    gap: 4px;
+`;
+
+const DropdownMenu = styled.div `
+    width: 100%;
+    font-size: 16px;
+    padding: 8px 0 8px 16px;
+    box-sizing: border-box;
+    color: black;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f6f6f6;
+        font-weight: bold;
+    }
+`;
+
+export default function Card({ type, img, title, date, onCardClick, onDeleteScrap, onDeleteFolder, onRenameFolder }) {
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    
+    const onToggleDropdown = (e) => {
+        e.stopPropagation();
+        setIsDropdownVisible(prev => !prev); // 드롭다운 가시성 토글
+    };
+
+    const handleDeleteFolder = (e) => {
+        e.stopPropagation();
+        setIsDropdownVisible(false); // 드롭다운 닫기
+        onDeleteFolder(e); // 폴더 삭제 함수 호출
+    };
+
+    const handleRenameFolder = (e) => {
+        e.stopPropagation();
+        setIsDropdownVisible(false); // 드롭다운 닫기
+        onRenameFolder(e); // 폴더 삭제 함수 호출
+    };
+
     return (
-        <StyledCard onClick={onClick}>
+        <StyledCard onClick={onCardClick}>
             <CardImage 
                 src={img}
                 alt={title}
@@ -58,10 +122,17 @@ export default function Card({ type, img, title, date, onClick }) {
             {type === 'folder' && (
                 <CardInfoAndIcon>
                     <CardTitle>{title}</CardTitle>
-                    <CardIcon 
+                    <MenuIcon 
                         src={menuIcon}
                         alt='menu'
+                        onClick={ (e) => onToggleDropdown(e) }
                     />
+                    {isDropdownVisible && (
+                        <StyledDropdown>
+                            <DropdownMenu onClick={handleDeleteFolder}>삭제</DropdownMenu>
+                            <DropdownMenu onClick={handleRenameFolder}>이름 변경</DropdownMenu>
+                        </StyledDropdown>
+                    )}
                 </CardInfoAndIcon>
             )}
             {type === 'scrap' && (
@@ -70,9 +141,10 @@ export default function Card({ type, img, title, date, onClick }) {
                         <CardTitle>{title}</CardTitle>
                         <CardDate>{date}</CardDate>
                     </CardInfo>
-                    <CardIcon
+                    <DeleteIcon
                         src={trashIcon}
                         alt='delete'
+                        onClick={onDeleteScrap}
                     />
                 </CardInfoAndIcon>
             )}

@@ -60,11 +60,23 @@ const CommonModal = ({
             <div
                 style={{
                     fontSize: '24px',
+                    fontWeight: 'bold',
                     marginBottom: '40px',
                     textAlign: 'center',
                 }}
             >
                 {title}
+            </div>
+
+            <div
+                style={{
+                    fontSize: '16px',
+                    marginTop: '-24px',
+                    marginBottom: '40px',
+                    textAlign: 'center',
+                }}
+            >
+                {children}
             </div>
             
             {type === 1 && (
@@ -114,8 +126,6 @@ const CommonModal = ({
                     />
                 </div>
             )}
-
-            <div>{children}</div>
         </Modal>
     );
 };

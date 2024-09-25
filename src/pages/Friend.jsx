@@ -446,14 +446,15 @@ export default function Friend() {
 
     const handleClick = (index) => {
         setIsMiniMenuClicked(index);
-    }
+    };
+
     const handleChange = (event) => {
         setInputValue(event.target.value);
     };
 
     const handleSortOptionChange = (option) => {
         setSortOption(option);
-    }
+    };
 
     // isMiniMenuClicked 변경 시 inputValue 초기화
     useEffect(() => {
