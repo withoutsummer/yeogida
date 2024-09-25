@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Card from '../components/Card';
+import Card from '../components/ScrapCard';
 import cardImg from './img/card_img.png';
 
 const HeaderStyle = styled.div`
-    margin-top: 100px;
+    margin-top: 220px;
     margin-bottom: 50px;
     font-weight: bold;
     font-size: 40px;
@@ -13,14 +13,21 @@ const HeaderStyle = styled.div`
 `;
 
 const ScrapContainer = styled.div`
-    margin: 0 86px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const ScrapMiniHeader = styled.div`
+    width: 1275px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin: 0 0 16px 0;
+
+    @media (max-width: 1275px) {
+        width: 625px;
+    }
 `;
 
 const ScrapNum = styled.div`
@@ -43,13 +50,15 @@ const FolderName = styled.span`
 
 const ScrapBtn = styled.span`
     border-radius: 3px;
-    width: 85px;
-    height: 36px;
     background-color: #f4a192;
     color: #fff;
     text-align: center;
     line-height: 36px;
     cursor: pointer;
+    padding: 10px;
+    line-height: normal;
+    font-weight: bold;
+    font-size: 16px;
 `;
 
 const ScrapCards = styled.div`
@@ -89,9 +98,9 @@ function ScrapFolders({ onSelectFolder }) {
                 {folderData.map((folder) => (
                     <Card
                         key={folder.folderId}
+                        type='folder'
                         img={cardImg}
                         title={folder.folderName}
-                        icon='menu'
                         onClick={() => onSelectFolder(folder.folderId, folder.folderName)}
                     />
                 ))}
@@ -134,10 +143,10 @@ function ScrapInFolder({ selectedFolderId, selectedFolderName, onBackToFolders }
                     filteredScrap.map((scrap) => (
                         <Card
                             key={scrap.scrapId}
+                            type='scrap'
                             img={cardImg}
                             title={scrap.scrapName}
                             date={scrap.addDate}
-                            icon="delete"
                         />
                     ))
                 ) : (
