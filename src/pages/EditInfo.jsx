@@ -5,7 +5,7 @@ import Btn from '../components/Btn';
 import EditInfoInput from '../components/EditInfoInput';
 
 const HeaderStyle = styled.div`
-    margin-top: 100px;
+    margin-top: 220px;
     margin-bottom: 172px;
     font-weight: bold;
     font-size: 40px;

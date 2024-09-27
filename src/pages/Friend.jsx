@@ -14,7 +14,7 @@ import SortDropdown from '../components/SortDropdown';
 import CommonModal from '../components/CommonModal';
 
 const HeaderStyle = styled.div `
-    margin-top: 100px;
+    margin-top: 220px;
     margin-bottom: 50px;
     font-weight: bold;
     font-size: 40px;
@@ -446,14 +446,15 @@ export default function Friend() {
 
     const handleClick = (index) => {
         setIsMiniMenuClicked(index);
-    }
+    };
+
     const handleChange = (event) => {
         setInputValue(event.target.value);
     };
 
     const handleSortOptionChange = (option) => {
         setSortOption(option);
-    }
+    };
 
     // isMiniMenuClicked 변경 시 inputValue 초기화
     useEffect(() => {
