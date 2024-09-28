@@ -5,6 +5,7 @@ import Btn from '../components/Btn';
 import Modal from '../components/CommonModal';
 import EditInfoInput from '../components/EditInfoInput';
 import defaultProfileImg from './img/card_img.png';
+import { useNavigate } from 'react-router-dom';
 
 const HeaderStyle = styled.div`
     margin-top: 220px;
@@ -16,8 +17,7 @@ const HeaderStyle = styled.div`
 `;
 
 const ArticleStyle = styled.div `
-    margin-bottom: 100px;
-    // 원래는 274px
+    margin-bottom: 274px;
 `;
 
 const BeforeCheckStyle = styled.div`
@@ -26,7 +26,7 @@ const BeforeCheckStyle = styled.div`
     align-items: center;
 `;
 
-const MiniProfile = styled.div`
+const MyProfile = styled.div`
     width: 214px;
     height: 274px;
     display: flex;
@@ -34,7 +34,7 @@ const MiniProfile = styled.div`
     justify-content: space-between;
 `;
 
-const MiniProfileName = styled.div`
+const MyProfileName = styled.div`
     margin-top: 33px;
     font-size: 28px;
     display: flex;
@@ -44,14 +44,14 @@ const MiniProfileName = styled.div`
 
 const CheckPassword = styled.div`
     margin-left: 66px;
-    width: 495px;
-    height: 222px;
+    // height: 222px;
     display: flex;
     flex-direction: column;
 `;
 
 const CheckPasswordText = styled.div`
     font-size: 24px;
+    margin-bottom: 20px;
 `;
 
 // const CheckPasswordInput = styled.input`
@@ -111,7 +111,7 @@ const Line = styled.div`
     width: 920px;
     height: 2px;
     background-color: #e0e0e0;
-    margin-top: 100px;
+    margin-top: 200px;
     margin-bottom: 50px;
 
     &:before,
@@ -134,12 +134,11 @@ const Line = styled.div`
     }
 `;
 
-const MiniProfileImage = styled.img`
+const MyProfileImage = styled.img`
     width: 213px;
     height: 213px;
     border-radius: 180px;
     object-fit: cover;
-    cursor: pointer;
 `;
 
 const ButtonContainer = styled.div`
@@ -194,7 +193,6 @@ const BtnStyled = styled.div`
     margin-left: 20px;
 `;
 
-// 타이머 스타일
 const TimerStyled = styled.div`
     position: absolute;
     right: 205px;
@@ -205,39 +203,68 @@ const TimerStyled = styled.div`
 `;
 
 // ----------비밀번호 확인 전 Component----------
-
 function BeforeCheck ({ btnClick }) {
-    const handleCheck = () => {
-        btnClick(true);
+    const { register, handleSubmit, formState: { errors }, setError } = useForm();
+    const [myPassword, setMyPassword] = useState('1111'); // 임시 비밀번호
+    const [profileImg, setProfileImg] = useState(defaultProfileImg); // 임시 프로필 사진
+    // const [isSubmitted, setIsSubmitted] = useState(false); // 확인 버튼을 눌렀는지 확인하는 상태
+
+    const handleCheck = (data) => {
+        // setIsSubmitted(true); // 확인 버튼을 누른 이후에만 에러 메시지를 보여줌
+        if (data.passwordConfirm === myPassword) {
+            btnClick(true); // 비밀번호가 맞으면 개인정보 수정 컴포넌트로 이동
+        } else {
+            setError('passwordConfirm', {
+                type: 'manual',
+                message: '잘못된 비밀번호를 입력했습니다.',
+            });
+        }
     };
 
     return (
         <BeforeCheckStyle>
             {/* 프로필 */}
-            <MiniProfile>
-                <MiniProfileImage />
-                <MiniProfileName>seoyoung</MiniProfileName>
-            </MiniProfile>
+            <MyProfile>
+                <MyProfileImage src={profileImg} />
+                <MyProfileName>seoyoung</MyProfileName>
+            </MyProfile>
 
             {/* 비밀번호 입력란 */}
             <CheckPassword>
-                
-
                 <CheckPasswordText>비밀번호 확인</CheckPasswordText>
                 {/* 입력칸 */}
-                <EditInfoInput 
+                {/* <EditInfoInput 
                     type='password' 
                     placeholder='비밀번호를 한번 더 입력해주세요.' 
                     style={{ 
                         marginTop: '20px',
                         marginBottom: '65px'
                     }}
+                /> */}
+                <InputField
+                    id="PasswordConfirm"
+                    type="password"
+                    placeholder="비밀번호 확인"
+                    {...register('passwordConfirm', {
+                        required: '비밀번호를 입력해주세요.',
+                    })}
+                    aria-invalid={errors.passwordConfirm ? 'true' : 'false'}
                 />
+
+                {/* 에러 메시지 */}
+                <div style={{ height: '20px' }}>
+                    {errors.passwordConfirm && (
+                        <div style={{ color: 'red', marginTop: '15px' }}>
+                            {errors.passwordConfirm.message}
+                        </div>
+                    )}
+                </div>
+
                 {/* 버튼 */}
                 <Btn 
                     text='확인'
-                    style={{marginLeft: 'auto'}}
-                    onClick={ handleCheck } 
+                    style={{marginLeft: 'auto', marginTop: '60px'}}
+                    onClick={handleSubmit(handleCheck)}
                 />
 
             </CheckPassword>
@@ -245,8 +272,98 @@ function BeforeCheck ({ btnClick }) {
     );
 }
 
-// ----------비밀번호 확인 후 Component----------
-function AfterCheck () {
+/* 프로필 사진 컴포넌트 */
+function ProfileImage () {
+    const [profileImg, setProfileImg] = useState(defaultProfileImg);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+
+    // 사진 파일 선택 함수
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {  // 이미지 파일인지 확인
+            const reader = new FileReader();
+            reader.onload = () => {
+                setProfileImg(reader.result);  // 프로필 이미지 상태 업데이트
+            };
+            reader.readAsDataURL(file);  // 이미지를 base64로 변환하여 미리보기 표시
+        }
+    };
+
+    // 기본 이미지 설정 함수
+    const handleSetDefaultImage = () => {
+        setProfileImg(defaultProfileImg);
+    };
+
+    // 파일 입력 클릭을 트리거하는 함수
+    const triggerFileInput = () => {
+        document.getElementById("fileInput").click();
+    };
+
+    // 프로필 사진 변경 Modal
+    const handleSaveProfileImg = () => {
+        setModalMessage('프로필 사진이 변경되었습니다.');
+        setIsModalOpen(true);
+    };
+
+    // 모달 닫기 함수
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    return(
+        <StyledContainer>
+            <StyledTitle>프로필 사진</StyledTitle>
+            <StyledContent>
+                {/* 프로필 이미지 클릭 시 파일 선택 창 열기 */}
+                <MyProfileImage 
+                    src={profileImg} 
+                    alt="Profile Image" 
+                    onClick={triggerFileInput}  // 이미지 클릭 시 파일 선택 트리거
+                    style={{ cursor: 'pointer' }}
+                />
+
+                {/* 파일 선택 input 및 버튼 */}
+                <ButtonContainer>
+                    <input
+                        id="fileInput"
+                        type="file"
+                        style={{ display: 'none' }}  // 화면에 안 보이도록 숨김
+                        accept="image/*"  // 이미지 파일만 선택 가능하도록 제한
+                        onChange={handleImageChange}
+                    />
+
+                    <Btn 
+                        width='140px'
+                        height='41px'
+                        borderColor='#f4a192'
+                        backgroundColor='#fff'
+                        color='#f4a192'
+                        text='기본 이미지'
+                        onClick={handleSetDefaultImage}
+                    />
+                    <Btn 
+                        width='140px'
+                        height='41px'
+                        fontWeight='bold'
+                        text='저장'
+                        onClick={handleSaveProfileImg}
+                    />
+                </ButtonContainer>
+            </StyledContent>
+
+            {/* Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal} // Changed from onClose to onRequestClose
+                title={modalMessage}
+            />
+        </StyledContainer>
+    )
+}
+
+/* 개인정보 수정 컴포넌트 */
+function EditInfo () {
     const {
         register,
         handleSubmit,
@@ -339,12 +456,6 @@ function AfterCheck () {
         setIsModalOpen(true);
     };
 
-    // 모달 닫기 함수
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setModalMessage(''); // 메시지 초기화
-    };
-
     // 가정된 API 호출 함수 (실제 API 로직으로 대체 필요)
     const checkEmailDuplicate = async (email) => {
         const dummyExistingEmails = [
@@ -354,85 +465,20 @@ function AfterCheck () {
         return dummyExistingEmails.includes(email);
     };
 
-    const [profileImg, setProfileImg] = useState(defaultProfileImg);
-
-    // 파일 선택을 위한 함수
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {  // 이미지 파일인지 확인
-            const reader = new FileReader();
-            reader.onload = () => {
-                setProfileImg(reader.result);  // 프로필 이미지 상태 업데이트
-            };
-            reader.readAsDataURL(file);  // 이미지를 base64로 변환하여 미리보기 표시
-        }
+    // 모달 닫기 함수
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setModalMessage(''); // 메시지 초기화
     };
 
-    // 기본 이미지로 설정하는 함수
-    const handleSetDefaultImage = () => {
-        setProfileImg(defaultProfileImg);
+    // 수정 완료 Modal
+    const handleEditSubmit = () => {
+        setModalMessage('수정이 완료되었습니다.');
+        setIsModalOpen(true);
     };
-
-    // 수정하기 버튼 클릭 시 콘솔 메시지 출력
-    const handleSaveChanges = () => {
-        console.log('프로필 사진 변경 완료');
-    };
-
-    // 파일 입력 클릭을 트리거하는 함수
-    const triggerFileInput = () => {
-        document.getElementById("fileInput").click();
-    };
-
-    // 회원 탈퇴 함수
-    const handleDeleteId = () => {
-        console.log('회원 탈퇴 완료');
-    }
 
     return (
-        <AfterCheckStyle>
-            {/* 프로필 사진 */}
-            <StyledContainer>
-                <StyledTitle>프로필 사진</StyledTitle>
-                <StyledContent>
-                    {/* 프로필 이미지 클릭 시 파일 선택 창 열기 */}
-                    <MiniProfileImage 
-                        src={profileImg} 
-                        alt="Profile Image" 
-                        onClick={triggerFileInput}  // 이미지 클릭 시 파일 선택 트리거
-                    />
-
-                    {/* 파일 선택 input 및 버튼 */}
-                    <ButtonContainer>
-                        <input
-                            id="fileInput"
-                            type="file"
-                            style={{ display: 'none' }}  // 화면에 안 보이도록 숨김
-                            accept="image/*"  // 이미지 파일만 선택 가능하도록 제한
-                            onChange={handleImageChange}
-                        />
-
-                        <Btn 
-                            width='140px'
-                            height='41px'
-                            borderColor='#f4a192'
-                            backgroundColor='#fff'
-                            color='#f4a192'
-                            text='기본 이미지'
-                            onClick={handleSetDefaultImage}
-                        />
-                        <Btn 
-                            width='140px'
-                            height='41px'
-                            fontWeight='bold'
-                            text='저장'
-                            onClick={handleSaveChanges}
-                        />
-                    </ButtonContainer>
-                </StyledContent>
-            </StyledContainer>
-
-            {/* 개인정보 수정 */}
-            <StyledContainer>
+        <StyledContainer>
                 <StyledTitle>개인정보 수정</StyledTitle>
                 <StyledContent>
                     <form
@@ -508,7 +554,7 @@ function AfterCheck () {
                                 aria-invalid={errors.passwordConfirm ? 'true' : 'false'}
                             />
                         </InputContainer>
-                        <ErrorStyled>
+                        <ErrorStyled style={{ marginTop: '-30px' }}>
                             {errors.passwordConfirm && (
                                 <ErrorMessage>
                                     {errors.passwordConfirm.message}
@@ -624,13 +670,6 @@ function AfterCheck () {
                             <Label>생년월일</Label>
                             <span>2000 / 07 / 20</span>
                         </InputContainer>
-
-                        {/* Modal for alerts */}
-                        <Modal
-                            isOpen={isModalOpen}
-                            onRequestClose={closeModal} // Changed from onClose to onRequestClose
-                            title={modalMessage}
-                        />
                     </form>
                     <Btn 
                         width='240px'
@@ -639,9 +678,60 @@ function AfterCheck () {
                         fontSize='26px'
                         borderRadius='15px'
                         text='수정하기'
+                        onClick={handleEditSubmit}
                     />
                 </StyledContent>
+
+                {/* Modal */}
+                <Modal
+                    isOpen={isModalOpen}
+                    onRequestClose={closeModal}
+                    title={modalMessage}
+                />
             </StyledContainer>
+    )
+}
+
+// ----------비밀번호 확인 후 Component----------
+function AfterCheck () {
+    const navigate = useNavigate();
+
+    const [oneBtnModal, setOneBtnModal] = useState(false);
+    const [twoBtnModal, setTwoBtnModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalChildren, setModalChildren] = useState('');
+
+    // 탈퇴 요청 Modal
+    const handleDeleteId = () => {
+        setModalTitle('정말 탈퇴하시겠습니까?');
+        setTwoBtnModal(true);
+    };
+
+    // 탈퇴 완료 Modal
+    const completeDeleteId = () => {
+        setModalTitle('회원 탈퇴가 완료되었습니다.');
+        setModalChildren(
+            <>
+                지금까지 <b>여기다</b>를 이용해주셔서 감사합니다.
+            </>
+        );
+        setTwoBtnModal(false);
+        setOneBtnModal(true);
+    };
+
+    // 모달에서 확인 버튼을 누르면 Home으로 이동
+    const handleCloseAndNavigateHome = () => {
+        setOneBtnModal(false); // 모달 닫기
+        navigate('/home'); // Home 페이지로 이동
+    };
+    
+    return (
+        <AfterCheckStyle>
+            {/* 프로필 사진 */}
+            <ProfileImage />
+
+            {/* 개인정보 수정 */}
+            <EditInfo />
 
             <Line />
 
@@ -678,9 +768,26 @@ function AfterCheck () {
                             fontSize='20px'
                             text='회원 탈퇴'
                             style={{ marginTop: '12px' }}
-                            onClick={handleDeleteId}
+                            onClick={() => handleDeleteId()}
                         />
                 </StyledContent>
+
+                {/* Modals */}
+                <Modal 
+                    isOpen={oneBtnModal} 
+                    onRequestClose={() => setOneBtnModal(false)}
+                    title={modalTitle}
+                    children={modalChildren}
+                    type={1}
+                    onConfirm={handleCloseAndNavigateHome} // 확인 버튼 클릭 시 Home으로 이동
+                />
+                <Modal 
+                    isOpen={twoBtnModal} 
+                    onRequestClose={() => setTwoBtnModal(false)}
+                    title={modalTitle}
+                    type={2}
+                    onConfirm={completeDeleteId}
+                />
             </StyledContainer>
 
         </AfterCheckStyle>
@@ -689,20 +796,19 @@ function AfterCheck () {
 
 // ----------메인 Component----------
 
-export default function EditInfo() {
+export default function UserInfo() {
     const [isBtnClicked, setIsBtnClicked] = useState(false);
 
     return (
         <section>
             {/* 헤더 */}
             <header>
-                <HeaderStyle>개인정보 수정</HeaderStyle>
+                <HeaderStyle>회원정보 관리</HeaderStyle>
             </header>
 
             {/* 비밀번호 확인 */}
             <article>
                 <ArticleStyle>
-                    {/* 
                     
                     {isBtnClicked ? (
                         // 비밀번호 확인 성공하면 개인정보 수정 페이지 렌더링
@@ -711,9 +817,7 @@ export default function EditInfo() {
                         // 처음에는 비밀번호 확인 페이지 렌더링
                         <BeforeCheck btnClick={setIsBtnClicked} />
                     )}
-                    {/* <AfterCheck /> */}
 
-                    <AfterCheck />
                 </ArticleStyle>
             </article>
         </section>
