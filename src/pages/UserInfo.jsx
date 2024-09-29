@@ -54,33 +54,7 @@ const CheckPasswordText = styled.div`
     margin-bottom: 20px;
 `;
 
-// const CheckPasswordInput = styled.input`
-//     margin-top: 20px;
-//     margin-bottom: 60px;
-//     padding-left: 16px;
-//     width: 474px;
-//     height: 65px;
-//     border-radius: 8px;
-//     border: 1px solid #707070;
-//     font-size: 16px;
-
-//     &:placeholder {
-//         color: #707070;
-//     }
-
-//     &:focus {
-//         outline: none;
-//     }
-// `;
-
 const AfterCheckStyle = styled.div `
-    // width: 875px;
-    // height: 1203px;
-    // margin: auto;
-    // display: flex;
-    // flex-direction: column;
-    
-    // background-color: #d0d0d0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -120,17 +94,17 @@ const Line = styled.div`
         position: absolute;
         top: 50%;
         transform: translateY(-50%) rotate(45deg);
-        width: 10px;  /* 다이아몬드 크기 */
+        width: 10px;
         height: 10px;
-        background-color: #e0e0e0; /* 다이아몬드 색상 */
+        background-color: #e0e0e0;
     }
 
     &:before {
-        left: -10px; /* 다이아몬드를 왼쪽으로 배치 */
+        left: -10px;
     }
 
     &:after {
-        right: -10px; /* 다이아몬드를 오른쪽으로 배치 */
+        right: -10px;
     }
 `;
 
@@ -531,7 +505,7 @@ function EditInfo () {
                             )}
                         </ErrorStyled>
 
-                        <InputContainer style={{ marginBottom: '50px' }}>
+                        <InputContainer style={{ marginBottom: '35px' }}>
                             <Label>
                                 비밀번호 확인
                             </Label>
@@ -554,7 +528,7 @@ function EditInfo () {
                                 aria-invalid={errors.passwordConfirm ? 'true' : 'false'}
                             />
                         </InputContainer>
-                        <ErrorStyled style={{ marginTop: '-30px' }}>
+                        <ErrorStyled>
                             {errors.passwordConfirm && (
                                 <ErrorMessage>
                                     {errors.passwordConfirm.message}
@@ -563,7 +537,7 @@ function EditInfo () {
                         </ErrorStyled>
 
                         {/* 이름 */}
-                        <InputContainer style={{ marginBottom: '70px' }}>
+                        <InputContainer style={{ marginTop: '50px', marginBottom: '70px' }}>
                             <Label>이름</Label>
                             <span>백서영</span>
                         </InputContainer>
@@ -795,7 +769,6 @@ function AfterCheck () {
 }
 
 // ----------메인 Component----------
-
 export default function UserInfo() {
     const [isBtnClicked, setIsBtnClicked] = useState(false);
 
