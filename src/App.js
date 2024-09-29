@@ -29,6 +29,16 @@ function App() {
                     {/* 아이디 찾기 */}
                     <Route path="/find/password" element={<FindPassword />} />
                     {/* 비밀번호 찾기 */}
+                    <Route
+                        path="/find/id/success"
+                        element={<FindIdSuccess />}
+                    />
+                    {/* 아이디 찾기 성공 */}
+                    <Route
+                        path="/find/password/reset"
+                        element={<ResetPassword />}
+                    />
+                    {/* 비밀번호 재설정 */}
                     <Route path="/mytrip" element={<Mytrip />} />
                     {/* 나의 여행 */}
                     <Route path="/editor" element={<Editor />} />{' '}

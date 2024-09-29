@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../components/Btn';
 import styled from 'styled-components';
 import CommonModal from '../components/CommonModal';
@@ -9,6 +9,7 @@ const SuccessForm = styled.div`
     max-width: 500px;
     padding: 50px;
     margin: auto;
+    margin-top: 120px;
     position: relative;
 `;
 
@@ -55,6 +56,9 @@ const BtnContainer = styled.div`
 `;
 export default function FindIdSuccess() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { userId } = location.state || { userId: '' }; // 전달된 아이디 값
+
     return (
         <SuccessForm>
             <TitleStyle>
@@ -65,7 +69,9 @@ export default function FindIdSuccess() {
             <IdUl>
                 <IdLi>
                     <IdImg src={profileImg} />
-                    <FindId>swuweb2024</FindId>
+                    <FindId>
+                        {userId ? userId : '아이디 정보가 없습니다.'}
+                    </FindId>
                 </IdLi>
             </IdUl>
             <BtnContainer>

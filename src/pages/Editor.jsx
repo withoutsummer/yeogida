@@ -9,14 +9,14 @@ const ButtonContainer = styled.div`
     max-width: 1400px;
     justify-content: right;
     flex-shrink: 0;
-    margin: 220px auto 0px; /* 좌우 가운데 정렬을 위해 margin을 사용 */
+    margin: 200px auto 0px; /* 좌우 가운데 정렬을 위해 margin을 사용 */
 `;
 
 const NavButton = styled.button`
     display: flex;
     width: 80px;
     height: 36px;
-    margin: 5px;
+    margin: 0 5px 5px 0;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -199,6 +199,7 @@ const EditorContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   margin-top: 20px;
+  margin-bottom: 100px;
   padding: 0 20px;
 `;
 

@@ -52,9 +52,9 @@ const InputField = ({
     isVerificationCode, // 인증번호 입력 필드 여부
     isEmailVerification,
     onResendCode, // 재전송 핸들러 추가
-    handleSubmit,
-    resendDisabled = false,
-    verifiDisabled = false,
+    onSendCode, //이메일 핸들러 추가
+    disabledBtn = true,
+    disabledInput = false,
 }) => {
     return (
         <InputFieldContainer error={error}>
@@ -65,6 +65,7 @@ const InputField = ({
                     placeholder={placeholder}
                     onChange={onChange}
                     value={value}
+                    disabled={disabledInput}
                 />
                 {timerValue && <Timer>{timerValue}</Timer>} {/* 타이머 표시 */}
                 {isVerificationCode && ( // 인증번호 입력 필드일 때만 버튼 표시
@@ -82,7 +83,6 @@ const InputField = ({
                             hoverBackgroundColor="#F4A192"
                             hoverColor="white"
                             hoverBorderColor="#F4A192"
-                            disabled={resendDisabled}
                         />
                     </Btntyle>
                 )}
@@ -97,11 +97,11 @@ const InputField = ({
                             borderRadius="10px"
                             fontSize="20px"
                             text="인증하기"
-                            onClick={handleSubmit} // 재전송 클릭 핸들러
+                            onClick={onSendCode} // 재전송 클릭 핸들러
                             hoverBackgroundColor="#F4A192"
                             hoverColor="white"
                             hoverBorderColor="#F4A192"
-                            disabled={verifiDisabled}
+                            disabled={disabledBtn}
                         />
                     </Btntyle>
                 )}
