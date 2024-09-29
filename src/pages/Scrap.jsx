@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Card from '../components/Card';
+import Card from '../components/ScrapCard';
 import cardImg from './img/card_img.png';
+import Modal from '../components/CommonModal';
 
 const HeaderStyle = styled.div`
-    margin-top: 100px;
+    margin-top: 220px;
     margin-bottom: 50px;
     font-weight: bold;
     font-size: 40px;
@@ -13,14 +14,21 @@ const HeaderStyle = styled.div`
 `;
 
 const ScrapContainer = styled.div`
-    margin: 0 86px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const ScrapMiniHeader = styled.div`
+    width: 1275px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin: 0 0 16px 0;
+
+    @media (max-width: 1275px) {
+        width: 625px;
+    }
 `;
 
 const ScrapNum = styled.div`
@@ -43,13 +51,15 @@ const FolderName = styled.span`
 
 const ScrapBtn = styled.span`
     border-radius: 3px;
-    width: 85px;
-    height: 36px;
     background-color: #f4a192;
     color: #fff;
     text-align: center;
     line-height: 36px;
     cursor: pointer;
+    padding: 10px;
+    line-height: normal;
+    font-weight: bold;
+    font-size: 16px;
 `;
 
 const ScrapCards = styled.div`
@@ -72,6 +82,33 @@ const EmptyMessage = styled.div`
 
 // ---------------폴더 Component---------------
 function ScrapFolders({ onSelectFolder }) {
+    const [oneBtnModal, setOneBtnModal] = useState(false);
+    const [twoBtnModal, setTwoBtnModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalChildren, setModalChildren] = useState('');
+    const [thisFolderName, setThisFolderName] = useState('');
+
+    // 폴더 삭제 요청 Modal
+    const handleDeleteFolder = (e, folderName) => {
+        e.stopPropagation(); // 부모 요소로의 이벤트 전파 중단
+        setThisFolderName(folderName);
+        setModalTitle('폴더를 삭제하시겠습니까?');
+        setModalChildren('해당 폴더 속 일정 스크랩도 모두 삭제됩니다.');
+        setTwoBtnModal(true);
+    };
+
+    // 폴더 삭제 완료 Modal
+    const completeDeleteFolder = () => {
+        console.log(`'${thisFolderName}' 폴더 삭제 완료`)
+        setModalTitle('폴더가 삭제되었습니다.');
+        setOneBtnModal(true);
+    };
+
+    // 폴더 이름 변경 Modal
+    const handleRenameFolder = () => {
+        console.log('폴더 이름 변경 코드 실행')
+    }
+
     const folderData = [
         { folderId: 1, folderName: '부산' },
         { folderId: 2, folderName: '제주도' },
@@ -80,28 +117,53 @@ function ScrapFolders({ onSelectFolder }) {
     ];
 
     return (
-        <ScrapContainer>
-            <ScrapMiniHeader>
-                <ScrapNum>Total {folderData.length}</ScrapNum>
-                <ScrapBtn>새 폴더 생성</ScrapBtn>
-            </ScrapMiniHeader>
-            <ScrapCards>
-                {folderData.map((folder) => (
-                    <Card
-                        key={folder.folderId}
-                        img={cardImg}
-                        title={folder.folderName}
-                        icon='menu'
-                        onClick={() => onSelectFolder(folder.folderId, folder.folderName)}
-                    />
-                ))}
-            </ScrapCards>
-        </ScrapContainer>
+        <>
+            <ScrapContainer>
+                <ScrapMiniHeader>
+                    <ScrapNum>Total {folderData.length}</ScrapNum>
+                    <ScrapBtn>새 폴더 생성</ScrapBtn>
+                </ScrapMiniHeader>
+                <ScrapCards>
+                    {folderData.map((folder) => (
+                        <Card
+                            key={folder.folderId}
+                            type='folder'
+                            img={cardImg}
+                            title={folder.folderName}
+                            onCardClick={() => onSelectFolder(folder.folderId, folder.folderName)}
+                            onDeleteFolder={(e) => handleDeleteFolder(e, folder.folderName)}
+                            onRenameFolder={(e) => handleRenameFolder(e, folder.folderName)}
+                        />
+                    ))}
+                </ScrapCards>
+            </ScrapContainer>
+
+            {/* Modals */}
+            <Modal 
+                isOpen={oneBtnModal} 
+                onRequestClose={ () => setOneBtnModal(false) }
+                title={modalTitle}
+                type={1}
+            />
+            <Modal 
+                isOpen={twoBtnModal} 
+                onRequestClose={ () => setTwoBtnModal(false) }
+                title={modalTitle}
+                children={modalChildren}
+                type={2}
+                onConfirm={completeDeleteFolder}
+            />
+        </>
     );
 }
 
 // ---------------스크랩 Component---------------
 function ScrapInFolder({ selectedFolderId, selectedFolderName, onBackToFolders }) {
+    const [oneBtnModal, setOneBtnModal] = useState(false);
+    const [twoBtnModal, setTwoBtnModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [thisScrapName, setThisScrapName] = useState('');
+    
     // 임시 데이터 - 스크랩
     const scrapData = [
         { folderId: 1, folderName: '부산' , scrapId: 1, scrapName: '부산 여행 1', addDate: '2024-05-13' },
@@ -122,29 +184,62 @@ function ScrapInFolder({ selectedFolderId, selectedFolderName, onBackToFolders }
 
     const filteredScrap = scrapData.filter((scrap) => scrap.folderId === selectedFolderId);
 
+    // 스크랩 삭제 요청 Modal
+    const handleDeleteScrap = (e, scrapName) => {
+        e.stopPropagation(); // 부모 요소로의 이벤트 전파 중단
+        setThisScrapName(scrapName);
+        setModalTitle('스크랩을 삭제하시겠습니까?');
+        setTwoBtnModal(true);
+    };
+
+    // 스크랩 삭제 완료 Modal
+    const completeDeleteScrap = () => {
+        console.log(`'${thisScrapName}' 스크랩 삭제 완료`)
+        setModalTitle('스크랩이 삭제되었습니다.');
+        setOneBtnModal(true);
+    };
+
     return (
-        <ScrapContainer>
-            <ScrapMiniHeader>
-                <ScrapNum>Total {filteredScrap.length}</ScrapNum>
-                <FolderName>in {selectedFolderName}</FolderName>
-                <ScrapBtn onClick={onBackToFolders}>폴더 선택</ScrapBtn>
-            </ScrapMiniHeader>
-            <ScrapCards>
-                {filteredScrap.length > 0 ? (
-                    filteredScrap.map((scrap) => (
-                        <Card
-                            key={scrap.scrapId}
-                            img={cardImg}
-                            title={scrap.scrapName}
-                            date={scrap.addDate}
-                            icon="delete"
-                        />
-                    ))
-                ) : (
-                    <EmptyMessage>empty</EmptyMessage>
-                )}
-            </ScrapCards>
-        </ScrapContainer>
+        <>
+            <ScrapContainer>
+                <ScrapMiniHeader>
+                    <ScrapNum>Total {filteredScrap.length}</ScrapNum>
+                    <FolderName>in {selectedFolderName}</FolderName>
+                    <ScrapBtn onClick={onBackToFolders}>폴더 선택</ScrapBtn>
+                </ScrapMiniHeader>
+                <ScrapCards>
+                    {filteredScrap.length > 0 ? (
+                        filteredScrap.map((scrap) => (
+                            <Card
+                                key={scrap.scrapId}
+                                type='scrap'
+                                img={cardImg}
+                                title={scrap.scrapName}
+                                date={scrap.addDate}
+                                onDeleteScrap={(e) => handleDeleteScrap(e, scrap.scrapName)}
+                            />
+                        ))
+                    ) : (
+                        <EmptyMessage>empty</EmptyMessage>
+                    )}
+                </ScrapCards>
+            </ScrapContainer>
+
+            {/* Modals */}
+            <Modal 
+                isOpen={oneBtnModal} 
+                onRequestClose={ () => setOneBtnModal(false) }
+                title={modalTitle}
+                type={1}
+            />
+            <Modal 
+                isOpen={twoBtnModal} 
+                onRequestClose={ () => setTwoBtnModal(false) }
+                title={modalTitle}
+                type={2}
+                onConfirm={completeDeleteScrap}
+            />
+        </>
     );
 }
 
