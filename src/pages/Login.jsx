@@ -10,7 +10,7 @@ const LoginForm = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    height: 80vh;
     padding: 20px;
     flex-direction: column;
     margin: 0;
@@ -39,10 +39,10 @@ const LinkContainer = styled.div`
 
 const Link = styled.span`
     cursor: pointer;
-    color: #000; // 기본 색상
+    color: #000;
 
     &:hover {
-        color: #f4a192; // 호버 시 색상 변경
+        color: #f4a192;
     }
 `;
 
@@ -51,8 +51,8 @@ export default function Login() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalTitle, setModalTitle] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
-    const [userId, setUserId] = useState(''); // 아이디 상태 추가
-    const [password, setPassword] = useState(''); // 비밀번호 상태 추가
+    const [userId, setUserId] = useState('');
+    const [password, setPassword] = useState('');
 
     const openModal = (title, navigateToPage = '') => {
         setModalTitle(title);
@@ -64,15 +64,76 @@ export default function Login() {
         setIsModalOpen(false);
     };
 
-    const handleLogin = () => {
-        // 아이디와 비밀번호가 모두 입력되어 있는지 확인
+    // mokdata 이용한 api 연결 구현
+    const handleLogin = async () => {
         if (userId && password) {
-            // 홈 페이지로 이동
-            navigate('/home'); // 홈 페이지 경로로 수정
+            try {
+                // mockdata.json 파일에서 데이터 가져오기
+                const response = await fetch('/data/loginMokData.json');
+                const mockData = await response.json();
+
+                const user = mockData.users.find(
+                    (u) => u.id === userId && u.password === password
+                );
+
+                if (user) {
+                    // mock JWT 토큰 저장
+                    localStorage.setItem('token', user.token);
+
+                    // 홈 페이지로 이동
+                    navigate('/home');
+                } else {
+                    openModal('아이디 또는 비밀번호가 일치하지 않습니다.');
+                }
+            } catch (error) {
+                openModal('서버와의 연결에 문제가 발생했습니다.');
+            }
         } else {
-            openModal('아이디와 비밀번호를 다시 확인해주세요.');
+            openModal('아이디와 비밀번호를 입력해주세요.');
         }
     };
+
+    // 실제 api 명세서 작성 시 코드
+    // const handleLogin = async () => {
+    //     if (userId && password) {
+    //         try {
+    //             // 서버로 로그인 요청
+    //             const response = await fetch('users/login', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({
+    //                     id: userId,
+    //                     password: password,
+    //                 }),
+    //             });
+
+    //             const data = await response.json();
+
+    //             if (response.ok && data.status === 200) {
+    //                 // JWT 토큰이 있다면 로컬 스토리지에 저장 (서버 응답에 따라 수정 가능)
+    //                 localStorage.setItem('token', data.token);
+
+    //                 // 홈 페이지로 이동
+    //                 navigate('/home');
+    //             } else if (response.status === 401) {
+    //                 // 아이디 또는 비밀번호가 일치하지 않음
+    //                 openModal('아이디 또는 비밀번호가 일치하지 않습니다.');
+    //             } else {
+    //                 // 기타 서버 에러
+    //                 openModal(
+    //                     '로그인 중 문제가 발생했습니다. 다시 시도해주세요.'
+    //                 );
+    //             }
+    //         } catch (error) {
+    //             // 네트워크 에러 또는 서버 문제 처리
+    //             openModal('서버와의 연결에 문제가 발생했습니다.');
+    //         }
+    //     } else {
+    //         openModal('아이디와 비밀번호를 입력해주세요.');
+    //     }
+    // };
 
     return (
         <LoginForm>
@@ -85,28 +146,28 @@ export default function Login() {
                     height="80px"
                     marginbottom="15px"
                     autoFocus
-                    value={userId} // 아이디 상태 연결
-                    onChange={(e) => setUserId(e.target.value)} // 아이디 입력 처리
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                 />
                 <TextInput
                     type="password"
                     id="password"
                     placeholder="비밀번호"
                     height="80px"
-                    value={password} // 비밀번호 상태 연결
-                    onChange={(e) => setPassword(e.target.value)} // 비밀번호 입력 처리
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
                 <LinkContainer>
                     <Link onClick={() => navigate('/find/id')}>
                         아이디 찾기
                     </Link>
-                    <div>&ensp;|&ensp; </div>
+                    <div>&ensp;|&ensp;</div>
                     <Link onClick={() => navigate('/find/password')}>
                         비밀번호 찾기
                     </Link>
                 </LinkContainer>
                 <Button
-                    onClick={handleLogin} // 로그인 처리 함수 호출
+                    onClick={handleLogin}
                     width="490px"
                     height="80px"
                     borderRadius="10px"
@@ -134,7 +195,7 @@ export default function Login() {
                 onRequestClose={closeModal}
                 title={modalTitle}
                 navigateTo={navigateTo}
-            ></CommonModal>
+            />
         </LoginForm>
     );
 }

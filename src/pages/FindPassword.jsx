@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import FindInput from '../components/FindInputField'; // 새로 만든 InputField 컴포넌트 import
+import EmailVerificationField from '../components/EmailVerificationField'; // New component
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Btn';
 import styled from 'styled-components';
 import CommonModal from '../components/CommonModal';
 
 const FindPasswordForm = styled.div`
+    margin-top: 120px;
     box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
     min-width: 1050px;
     padding: 50px 0px;
@@ -15,6 +17,7 @@ const TitleStyle = styled.h3`
     font-weight: bold;
     font-size: 40px;
     text-align: center;
+    margin-bottom: 40px;
 `;
 
 const FindPasswordInput = styled.div`
@@ -40,20 +43,18 @@ export default function FindPassword() {
     const [formData, setFormData] = useState({
         userName: '',
         userId: '',
-        birth: '',
-        phone: '',
+        email: '',
     });
 
     const [errors, setErrors] = useState({
         userName: '',
         userId: '',
-        birth: '',
-        phone: '',
+        email: '',
     });
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [timer, setTimer] = useState(180);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
 
     const validate = (fieldName, value) => {
@@ -68,18 +69,9 @@ export default function FindPassword() {
                         '6자 이상 16자 이하의 영문 혹은 숫자를 조합해주세요.';
                 }
                 break;
-            case 'birth':
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-                    error = '생년월일은 YYYY-MM-DD 형식으로 입력해야 합니다.';
-                } else {
-                    const date = new Date(value);
-                    if (date.getFullYear() < 1900 || date > new Date()) {
-                        error = '유효한 생년월일을 입력해주세요.';
-                    }
-                }
-                break;
-            case 'phone':
-                if (!value) error = '휴대폰 번호를 입력해주세요.';
+            case 'email':
+                if (!/\S+@\S+\.\S+/.test(value))
+                    error = '이메일 형식이 맞지 않습니다.';
                 break;
             default:
                 break;
@@ -89,44 +81,108 @@ export default function FindPassword() {
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        const numericValue =
-            id === 'phone' ? value.replace(/[^0-9]/g, '') : value;
-        setFormData({ ...formData, [id]: numericValue });
-        validate(id, numericValue);
+        setFormData({ ...formData, [id]: value });
+        validate(id, value);
     };
 
     const isFormValid = () => {
         return (
             !errors.userName &&
-            !errors.birth &&
-            !errors.phone &&
             !errors.userId &&
+            !errors.email &&
             formData.userName &&
-            formData.userName &&
-            formData.birth &&
-            formData.phone
+            formData.userId &&
+            formData.email
         );
     };
 
-    const checkAccountExists = () => {
-        // 여기에 서버 요청을 통해 계정 존재 여부를 확인하는 로직을 추가하세요.
-        // 예시: return fetch('/api/checkAccount', { method: 'POST', body: JSON.stringify(formData) })
-        // .then(response => response.json());
-
-        // 이곳에서는 예시로 계정이 존재한다고 가정합니다.
-        return true; // 또는 false;
+    const isCertificationValid = () => {
+        return (
+            formData.certificationNum && formData.certificationNum.length === 6
+        );
     };
-    const handleSubmit = async () => {
+
+    const isEmailValid = () => {
+        return (
+            formData.userName &&
+            !errors.userName &&
+            formData.email &&
+            !errors.eamil
+        );
+    };
+
+    //해당 계정 유무 확인(api 요청)
+    const checkAccountExists = async () => {
+        // try {
+        //     const response = await fetch('users/find/password', {
+        //         method: 'POST',
+        //         headers: {
+        //             ContentType: 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             name: formData.userName,
+        //             email: formData.email,
+        //         }),
+        //     });
+
+        //     if (response.status === 200) {
+        //         return true;
+        //     } else if (response.status === 404) {
+        //         openModal('해당하는 회원정보가 없습니다.');
+        //         return false;
+        //     } else {
+        //         openModal(
+        //             '서버 에러가 발생했습니다. 나중에 다시 시도해주세요.'
+        //         );
+        //         return false;
+        //     }
+        // } catch (error) {
+        //     openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+        //     return false;
+        // }
+        return true;
+    };
+
+    // 이메일 인증하기 버튼 핸들러
+    const handleSendCode = async () => {
         if (isFormValid()) {
-            const accountExists = checkAccountExists(); // 계정 존재 여부 확인
+            const accountExists = await checkAccountExists(); // 계정 존재 여부 확인
             if (accountExists) {
-                alert('인증번호를 전송했습니다.');
+                openModal('인증번호를 전송했습니다.');
                 setShowCertificationInput(true);
                 setTimer(180); // 타이머 초기화
-            } else {
-                openModal(
-                    '가입 시 입력하신 회원 정보와 맞는지 다시 한번 확인해주세요.'
-                );
+            }
+        }
+    };
+
+    //인증번호 입력 후 확인 버튼 핸들러
+    const handleSubmit = async () => {
+        if (isCertificationValid()) {
+            try {
+                const response = await fetch('/users/idpw-sendnum', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: formData.email,
+                        code: formData.certificationNum,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.status === 200) {
+                    openModal('인증에 성공하였습니다.', '/find/id/success');
+                } else if (response.status === 404) {
+                    openModal(response.message);
+                } else if (response.status === 500) {
+                    openModal(response.message);
+                } else {
+                    openModal('서버 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            } catch (error) {
+                openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
             }
         }
     };
@@ -140,13 +196,15 @@ export default function FindPassword() {
         } else if (timer === 0) {
             openModal('유효 시간이 만료되었습니다. 다시 시도해주세요.');
             setShowCertificationInput(false); // 입력 필드 숨기기
+            // 인증번호 삭제 로직 추가
+            // 예시: await fetch('/api/deleteCode', { method: 'DELETE' });
         }
         return () => clearInterval(interval);
     }, [showCertificationInput, timer]);
 
     // 모달
-    const openModal = (title, navigateToPage = '') => {
-        setModalTitle(title);
+    const openModal = (message, navigateToPage = '') => {
+        setModalMessage(message);
         setNavigateTo(navigateToPage); // navigateTo 설정
         setIsModalOpen(true);
     };
@@ -155,15 +213,49 @@ export default function FindPassword() {
         setIsModalOpen(false);
     };
 
-    //인증번호 재전송
+    //인증번호 재전송 버튼 핸들러
     const handleResendCode = () => {
-        // 인증번호 재전송 로직 (예: API 호출)
-        openModal('인증번호를 재전송하였습니다.');
-        setFormData((prev) => ({
-            ...prev,
-            certificationNum: '', // 인증번호 입력 필드 초기화
-        }));
-        setTimer(180); // 타이머 초기화
+        if (timer > 60) {
+            // 타이머가 1분 이상 남았을 경우
+            openModal(
+                '재발송 요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.'
+            );
+        } else {
+            // 타이머가 1분 미만 남았을 경우
+            // openModal('인증번호를 재전송하였습니다.');
+            setFormData((prev) => ({
+                ...prev,
+                certificationNum: '', // 인증번호 입력 필드 초기화
+            }));
+            setTimer(180); // 타이머 초기화
+
+            // API 요청을 통해 인증번호를 재전송
+            resendCodeAPI();
+        }
+    };
+
+    // 인증번호 재전송 API 호출 함수
+    const resendCodeAPI = async () => {
+        try {
+            const response = await fetch('/api/resendCode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    name: formData.userName,
+                }),
+            });
+
+            if (response.status === 200) {
+                openModal('인증번호가 재전송되었습니다.');
+            } else {
+                openModal('서버 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+        } catch (error) {
+            openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+        }
     };
 
     return (
@@ -181,6 +273,7 @@ export default function FindPassword() {
                     value={formData.userName}
                     error={!!errors.userName} // 에러가 있는 경우 true로 설정
                     errorMessage={errors.userName} // 에러 메시지 전달
+                    disabledInput={showCertificationInput} // 인증번호 입력 중일 때 비활성화
                 />
                 <TitleLabel>아이디</TitleLabel>
                 <FindInput
@@ -193,30 +286,23 @@ export default function FindPassword() {
                     value={formData.userId}
                     error={!!errors.userId} // 에러가 있는 경우 true로 설정
                     errorMessage={errors.userId} // 에러 메시지 전달
+                    disabledInput={showCertificationInput} // 인증번호 입력 중일 때 비활성화
                 />
-                <TitleLabel>생년월일</TitleLabel>
+                <TitleLabel>이메일</TitleLabel>
                 <FindInput
-                    type="date"
-                    id="birth"
-                    placeholder="생년월일"
+                    type="email"
+                    id="email"
+                    placeholder="이메일"
                     height="80px"
-                    marginbottom="15px"
+                    marginbottom="40px"
                     onChange={handleChange}
-                    value={formData.birth}
-                    error={!!errors.birth} // 에러가 있는 경우 true로 설정
-                    errorMessage={errors.birth} // 에러 메시지 전달
-                />
-                <TitleLabel>휴대폰 번호</TitleLabel>
-                <FindInput
-                    type="tel"
-                    id="phone"
-                    placeholder="휴대폰 번호를 입력해주세요."
-                    height="80px"
-                    marginbottom="15px"
-                    onChange={handleChange}
-                    value={formData.phone}
-                    error={!!errors.phone} // 에러가 있는 경우 true로 설정
-                    errorMessage={errors.phone} // 에러 메시지 전달
+                    value={formData.email}
+                    error={!!errors.email}
+                    errorMessage={errors.email}
+                    isEmailVerification={true}
+                    onSendCode={handleSendCode}
+                    disabledBtn={showCertificationInput || !isEmailValid()}
+                    disabledInput={showCertificationInput} // 인증번호 입력 중일 때 비활성화
                 />
                 {showCertificationInput && (
                     <>
@@ -233,8 +319,8 @@ export default function FindPassword() {
                             timerValue={`${Math.floor(timer / 60)}:${
                                 timer % 60 < 10 ? `0${timer % 60}` : timer % 60
                             }`} // 타이머 값 전달
-                            isVerificationCode={true} //재전송 버튼
-                            onResendCode={handleResendCode} // 재전송 핸들러 전달
+                            isVerificationCode={true}
+                            onResendCode={handleResendCode}
                         />
                     </>
                 )}
@@ -244,16 +330,16 @@ export default function FindPassword() {
                         height="80px"
                         borderRadius="10px"
                         fontSize="26px"
-                        text="인증번호 받기"
+                        text="확인"
                         onClick={handleSubmit}
-                        disabled={!isFormValid()} // 유효성 검증에 따라 비활성화
+                        disabled={!isCertificationValid()} // 인증번호 입력 중이면 비활성화
                     />
                 </ButtonStyle>
                 {/* 모달 추가 */}
                 <CommonModal
                     isOpen={isModalOpen}
                     onRequestClose={closeModal}
-                    title={modalTitle}
+                    title={modalMessage}
                     navigateTo={navigateTo} // navigateTo 전달
                 ></CommonModal>
             </FindPasswordInput>

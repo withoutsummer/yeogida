@@ -33,7 +33,6 @@ const StyledButton = styled.button.attrs(({ style }) => ({
     }
 `;
 
-
 export default function BtnPink({
     width,
     height,
@@ -42,7 +41,8 @@ export default function BtnPink({
     backgroundColor,
     borderColor,
     fontSize,
-    fontWeight, style,
+    fontWeight,
+    style,
     text,
     onClick = () => {},
     hoverBackgroundColor,
@@ -59,10 +59,8 @@ export default function BtnPink({
             backgroundColor={backgroundColor}
             borderColor={borderColor}
             fontSize={fontSize}
-    
-
-        fontWeight={fontWeight}
-        style={style}
+            fontWeight={fontWeight}
+            style={style}
             onClick={onClick}
             hoverBackgroundColor={hoverBackgroundColor}
             hoverColor={hoverColor}
