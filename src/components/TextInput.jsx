@@ -27,6 +27,7 @@ export default function TextInput({
     onChange, // onChange 핸들러 추가
     onFocus, // onFocus 핸들러 추가
     value, // value prop 추가
+    disabled = false,
 }) {
     return (
         <StyledInput
@@ -39,6 +40,7 @@ export default function TextInput({
             onChange={onChange} // onChange 핸들러 전달
             onFocus={onFocus} // onFocus 핸들러 전달
             value={value} // value prop 전달
+            disabled={disabled}
         />
     );
 }
