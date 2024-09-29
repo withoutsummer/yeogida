@@ -14,7 +14,7 @@ import SortDropdown from '../components/SortDropdown';
 import CommonModal from '../components/CommonModal';
 
 const HeaderStyle = styled.div `
-    margin-top: 220px;
+    margin-top: 200px;
     margin-bottom: 50px;
     font-weight: bold;
     font-size: 40px;

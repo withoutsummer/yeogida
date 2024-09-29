@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Btn from '../components/Btn';
 import Modal from '../components/CommonModal';
-import EditInfoInput from '../components/EditInfoInput';
+// import EditInfoInput from '../components/EditInfoInput';
 import defaultProfileImg from './img/card_img.png';
 import { useNavigate } from 'react-router-dom';
 
 const HeaderStyle = styled.div`
-    margin-top: 220px;
+    margin-top: 200px;
     margin-bottom: 172px;
+    // margin-bottom: 100px;
     font-weight: bold;
     font-size: 40px;
     display: flex;
@@ -174,6 +175,10 @@ const TimerStyled = styled.div`
     transform: translateY(-50%);
     font-size: 18px;
     color: #555;
+`;
+
+const userinfoData = styled.div`
+    
 `;
 
 // ----------비밀번호 확인 전 Component----------

@@ -208,31 +208,13 @@ export default function Header() {
                                         {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
                                         {viewDropdown && (
                                             <StyledDropdown>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        navigate(
-                                                            '/mypage/editinfo'
-                                                        )
-                                                    }
-                                                >
-                                                    개인정보 수정
+                                                <DropdownMenu onClick={() =>navigate('/mypage/userinfo')}>
+                                                    회원정보 관리
                                                 </DropdownMenu>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        navigate(
-                                                            '/mypage/friend'
-                                                        )
-                                                    }
-                                                >
+                                                <DropdownMenu onClick={() =>navigate('/mypage/friend')}>
                                                     친구목록
                                                 </DropdownMenu>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        navigate(
-                                                            '/mypage/scrap'
-                                                        )
-                                                    }
-                                                >
+                                                <DropdownMenu onClick={() =>navigate('/mypage/scrap')}>
                                                     스크랩
                                                 </DropdownMenu>
                                             </StyledDropdown>
