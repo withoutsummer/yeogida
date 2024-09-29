@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
+import YesNoModal from '../components/YesNoModal';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -168,6 +169,31 @@ const MapContainer = styled.div`
   margin: 20px auto;
 `;
 
+// 지도 마커 스타일
+const markerContent = styled.div`
+  width: 32px;
+  height: 40px;
+  flex-shrink: 0;
+  fill: #000;
+
+  .text{
+    display: flex;
+    width: 19px;
+    height: 18px;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #FFF;
+    text-align: center;
+    font-family: Inter;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 150%; /* 33px */
+    letter-spacing: -0.44px;
+  }
+`;
+
 // 검색 결과 리스트를 위한 스타일
 const SearchResultsContainer = styled.div`
   position: absolute;
@@ -210,6 +236,8 @@ export default function Editor({ onChange = () => {} }) {
   const [currentDay, setCurrentDay] = useState(1);
   const [days, setDays] = useState([]);
 
+  const [modalIsOpen, setModalIsOpen] = useState(false); // 모달 열림 상태 추가
+
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchResults, setSearchResults] = useState([]); // 검색 결과를 저장할 상태
 
@@ -229,13 +257,14 @@ export default function Editor({ onChange = () => {} }) {
         navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
 
+        // 네이버 지도 옵션 선택
         const mapOptions = {
+          // 지도의 초기 중심 좌표
           center: new window.naver.maps.LatLng(37.52133, 126.9522),
           logoControl: false,
           mapDataControl: false,
           scaleControl: true,
-          zoom: 17,
-          minZoom: 15,
+          zoom: 14,
           zoomControl: true,
           zoomControlOptions: { position: 9 },
           tileDuration: 300,
@@ -247,10 +276,17 @@ export default function Editor({ onChange = () => {} }) {
         const mapInstance = new window.naver.maps.Map('map', mapOptions);
         setMap(mapInstance);
 
-        new window.naver.maps.Marker({
-          position: new window.naver.maps.LatLng(latitude, longitude),
-          map: mapInstance,
-        });
+        // // 현재 내 위치 마커 표시
+        // new window.naver.maps.Marker({
+        //   // 생성될 마커의 위치
+        //   position: new window.naver.maps.LatLng(currentMyLocation.lat, currentMyLocation.lng),
+        //   // 마커를 표시할 map 객체
+        //   map: mapInstance,
+        //   icon: {
+        //     content: markerContent,
+        //     anchor: new naver.maps.Point(0, 50),  // 마커의 위치 설정
+        //   }
+        // });
       }, (error) => {
         console.error('Error fetching location', error);
       });
@@ -313,12 +349,30 @@ export default function Editor({ onChange = () => {} }) {
     onChange(newContent);
   };
 
+  const handleCancelClick = () => {
+    setModalIsOpen(true); // 모달 열기
+  };
+
+  const handleModalClose = () => {
+      setModalIsOpen(false); // 모달 닫기
+  };
+
   return (
     <div>
       <ButtonContainer>
-        <NavButton>취소하기</NavButton>
+        <NavButton onClick={handleCancelClick}>취소하기</NavButton>
         <NavButton>저장하기</NavButton>
       </ButtonContainer>
+
+      {/* 취소하기 모달창 */}
+      <YesNoModal
+                isOpen={modalIsOpen}
+                onRequestClose={handleModalClose}
+                title="작성을 취소하시겠습니까?"
+                bodyText="작성 중이던 내용이 모두 삭제됩니다."
+                navigateTo="/other-page"
+            >
+      </YesNoModal>
 
       {/* 썸네일, 제목, 날짜를 표시하는 상단 영역 */}
       <HeaderContainer thumbnail={thumbnail}>

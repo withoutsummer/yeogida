@@ -16,7 +16,7 @@ const Tag = styled.div`
     align-items: center;
     justify-content: center;
     padding: 0;
-    background-color: #F4A192;
+    background-color: #59ABE6;
     border-radius: 25px;
     font-size: 16px;
     color: #fff;

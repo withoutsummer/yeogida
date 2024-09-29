@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaSearch, FaChevronDown } from 'react-icons/fa';
 import logo from '../assets/yeogida_logo.png';
 
 const HeaderStyle = styled.div`
@@ -55,6 +54,27 @@ const Bell = styled.div`
     svg {
         width: 100%;
         height: 100%;
+    }
+`;
+
+const NotificationDropdown = styled.div`
+    position: absolute;
+    top: 35px;
+    right: 0;
+    width: 250px;
+    max-height: 300px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow-y: auto;
+    z-index: 1001;
+`;
+
+const NotificationItem = styled.div`
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    &:hover {
+        background-color: #f6f6f6;
     }
 `;
 
