@@ -43,15 +43,15 @@ const NavButton = styled.button`
     align-items: center;
     gap: 10px;
     border-radius: 20px;
-    background: #F6F6F6;
-    color: #000;
+    background: ${(props) => (props.selected ? '#59ABE6' : '#F6F6F6')};
+    color: ${(props) => (props.selected ? '#FFF' : '#000')};
     font-family: NanumGothic;
     font-size: 16px;
     font-weight: 600;
     line-height: 140%;
     border: none;
     &:hover {
-        background-color: #F4A192;
+        background-color: ${(props) => (props.selected ? '#59ABE6' : '#59ABE6')};
         color: #FFF;
     }
 `;
@@ -73,6 +73,7 @@ const TextTitle = styled.p`
 
 const TotalText = styled.p`
     display: inline-flex;
+    width: 65px;
     padding: 6px 16px;
     justify-content: center;
     align-items: center;
@@ -106,7 +107,7 @@ const PlusButton = styled.button`
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    background: #F4A192;
+    background: #59ABE6;
     color: #fff;
     font-family: NanumGothic;
     font-size: 16px;
@@ -171,7 +172,7 @@ const Line = styled.div`
     }
 
     &:hover {
-        background-color: #F4BFB4;
+        background-color: #59ABE6;
         color: #FFF;
     }
 `;
@@ -189,6 +190,8 @@ export default function MyTrip() {
     const [page, setPage] = useState(1);
     const offset = (page - 1) * limit;
     const [isListView, setIsListView] = useState(false);
+    const [selectedButton, setSelectedButton] = useState('전체일정'); // 선택된 버튼을 추적하는 상태
+    const userName = 'seorin'; // 사용자 이름을 설정
     const [sortPath, setSortPath] = useState('latest'); // 초기값을 'latest'로 설정
 
     const toggleView = () => {
@@ -221,6 +224,13 @@ export default function MyTrip() {
         { id: 10, no: 10, 제목: "맛집투어", 여행지: ["서울"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
         { id: 11, no: 11, 제목: "강릉 여행", 여행지: ["강릉"], 소유자: "sieun", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
     ];
+
+    // '내가 만든 일정' 필터링
+    const filteredPosts = selectedButton === '내가 만든 일정'
+        ? posts.filter(post => post.소유자 === userName)
+        : selectedButton === '공유 받은 일정'
+        ? posts.filter(post => post.소유자 !== userName)
+        : posts;
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -259,13 +269,28 @@ export default function MyTrip() {
     return (
         <MyTripContainer>
             <ButtonContainer>
-                <NavButton>전체 일정</NavButton>
-                <NavButton>내가 만든 일정</NavButton>
-                <NavButton>공유 받은 일정</NavButton>
+            <NavButton
+                    selected={selectedButton === '전체일정'}
+                    onClick={() => setSelectedButton('전체일정')}
+                >
+                    전체 일정
+                </NavButton>
+                <NavButton
+                    selected={selectedButton === '내가 만든 일정'}
+                    onClick={() => setSelectedButton('내가 만든 일정')}
+                >
+                    내가 만든 일정
+                </NavButton>
+                <NavButton
+                    selected={selectedButton === '공유 받은 일정'}
+                    onClick={() => setSelectedButton('공유 받은 일정')}
+                >
+                    공유 받은 일정
+                </NavButton>
             </ButtonContainer>
             <TextTitle>나의 여행 일정</TextTitle>
             <ListContainer>
-                <TotalText>Total {posts.length}</TotalText>
+                <TotalText>Total {filteredPosts.length}</TotalText>
                 <PlusButton onClick={openModal}>새 여행 추가하기</PlusButton>
                 <Modal isOpen={isOpen} onRequestClose={closeModal} style={customStyles}>
                     <Newtrip closeModal={closeModal} />
@@ -318,7 +343,7 @@ export default function MyTrip() {
                         <div className="title min">날짜</div>
                         <div className="title no"></div>
                     </Index>
-                    {posts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
+                    {filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
                         <Line key={id}>
                             <div className="list no">{no}</div>
                             <div className="list max">{제목}</div>
@@ -340,7 +365,7 @@ export default function MyTrip() {
             ) : (
                 <CardsContainer>
                     {/* 카드 형식 콘텐츠 */}
-                    {posts.slice(offset).map((post) => (
+                    {filteredPosts.slice(offset, offset + limit).map((post) => (
                         <Card
                         key={post.id}
                         img={post.썸네일}

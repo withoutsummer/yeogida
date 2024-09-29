@@ -20,7 +20,6 @@ function App() {
                 <Header />
                 <Routes>
                     <Route path="/" element={<Home />} /> {/* 메인 */}
-                    
                     <Route path="/login" element={<Login />} /> {/* 로그인 */}
                     <Route path="/signup" element={<Signup />} />{/* 회원가입 */}
                     <Route path="/find/id" element={<FindId />}/>{/* 아이디 찾기 */}
@@ -30,8 +29,6 @@ function App() {
                     <Route path="/sharetrip" element={<Sharetrip />} />{/* 여행 공유 */}
                     <Route path="/details/:id" element={<SharetripDetail />} />{/* 여행 공유 상세*/}
                     <Route path="/mypage/*" element={<Mypage />} /> {/* 마이페이지 */}   
-
-
                 </Routes>
                 <Footer />
             </div>
