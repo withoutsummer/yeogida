@@ -146,9 +146,10 @@ export default function Card({
     author,
     comment,
     likes,
+    onClick,
 }) {
     return (
-        <CardContainer>
+        <CardContainer onClick={onClick}>
             <CardImage src={img} alt={title} />
             <CardBody>
                 <CardTitle>{title}</CardTitle>

@@ -55,7 +55,7 @@ const SharetripContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 200px;
+    margin-top: 150px;
     margin-bottom: 100px;
 `;
 

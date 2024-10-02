@@ -39,7 +39,7 @@ const CommonModal = ({
             style={{
                 overlay: {
                     backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                    zIndex: 1000,
+                    zIndex: 1500,
                 },
                 content: {
                     top: '50%',
@@ -47,8 +47,8 @@ const CommonModal = ({
                     right: 'auto',
                     bottom: 'auto',
                     transform: 'translate(-50%, -50%)',
-                    width: '500px',
-                    height: '250px',
+                    width: '410px',
+                    height: '200px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -61,7 +61,7 @@ const CommonModal = ({
                 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
-                    marginBottom: '40px',
+                    marginBottom: '50px',
                     textAlign: 'center',
                 }}
             >
@@ -72,7 +72,7 @@ const CommonModal = ({
                 style={{
                     fontSize: '16px',
                     marginTop: '-24px',
-                    marginBottom: '40px',
+                    marginBottom: '50px',
                     textAlign: 'center',
                 }}
             >
@@ -85,9 +85,11 @@ const CommonModal = ({
                     width="400px"
                     height="50px"
                     borderRadius="10px"
+                    borderColor="#59ABE6"
                     fontSize="18px"
-                    backgroundColor="#F4A192"
-                    hoverBackgroundColor="#E78B7A"
+                    backgroundColor="#59ABE6"
+                    hoverBackgroundColor="#0D90EE"
+                    hoverBorderColor="#0D90EE"
                     text="확 인"
                 />
             )}
@@ -106,8 +108,8 @@ const CommonModal = ({
                         height="50px"
                         borderRadius="10px"
                         fontSize="18px"
-                        backgroundColor="#F4A192"
-                        hoverBackgroundColor="#E78B7A"
+                        backgroundColor="#59ABE6"
+                        hoverBackgroundColor="#0D90EE"
                         text="확 인"
                     />
                     <Button

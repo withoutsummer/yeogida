@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import logo from '../assets/yeogida_logo.png';
+import Bell from '../components/Bell';
 
 const HeaderStyle = styled.div`
     position: fixed; /* 고정된 위치 설정 */
@@ -47,49 +48,17 @@ const NavBox = styled.div`
     line-height: normal;
 `;
 
-const Bell = styled.div`
-    width: 24px;
-    height: 24px;
-    margin-left: 407px; /* <li> 태그와의 간격 조절 */
-    svg {
-        width: 100%;
-        height: 100%;
-    }
-`;
-
-const NotificationDropdown = styled.div`
-    position: absolute;
-    top: 35px;
-    right: 0;
-    width: 250px;
-    max-height: 300px;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow-y: auto;
-    z-index: 1001;
-`;
-
-const NotificationItem = styled.div`
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    &:hover {
-        background-color: #f6f6f6;
-    }
-`;
-
 const Button = styled.button`
     width: 110px;
     height: 50px;
-    background-color: #000;
-    color: #fff;
     padding: 0 10px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
     margin-left: 50px; /* Bell과 간격 조절 */
     border-radius: 5px;
-    background: var(--black, #000);
+    background: #59ABE6;
+    border: none;
     color: #fff;
     font-family: NanumGothic;
     font-size: 16px;
@@ -159,7 +128,6 @@ export const Nav = styled.nav`
 
 export default function Header() {
     const navigate = useNavigate();
-
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -224,20 +192,7 @@ export default function Header() {
                             </ul>
                         </Nav>
                     </NavBox>
-                    <Bell>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="26"
-                            height="26"
-                            viewBox="0 0 26 26"
-                            fill="none"
-                        >
-                            <path
-                                d="M22.5002 16.7041C21.6526 15.2461 21.2024 13.1533 21.2024 10.6562C21.2024 8.48065 20.3381 6.39415 18.7997 4.85576C17.2614 3.31738 15.1749 2.45313 12.9993 2.45312C10.8237 2.45313 8.73716 3.31738 7.19878 4.85576C5.66039 6.39415 4.79614 8.48065 4.79614 10.6562C4.79614 13.1543 4.3479 15.2461 3.50024 16.7041C3.32727 17.0015 3.23559 17.3391 3.23439 17.6832C3.23319 18.0272 3.32252 18.3655 3.4934 18.6641C3.66321 18.9628 3.90968 19.2108 4.20736 19.3825C4.50504 19.5542 4.84314 19.6433 5.18676 19.6406H8.71997C8.81687 20.7086 9.30963 21.7018 10.1014 22.425C10.8932 23.1482 11.9269 23.5492 12.9993 23.5492C14.0717 23.5492 15.1053 23.1482 15.8971 22.425C16.6889 21.7018 17.1817 20.7086 17.2786 19.6406H20.8118C21.1549 19.6428 21.4924 19.5534 21.7895 19.3817C22.0866 19.2101 22.3326 18.9624 22.5022 18.6641C22.6738 18.3659 22.764 18.0278 22.7637 17.6838C22.7633 17.3398 22.6725 17.0019 22.5002 16.7041ZM12.9993 21.2031C12.549 21.2032 12.1126 21.0477 11.7638 20.763C11.415 20.4783 11.1753 20.0818 11.0852 19.6406H14.9133C14.8233 20.0818 14.5836 20.4783 14.2348 20.763C13.886 21.0477 13.4495 21.2032 12.9993 21.2031ZM5.83715 17.2969C6.70141 15.5391 7.13989 13.3066 7.13989 10.6562C7.13989 9.10225 7.75721 7.61189 8.85606 6.51305C9.95491 5.4142 11.4453 4.79688 12.9993 4.79688C14.5533 4.79688 16.0436 5.4142 17.1425 6.51305C18.2413 7.61189 18.8586 9.10225 18.8586 10.6562C18.8586 13.3057 19.2961 15.5391 20.1604 17.2969H5.83715Z"
-                                fill="black"
-                            />
-                        </svg>
-                    </Bell>
+                    <Bell/>
                     <Button onClick={() => navigate('/login')}>로그인</Button>
                 </HeaderContainer>
             </HeaderStyle>

@@ -20,7 +20,7 @@ const Tag = styled.div`
     align-items: center;
     padding: 5px 10px;
     margin-right: 5px;
-    background-color: #F4A192;
+    background-color: #59ABE6;
     border-radius: 25px;
     font-size: 16px;
     color: #fff;
@@ -82,6 +82,7 @@ export default function TagInput({ tags, setTags }) {
     return (
         <TagInputContainer>
             <TagInputField
+                placeholder="여행지 입력 후, 엔터키를 눌러주세요."
                 type="text"
                 value={inputValue}
                 onChange={handleInputChange}

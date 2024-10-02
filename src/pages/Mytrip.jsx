@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Pagination from './Pagination';
 import Modal from 'react-modal';
@@ -12,7 +13,7 @@ const MyTripContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 200px;
+    margin-top: 150px;
     margin-bottom: 100px;
 `;
 
@@ -51,7 +52,7 @@ const NavButton = styled.button`
     line-height: 140%;
     border: none;
     &:hover {
-        background-color: ${(props) => (props.selected ? '#59ABE6' : '#59ABE6')};
+        background-color: ${(props) => (props.selected ? '#0D90EE' : '#0D90EE')};
         color: #FFF;
     }
 `;
@@ -107,13 +108,17 @@ const PlusButton = styled.button`
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    background: #59ABE6;
-    color: #fff;
+    background: ${(props) => (props.selected ? '#59ABE6' : '#59ABE6')};
+    color: ${(props) => (props.selected ? '#FFF' : '#FFF')};
     font-family: NanumGothic;
     font-size: 16px;
     font-weight: 600;
     line-height: 140%;
     border: 1px solid #E0E0E0;
+    &:hover {
+        background-color: ${(props) => (props.selected ? '#0884DE' : '#0884DE')};
+        color: #FFF;
+    }
 `;
 
 const Index = styled.div`
@@ -172,8 +177,8 @@ const Line = styled.div`
     }
 
     &:hover {
-        background-color: #59ABE6;
-        color: #FFF;
+        background-color: #EEF5FF;
+        color: #000;
     }
 `;
 
@@ -194,6 +199,16 @@ export default function MyTrip() {
     const userName = 'seorin'; // 사용자 이름을 설정
     const [sortPath, setSortPath] = useState('latest'); // 초기값을 'latest'로 설정
 
+    const navigate = useNavigate(); // 페이지 이동을 위한 hook 추가
+
+    const handleTripClick = (id) => {
+        // 여행 일정을 클릭하면 해당 ID의 상세 페이지로 이동
+        const tripData = posts.find(post => post.id === id);
+        if (tripData) {
+            navigate(`/mytrip/${id}`, { state: { posts } }); // posts를 state로 전달
+        }
+      };
+
     const toggleView = () => {
         setIsListView(!isListView);
     };
@@ -212,7 +227,7 @@ export default function MyTrip() {
     const [tags, setTags] = useState([]); // 빈 배열로 초기화
     // Mock Data 사용
     const posts = [
-        { id: 1, no: 1, 제목: "부산 3박 4일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "999", 좋아요: "999"},
+        { id: 1, no: 1, 제목: "부산 3박 4일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13 ~ 2024-09-15", 썸네일: "https://via.placeholder.com/300", 댓글: "999", 좋아요: "999"},
         { id: 2, no: 2, 제목: "부산 1박 2일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
         { id: 3, no: 3, 제목: "강릉 2박 3일", 여행지: ["강릉"], 소유자: "seorin", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
         { id: 4, no: 4, 제목: "부산 당일치기", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
@@ -334,50 +349,50 @@ export default function MyTrip() {
             
             {/* 리스트 또는 카드 형식의 콘텐츠가 렌더링 되는 부분 */}
             {isListView ? (
-                <div>
-                    <Index>
-                        <div className="title no">No</div>
-                        <div className="title max">제목</div>
-                        <div className="title min">여행지</div>
-                        <div className="title min">소유자</div>
-                        <div className="title min">날짜</div>
-                        <div className="title no"></div>
-                    </Index>
-                    {filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
-                        <Line key={id}>
-                            <div className="list no">{no}</div>
-                            <div className="list max">{제목}</div>
-                            <div className="list min">
-                                <Tags tags={[여행지]}/>
-                            </div>
-                            <div className="list min">{소유자}</div>
-                            <div className="list min">{날짜}</div>
-                            <div className="list no">{아이콘}</div>
-                        </Line>
-                    ))}
-                    <Pagination 
-                        total={posts.length}
-                        limit={limit}
-                        page={page}
-                        setPage={setPage}
-                    />
+            <div>
+            <Index>
+                <div className="title no">No</div>
+                <div className="title max">제목</div>
+                <div className="title min">여행지</div>
+                <div className="title min">소유자</div>
+                <div className="title min">날짜</div>
+                <div className="title no"></div>
+            </Index>
+            {filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
+                <Line key={id} onClick={() => handleTripClick(id)}>
+                <div className="list no">{no}</div>
+                <div className="list max">{제목}</div>
+                <div className="list min">
+                    <Tags tags={[여행지]} />
                 </div>
-            ) : (
-                <CardsContainer>
-                    {/* 카드 형식 콘텐츠 */}
-                    {filteredPosts.slice(offset, offset + limit).map((post) => (
-                        <Card
-                        key={post.id}
-                        img={post.썸네일}
-                        title={post.제목}
-                        date={post.날짜}
-                        author={post.소유자}
-                        comment={post.댓글}
-                        likes={post.좋아요}
-                        />
-                    ))}
-                </CardsContainer>
-            )}
-        </MyTripContainer>
+                <div className="list min">{소유자}</div>
+                <div className="list min">{날짜}</div>
+                <div className="list no">{아이콘}</div>
+                </Line>
+            ))}
+            <Pagination 
+                total={posts.length}
+                limit={limit}
+                page={page}
+                setPage={setPage}
+            />
+            </div>
+        ) : (
+            <CardsContainer>
+            {filteredPosts.map((post) => (
+                <Card
+                    key={post.id}
+                    img={post.썸네일}
+                    title={post.제목}
+                    date={post.날짜}
+                    author={post.소유자}
+                    comment={post.댓글}
+                    likes={post.좋아요}
+                    onClick={() => handleTripClick(post.id)}
+                />
+            ))}
+            </CardsContainer>
+        )}
+    </MyTripContainer>
     );
 }

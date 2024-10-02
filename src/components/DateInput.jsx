@@ -40,7 +40,7 @@ const StyledDatePickerWrapper = styled.div`
     }
 
     .react-datepicker__day:hover{
-        background-color: #F4A192;
+        background-color: #59ABE6;
         color: black;
     }
 
@@ -49,25 +49,25 @@ const StyledDatePickerWrapper = styled.div`
     }
 
     .react-datepicker__day--selected {
-        background-color: #FABFB4; /* 선택된 날짜의 배경색 조정 */
+        background-color: #59ABE6; /* 선택된 날짜의 배경색 조정 */
         color: white; /* 선택된 날짜의 글자색 조정 */
     }
 
     .react-datepicker__day--in-range:hover,
     .react-datepicker__day--in-range {
-        background-color: #F4A192; /* 선택된 범위의 날짜 배경색 */
+        background-color: #59ABE6; /* 선택된 범위의 날짜 배경색 */
         color: white; /* 선택된 범위의 날짜 글자색 */
     }
 
     .react-datepicker__day--in-selecting-range,
     .react-datepicker__day--in-selecting-range:hover {
-        background-color: #F4A192; /* 선택 중 범위의 날짜 배경색 */
+        background-color: #59ABE6; /* 선택 중 범위의 날짜 배경색 */
         color: white; /* 선택 중 범위의 날짜 글자색 */
     }
 
     .react-datepicker__day--range-start,
     .react-datepicker__day--range-end{
-        background-color: #FABFB4; /* 범위의 끝 날짜 배경색 */
+        background-color: #0D90EE; /* 범위의 끝 날짜 배경색 */
         color: white; /* 범위의 끝 날짜 글자색 */
     }
 `;

@@ -14,6 +14,7 @@ import FindId from './pages/FindId';
 import FindPassword from './pages/FindPassword';
 import FindIdSuccess from './pages/FindIdSuccess';
 import ResetPassword from './pages/ResetPassword';
+import TripDetailPage from './pages/TripDetailPage';
 
 function App() {
     return (
@@ -23,32 +24,31 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} /> {/* 메인 */}
                     <Route path="/login" element={<Login />} /> {/* 로그인 */}
-                    <Route path="/signup" element={<Signup />} />
-                    {/* 회원가입 */}
-                    <Route path="/find/id" element={<FindId />} />
-                    {/* 아이디 찾기 */}
-                    <Route path="/find/password" element={<FindPassword />} />
-                    {/* 비밀번호 찾기 */}
+                    <Route path="/signup" element={<Signup />} />   {/* 회원가입 */}
+                    <Route path="/find/id" element={<FindId />} />  {/* 아이디 찾기 */}
+                    <Route path="/find/password" element={<FindPassword />} />  {/* 비밀번호 찾기 */}
+                    {/* 아이디 찾기 성공 */}
                     <Route
                         path="/find/id/success"
                         element={<FindIdSuccess />}
                     />
-                    {/* 아이디 찾기 성공 */}
+                    {/* 비밀번호 재설정 */}
                     <Route
                         path="/find/password/reset"
                         element={<ResetPassword />}
                     />
-                    {/* 비밀번호 재설정 */}
-                    <Route path="/mytrip" element={<Mytrip />} />
                     {/* 나의 여행 */}
-                    <Route path="/editor" element={<Editor />} />{' '}
+                    <Route path="/mytrip" element={<Mytrip />} />
                     {/*새 여행 만들기*/}
+                    <Route path="/mytrip/editor" element={<Editor />} />
+                    {/* 나의 여행 상세페이지 */}
                     <Route path="/sharetrip" element={<Sharetrip />} />
                     {/* 여행 공유 */}
-                    <Route path="/details/:id" element={<SharetripDetail />} />
+                    <Route path="/mytrip/:id" element={<TripDetailPage />} />
                     {/* 여행 공유 상세*/}
-                    <Route path="/mypage/*" element={<Mypage />} />{' '}
+                    <Route path="/details/:id" element={<SharetripDetail />} />
                     {/* 마이페이지 */}
+                    <Route path="/mypage/*" element={<Mypage />} />{' '}
                 </Routes>
                 <Footer />
             </div>

@@ -13,7 +13,7 @@ const InputContainer = styled.div`
 const customStyles = {
     multiValue: (base) => ({
         ...base,
-        backgroundColor: '#F4A192', // 태그 배경 색상
+        backgroundColor: '#59ABE6', // 태그 배경 색상
         borderRadius: '25px',
         padding: '2px 5px',
         margin: '2px',
@@ -28,7 +28,7 @@ const customStyles = {
         color: '#fff', // 태그 제거 버튼 색상
         cursor: 'pointer',
         ':hover': {
-            color: '#FC6449' // 태그 제거 버튼 호버 색상
+            color: '#0579A4' // 태그 제거 버튼 호버 색상
         }
     }),
     control: (base, state) => ({
@@ -39,8 +39,8 @@ const customStyles = {
         boxShadow: 'none', // 드롭다운 그림자 제거
         borderRadius: '4px',
         ':focus': {
-            borderColor: '#F4A192', // 포커스 시 드롭다운 테두리 색상
-            boxShadow: `0 0 0 1px #F4A192`, // 포커스 시 그림자 색상
+            borderColor: '#59ABE6', // 포커스 시 드롭다운 테두리 색상
+            boxShadow: `0 0 0 1px #59ABE6`, // 포커스 시 그림자 색상
         },
         ':hover': {
             borderColor: '#424242'
@@ -58,10 +58,10 @@ const customStyles = {
     }),
     option: (base, state) => ({
         ...base,
-        backgroundColor: state.isFocused ? '#F4A192' : '#fff', // 호버 색상
+        backgroundColor: state.isFocused ? '#59ABE6' : '#fff', // 호버 색상
         color: state.isFocused ? '#fff' : '#000', // 텍스트 색상
         ':active': {
-            backgroundColor: '#F4A192',
+            backgroundColor: '#59ABE6',
             color: '#fff'
         }
     })

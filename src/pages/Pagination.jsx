@@ -30,7 +30,7 @@ const Button = styled.button`
     letter-spacing: -0.12px;
 
     &:hover {
-        color: #F4A192;
+        color: #59ABE6;
         font-weight: bolder;
         cursor: pointer;
     }
@@ -41,8 +41,8 @@ const Button = styled.button`
     }
 
     &[aria-current='page'] {
-        border: 1px solid #F4A192;
-        background-color: #F4A192;
+        border: 1px solid #59ABE6;
+        background-color: #59ABE6;
         color: white;
         font-weight: bold;
         cursor: revert;
