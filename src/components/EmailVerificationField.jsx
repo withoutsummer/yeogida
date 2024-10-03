@@ -65,16 +65,16 @@ const EmailVerificationField = ({
                     <Button
                         width="130px"
                         height="65px"
-                        color="#F4A192"
+                        color="#59ABE6"
                         backgroundColor="white"
-                        borderColor="#F4A192"
+                        borderColor="#59ABE6"
                         borderRadius="10px"
                         fontSize="20px"
                         text="인증하기"
                         onClick={onSubmitEmail}
-                        hoverBackgroundColor="#F4A192"
+                        hoverBackgroundColor="#59ABE6"
                         hoverColor="white"
-                        hoverBorderColor="#F4A192"
+                        hoverBorderColor="#59ABE6"
                     />
                 </Btntyle>
             </InputWrapper>

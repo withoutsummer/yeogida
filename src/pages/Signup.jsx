@@ -17,7 +17,7 @@ const FormContainer = styled.form`
 const TitleLabel = styled.h2`
     margin-bottom: 80px;
     font-weight: bold;
-    font-size: 40px;
+    font-size: 36px;
     display: flex;
 `;
 
@@ -60,7 +60,8 @@ const InputField = styled.input`
     outline: none;
 
     &:focus {
-        border: 1px solid #29613a;
+        border: 1px solid #59abe6;
+        outline: none; /* 기본 포커스 아웃라인 제거 */
     }
 `;
 
@@ -74,7 +75,7 @@ const TimerStyled = styled.div`
     top: 50%;
     transform: translateY(-50%);
     font-size: 18px;
-    color: #555;
+    color: red;
 `;
 
 function SignUp() {
@@ -607,7 +608,11 @@ function SignUp() {
                         type="button" // 버튼 타입을 submit에서 button으로 변경
                         onClick={handleEmailCheck}
                         disabled={
-                            isEmailDisabled || !!errors.email || !watch('email')
+                            isEmailDisabled ||
+                            !!errors.email ||
+                            !!errors.userName ||
+                            !watch('email') ||
+                            !watch('userName')
                         }
                     />
                 </BtnStyled>
