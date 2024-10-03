@@ -15,7 +15,7 @@ const FindPasswordForm = styled.div`
 
 const TitleStyle = styled.h3`
     font-weight: bold;
-    font-size: 40px;
+    font-size: 36px;
     text-align: center;
     margin-bottom: 40px;
 `;
