@@ -13,7 +13,7 @@ const LoginForm = styled.div`
     height: 80vh;
     padding: 20px;
     flex-direction: column;
-    margin-top: 200px;
+    margin-top: 150px;
     margin-bottom: 100px;
     box-sizing: border-box;
 `;

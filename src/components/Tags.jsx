@@ -12,6 +12,7 @@ const TagsContainer = styled.div`
 const Tag = styled.div`
     height: 30px;
     width: 60px;
+    margin: 2px;
     display: flex;
     align-items: center;
     justify-content: center;

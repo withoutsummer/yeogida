@@ -4,11 +4,13 @@ import styled from 'styled-components';
 import DateInput from '../components/DateInput';
 import TagInput from '../components/TagInput';
 import DropdownTagInput from '../components/DropdownTagInput';
+import CommonModal from '../components/CommonModal';
 
 const NewTripContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 100%;
 `;
 
 const NewTripForm = styled.form`
@@ -16,7 +18,6 @@ const NewTripForm = styled.form`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 400px; /* Form width 제한 */
     margin-top: 30px;
 `;
 
@@ -78,13 +79,14 @@ const ModalButton = styled.button`
     line-height: 140%; /* 22.4px */
     border: none; /* 버튼 선 없애기 */
     &:hover {
-        background-color: #F4A192;
+        background-color: #59ABE6;
         color: #FFF; /* 호버 시 텍스트 컬러 */
     }
 `;
 
 export default function Newtrip({ closeModal }) {
     const sharedOptions = [
+        { value: 'none', label: '없음'},
         { value: 'user1', label: 'User 1' },
         { value: 'user2', label: 'User 2' },
         { value: 'user3', label: 'User 3' },
@@ -100,6 +102,9 @@ export default function Newtrip({ closeModal }) {
 
     const { 제목, 기간, 여행지, 공유자, 썸네일 } = inputs;
     const navigate = useNavigate();
+
+    const [modalOpen, setModalOpen] = useState(false); // 모달 상태
+    const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
 
     const onChange = (e) => {
         const { value, name } = e.target;
@@ -131,15 +136,20 @@ export default function Newtrip({ closeModal }) {
     
         // 모든 필드가 입력되었는지 확인
         if (!제목 || !기간 || 여행지.length === 0 || 공유자.length === 0 || !썸네일) {
-            alert("모든 필드를 입력해 주세요.");
+            setModalMessage("모든 필드를 입력해 주세요."); // 메시지 설정
+            setModalOpen(true); // 모달 열기
             return;
         }
     
         // 입력된 데이터를 state로 editor로 전달
-        navigate('/editor', {
+        navigate('/mytrip/editor', {
             state: inputs
         });
     };    
+
+    const handleModalClose = () => {
+        setModalOpen(false); // 모달 닫기
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -182,6 +192,13 @@ export default function Newtrip({ closeModal }) {
                     <ModalButton type="submit">다음</ModalButton>   
                 </div>
             </NewTripForm>
+            <CommonModal
+                isOpen={modalOpen}
+                onRequestClose={handleModalClose}
+                title="알림"
+                children={modalMessage}
+                type={1} // 타입을 1로 설정
+            />
         </NewTripContainer>
     );
 }

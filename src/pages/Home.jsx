@@ -8,7 +8,7 @@ import { Pagination, Autoplay } from 'swiper/modules';
 import styled from 'styled-components';
 import Slide1 from '../components/BannerSlide1';
 import Slide2 from '../components/BannerSlide2';
-import Button from '../components/Btn';
+import Btn from '../components/Btn';
 import Card from '../components/Card';
 import ImgBusan from './img/home_busan.png';
 import ImgSeoul from './img/home_seoul.png';

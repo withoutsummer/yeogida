@@ -151,10 +151,11 @@ export default function Card({
     author,
     comment,
     likes,
+    onClick,
     isHomePage = true, // 홈페이지에서 사용할 경우
 }) {
     return (
-        <CardContainer width={width} height={height}>
+        <CardContainer onClick={onClick} width={width} height={height}>
             <CardImage src={img} alt={title} heightImg={heightImg} />
             <CardBody heightBody={heightBody}>
                 <CardTitle>{title}</CardTitle>
