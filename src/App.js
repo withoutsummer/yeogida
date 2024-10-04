@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import {
+    useLocation,
+    BrowserRouter as Router,
+    Route,
+    Routes,
+} from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -16,11 +22,23 @@ import FindIdSuccess from './pages/FindIdSuccess';
 import ResetPassword from './pages/ResetPassword';
 import TripDetailPage from './pages/TripDetailPage';
 
+// 스크롤을 최상단으로 끌어올려주는 컴포넌트 생성
+const ScrollToTop = () => {
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+};
+
 function App() {
     return (
         <Router>
             <div className="App">
                 <Header />
+                <ScrollToTop /> {/* ScrollToTop 컴포넌트를 추가 */}
                 <Routes>
                     <Route path="/" element={<Home />} /> {/* 메인 */}
                     <Route path="/login" element={<Login />} /> {/* 로그인 */}
@@ -42,9 +60,9 @@ function App() {
                     {/*새 여행 만들기*/}
                     <Route path="/mytrip/editor" element={<Editor />} />
                     {/* 나의 여행 상세페이지 */}
-                    <Route path="/sharetrip" element={<Sharetrip />} />
-                    {/* 여행 공유 */}
                     <Route path="/mytrip/:id" element={<TripDetailPage />} />
+                    {/* 여행 공유 */}
+                    <Route path="/sharetrip" element={<Sharetrip />} />
                     {/* 여행 공유 상세*/}
                     <Route path="/details/:id" element={<SharetripDetail />} />
                     {/* 마이페이지 */}
@@ -55,4 +73,5 @@ function App() {
         </Router>
     );
 }
+
 export default App;

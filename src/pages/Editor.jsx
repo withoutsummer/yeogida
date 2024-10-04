@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
+import { addPost, getPosts } from '../mockdata/mytripMockData';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -231,7 +232,8 @@ const EditorContainer = styled.div`
 
 export default function Editor({ onChange = () => {} }) {
   const location = useLocation();
-  const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [] } = location.state || {};
+  const navigate = useNavigate();
+  const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [], 여행지: destinationArray = [] } = location.state || {};
 
   const [currentDay, setCurrentDay] = useState(1);
   const [days, setDays] = useState([]);
@@ -357,11 +359,36 @@ export default function Editor({ onChange = () => {} }) {
       setModalIsOpen(false); // 모달 닫기
   };
 
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+
+        // 기존 posts에서 no를 계산
+        const existingPosts = getPosts(); // 현재 포스트 목록 가져오기
+        const newIdNo = existingPosts.length ? Math.max(...existingPosts.map(post => post.no)) + 1 : 1; // 1부터 시작
+
+        const newPost = {
+            id: newIdNo,
+            no: newIdNo,
+            제목: title,
+            여행지: destinationArray,
+            소유자: 'seorin', // API 연결 시 변경 예정
+            날짜: dateRange,
+            썸네일: thumbnail,
+            댓글: "0",
+            좋아요: "0",
+            content: 'content'
+        };
+
+    addPost(newPost); // 새로운 포스트 추가
+    alert('저장 완료');
+    navigate('/mytrip'); // 나의 여행 페이지로 이동
+  };
+
   return (
     <div>
       <ButtonContainer>
         <NavButton onClick={handleCancelClick}>취소하기</NavButton>
-        <NavButton>저장하기</NavButton>
+        <NavButton onClick={handleSaveClick}>저장하기</NavButton>
       </ButtonContainer>
 
       {/* 취소하기 모달창 */}

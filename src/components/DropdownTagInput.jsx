@@ -55,6 +55,12 @@ const customStyles = {
     menuList: (base) => ({
         ...base,
         padding: 0,
+        maxHeight: '130px', // 3개의 옵션만 보이도록 최대 높이 설정
+        overflowY: 'auto', // 세로 스크롤 활성화
+        '::-webkit-scrollbar': {
+            display: 'none', // 스크롤바 숨기기 (웹킷 브라우저용)
+        },
+        scrollbarWidth: 'none', // 스크롤바 숨기기 (Firefox 용)
     }),
     option: (base, state) => ({
         ...base,

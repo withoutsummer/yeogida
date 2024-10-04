@@ -10,6 +10,7 @@ const NewTripContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 100%;
 `;
 
 const NewTripForm = styled.form`
@@ -17,7 +18,6 @@ const NewTripForm = styled.form`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 400px; /* Form width 제한 */
     margin-top: 30px;
 `;
 
@@ -86,6 +86,7 @@ const ModalButton = styled.button`
 
 export default function Newtrip({ closeModal }) {
     const sharedOptions = [
+        { value: 'none', label: '없음'},
         { value: 'user1', label: 'User 1' },
         { value: 'user2', label: 'User 2' },
         { value: 'user3', label: 'User 3' },

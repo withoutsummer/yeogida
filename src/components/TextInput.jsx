@@ -12,7 +12,7 @@ const StyledInput = styled.input`
     transition: border-color 0.1s ease, border-width 0.1s ease;
 
     &:focus {
-        border: 1px solid #828282;
+        border: 1px solid #59abe6;
         outline: none; /* 기본 포커스 아웃라인 제거 */
     }
 `;

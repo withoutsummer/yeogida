@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import CommentList from '../components/CommentList';
@@ -8,7 +8,7 @@ const ButtonContainer = styled.div`
     max-width: 1400px;
     justify-content: right;
     flex-shrink: 0;
-    margin: 150px auto 0px; /* 좌우 가운데 정렬을 위해 margin을 사용 */
+    margin: 150px auto 0px;
 `;
 
 const NavButton = styled.button`
@@ -48,7 +48,7 @@ const HeaderContainer = styled.div`
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
-  margin: 0 auto; /* 좌우 가운데 정렬을 위해 margin을 사용 */
+  margin: 0 auto;
   overflow: hidden;
 
   &::before {
@@ -121,24 +121,39 @@ const DayTab = styled.button`
   font-weight: 600;
 `;
 
+const Content = styled.div`
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 20px;
+`;
+
+// 여행 상세 페이지 컴포넌트
 export default function TripDetailPage() {
-    const { id } = useParams();
-    const location = useLocation();
-    const navigate = useNavigate(); // useNavigate 사용
+    const { id } = useParams(); // URL 파라미터에서 ID 가져오기
+    const location = useLocation(); // 현재 위치 정보 가져오기
+    const navigate = useNavigate(); // 페이지 이동 함수 가져오기
 
-    const { posts } = location.state || {};
-
-    // posts 배열에서 해당 ID에 맞는 여행 정보 찾기
-    const trip = posts ? posts.find(post => post.id === Number(id)) : null;
-    const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', 소유자: owner = 'Unknown' } = trip || {};
+    // 위치 상태에서 게시물 가져오기
+    const { posts, editedTrip } = location.state || {};
+    const trip = editedTrip || (posts ? posts.find(post => post.id === Number(id)) : null);
+    const { 제목: title = '', 날짜: dateRange = '', 썸네일: thumbnail = '', 소유자: owner = 'Unknown', 내용: content = '' } = trip || {};
 
     const [currentDay, setCurrentDay] = useState(1);
-    const [days] = useState(['DAY 1', 'DAY 2', 'DAY 3']);
+    const [days, setDays] = useState([]);
 
-    // 수정하기 버튼 클릭 시 editor로 이동
+    useEffect(() => {
+      if (dateRange) {
+        const [startDate, endDate] = dateRange.split(' ~ ').map(date => new Date(date.replace(/\//g, '-')));
+        const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+        const dayTabs = Array.from({ length: dayCount }, (_, i) => `DAY ${i + 1}`);
+        setDays(dayTabs);
+      }
+    }, [dateRange]);
+
+    // 수정 버튼 클릭 시 핸들러
     const handleEditClick = () => {
-      navigate(`/mytrip/editor/${id}`, { state: { trip } }); // 여행 데이터를 함께 전달
-  };
+        navigate(`/mytrip/editor/${id}`, { state: { trip } }); // 편집 페이지로 이동
+    };
 
     return (
         <div>
@@ -153,23 +168,25 @@ export default function TripDetailPage() {
           </HeaderContainer>
 
           <ContentContainer>
-              <DayTabs>
-                  {days.map((day, index) => (
-                      <DayTab
-                          key={index}
-                          isSelected={currentDay === index + 1}
-                          onClick={() => setCurrentDay(index + 1)}
-                      >
-                          {day}
-                      </DayTab>
-                  ))}
-              </DayTabs>
+          <DayTabs>
+            {days.map((day, index) => (
+              <DayTab
+                key={index}
+                isSelected={currentDay === index + 1}
+                onClick={() => setCurrentDay(index + 1)}
+              >
+                {day}
+              </DayTab>
+            ))}
+          </DayTabs>
 
               <h2>상세 내용</h2>
-              <p>여행에 대한 상세 내용은 여기에 표시됩니다.</p>
+              <Content
+                  dangerouslySetInnerHTML={{ __html: content }} // react-quill로 작성된 내용을 HTML로 렌더링
+              />
 
               <h2>댓글</h2>
-              <CommentList /> {/* 댓글 리스트 컴포넌트 추가 */}
+              <CommentList /> {/* 댓글 목록 렌더링 */}
           </ContentContainer>
         </div>
     );

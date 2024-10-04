@@ -21,7 +21,7 @@ const LoginForm = styled.div`
 const TitleStyle = styled.h3`
     margin-bottom: 55px;
     font-weight: bold;
-    font-size: 40px;
+    font-size: 36px;
     display: flex;
 `;
 
@@ -43,7 +43,7 @@ const Link = styled.span`
     color: #000;
 
     &:hover {
-        color: #f4a192;
+        color: #59abe6;
     }
 `;
 
@@ -171,6 +171,10 @@ export default function Login() {
                     onClick={handleLogin}
                     width="490px"
                     height="80px"
+                    borderColor="#59ABE6"
+                    backgroundColor="#59ABE6"
+                    hoverBackgroundColor="#0D90EE"
+                    hoverBorderColor="#0D90EE"
                     borderRadius="10px"
                     fontSize="26px"
                     text="로그인"
@@ -182,13 +186,12 @@ export default function Login() {
                     height="80px"
                     borderRadius="10px"
                     fontSize="26px"
-                    borderColor="#F4A192"
+                    borderColor="#59ABE6"
                     backgroundColor="white"
-                    hoverBackgroundColor="#FFF3F1"
-                    hoverColor="#F89A89"
-                    hoverBorderColor="#F89A89"
+                    hoverBackgroundColor="#59ABE6"
+                    hoverBorderColor="#59ABE6"
+                    color="#59ABE6"
                     text="회원가입"
-                    color="#F4A192"
                 />
             </LoginInput>
             <CommonModal

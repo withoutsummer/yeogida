@@ -8,8 +8,8 @@ const StyledButton = styled.button.attrs(({ style }) => ({
     height: ${({ height }) => height || '41px'};
     border-radius: ${({ borderRadius }) => borderRadius || '8px'};
     color: ${({ color }) => color || '#fff'};
-    background-color: ${({ backgroundColor }) => backgroundColor || '#F4A192'};
-    border-color: ${({ borderColor }) => borderColor || '#F89A89'};
+    background-color: ${({ backgroundColor }) => backgroundColor || '#59ABE6'};
+    border-color: ${({ borderColor }) => borderColor || '#59ABE6'};
     font-size: ${({ fontSize }) => fontSize || '16px'};
     cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
     opacity: ${({ disabled }) =>
@@ -23,13 +23,13 @@ const StyledButton = styled.button.attrs(({ style }) => ({
 
     &:hover {
         background-color: ${({ hoverBackgroundColor, disabled }) =>
-            disabled ? undefined : hoverBackgroundColor || '#F89A89'};
+            disabled ? undefined : hoverBackgroundColor || '#0D90EE'};
         color: ${({ hoverColor, disabled }) =>
             disabled ? undefined : hoverColor || 'white'};
         border-color: ${({ hoverBorderColor, disabled }) =>
             disabled
                 ? undefined
-                : hoverBorderColor || '#F89A89'}; // 호버 시 테두리 색상 변경
+                : hoverBorderColor || '#0D90EE'}; // 호버 시 테두리 색상 변경
     }
 `;
 

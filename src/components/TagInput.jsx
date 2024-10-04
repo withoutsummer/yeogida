@@ -19,6 +19,7 @@ const Tag = styled.div`
     display: flex;
     align-items: center;
     padding: 5px 10px;
+    margin-top: 2px;
     margin-right: 5px;
     background-color: #59ABE6;
     border-radius: 25px;

@@ -122,7 +122,7 @@ export const Nav = styled.nav`
         color: #333333;
     }
     li:hover {
-        color: #707070;
+        color: #59abe6;
     }
 `;
 

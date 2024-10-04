@@ -13,7 +13,7 @@ const ResetForm = styled.div`
 
 const TitleStyle = styled.h3`
     font-weight: bold;
-    font-size: 40px;
+    font-size: 36px;
     text-align: center;
 `;
 
@@ -111,17 +111,20 @@ export default function ResetPassword() {
     const handleSubmit = async () => {
         if (isFormValid()) {
             try {
-                const response = await fetch('/users/reset-pw?token=${token}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        newPassword: formData.password,
-                        newPasswordCheck: formData.passwordConfirm,
-                    }),
-                });
-
+                const response = await fetch(
+                    'http://your-backend-domain.com/users/reset-pw',
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            newPassword: formData.password,
+                            newPasswordCheck: formData.passwordConfirm,
+                        }),
+                    }
+                );
                 if (response.ok) {
                     openModal(
                         '비밀번호가 성공적으로 변경되었습니다.',
