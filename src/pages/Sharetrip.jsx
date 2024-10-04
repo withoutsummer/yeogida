@@ -173,7 +173,7 @@ export default function Sharetrip() {
         // 여행 일정을 클릭하면 해당 ID의 상세 페이지로 이동
         const tripData = posts.find(post => post.id === id);
         if (tripData) {
-            navigate(`/mytrip/${id}`, { state: { posts } }); // posts를 state로 전달
+            navigate(`/details/${id}`, { state: { posts } }); // posts를 state로 전달
         }
     };
 
