@@ -73,16 +73,16 @@ const InputField = ({
                         <Button
                             width="135px"
                             height="65px"
-                            color="#F4A192"
+                            color="#59ABE6"
                             backgroundColor="white"
-                            borderColor="#F4A192"
+                            borderColor="#59ABE6"
                             borderRadius="10px"
                             fontSize="20px"
                             text="재전송"
                             onClick={onResendCode} // 재전송 클릭 핸들러
-                            hoverBackgroundColor="#F4A192"
+                            hoverBackgroundColor="#59ABE6"
                             hoverColor="white"
-                            hoverBorderColor="#F4A192"
+                            hoverBorderColor="#59ABE6"
                         />
                     </Btntyle>
                 )}
@@ -91,16 +91,16 @@ const InputField = ({
                         <Button
                             width="130px"
                             height="65px"
-                            color="#F4A192"
+                            color="#59ABE6"
                             backgroundColor="white"
-                            borderColor="#F4A192"
+                            borderColor="#59ABE6"
                             borderRadius="10px"
                             fontSize="20px"
                             text="인증하기"
                             onClick={onSendCode} // 재전송 클릭 핸들러
-                            hoverBackgroundColor="#F4A192"
+                            hoverBackgroundColor="#59ABE6"
                             hoverColor="white"
-                            hoverBorderColor="#F4A192"
+                            hoverBorderColor="#59ABE6"
                             disabled={disabledBtn}
                         />
                     </Btntyle>

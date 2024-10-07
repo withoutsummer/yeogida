@@ -8,7 +8,7 @@ import defaultProfileImg from './img/card_img.png';
 import { useNavigate } from 'react-router-dom';
 
 const HeaderStyle = styled.div`
-    margin-top: 200px;
+    margin-top: 150px;
     margin-bottom: 172px;
     // margin-bottom: 100px;
     font-weight: bold;

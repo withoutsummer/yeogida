@@ -5,7 +5,7 @@ import cardImg from './img/card_img.png';
 import Modal from '../components/CommonModal';
 
 const HeaderStyle = styled.div`
-    margin-top: 200px;
+    margin-top: 150px;
     margin-bottom: 50px;
     font-weight: bold;
     font-size: 40px;

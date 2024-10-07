@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
+import Newtrip from './Newtrip';
+import { getPosts } from '../mockdata/mytripMockData';
+import Tags from '../components/Tags';
 
 // Styled Components 정의
 const Title = styled.h1`
@@ -37,15 +40,15 @@ const NavButton = styled.button`
     align-items: center;
     gap: 10px;
     border-radius: 20px;
-    background: #F6F6F6;
-    color: #000;
+    background: ${(props) => (props.selected ? '#59ABE6' : '#F6F6F6')};
+    color: ${(props) => (props.selected ? '#FFF' : '#000')};
     font-family: NanumGothic;
     font-size: 16px;
     font-weight: 600;
     line-height: 140%;
     border: none;
     &:hover {
-        background-color: #F4A192;
+        background-color: ${(props) => (props.selected ? '#0D90EE' : '#0D90EE')};
         color: #FFF;
     }
 `;
@@ -55,7 +58,7 @@ const SharetripContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 220px;
+    margin-top: 150px;
     margin-bottom: 100px;
 `;
 
@@ -120,28 +123,67 @@ const Line = styled.div`
     }
 `;
 
+const EmptyList = styled.div`
+    width: 1280px;
+    height: 200px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    border-top: 1px solid #E0E0E0;
+    border-bottom: 1px solid #E0E0E0;
+    color: #000;
+    text-align: center;
+    font-family: NanumGothic;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 40px; /* 166.667% */
+`;
+
+const EmptyCard = styled.div`
+    width: 1280px;
+    height: 200px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin-top: 67px;
+    color: #000;
+    text-align: center;
+    font-family: NanumGothic;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 40px; /* 166.667% */
+`;
+
+
+
 export default function Sharetrip() {
+    const [posts, setPosts] = useState(getPosts());
     const [activeButton, setActiveButton] = useState('popular');
     const [page, setPage] = useState(1); // 페이지 상태 추가
     const limit = 5; // 한 페이지에 보여줄 데이터 수
     const offset = (page - 1) * limit; // 현재 페이지의 시작 index 계산
     const navigate = useNavigate();
+    const [isListView, setIsListView] = useState(false);
+    const userName = 'seorin'; // 사용자 이름을 설정
+    const [selectedButton, setSelectedButton] = useState('인기'); // 선택된 버튼을 추적하는 상태
 
-    const handleCardClick = (id) => {
-        navigate(`/details/${id}`);
+    const handleTripClick = (id) => {
+        // 여행 일정을 클릭하면 해당 ID의 상세 페이지로 이동
+        const tripData = posts.find(post => post.id === id);
+        if (tripData) {
+            navigate(`/details/${id}`, { state: { posts } }); // posts를 state로 전달
+        }
     };
 
     const [tags, setTags] = useState([]); // 빈 배열로 초기화
-    const cardData = [
-        { id: 1, no: 1, 제목: "부산 3박 4일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 2, no: 2, 제목: "부산 1박 2일", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 3, no: 3, 제목: "강릉 2박 3일", 여행지: ["강릉"], 소유자: "seorin", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 4, no: 4, 제목: "부산 당일치기", 여행지: ["부산"], 소유자: "seorin", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 5, no: 5, 제목: "대구 당일치기", 여행지: ["대구"], 소유자: "seoyoung", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 6, no: 6, 제목: "제주도 3박 4일", 여행지: ["제주도"], 소유자: "seoyoung", 날짜: "2024-09-15", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 7, no: 7, 제목: "여수, 순천 여행", 여행지: ["여수"], 소유자: "sieun", 날짜: "2024-09-13", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-        { id: 8, no: 8, 제목: "글램핑", 여행지: ["가평"], 소유자: "mijin", 날짜: "2024-09-14", 썸네일: "https://via.placeholder.com/300", 댓글: "0", 좋아요: "0"},
-    ];
+
+    const filteredPosts = selectedButton === '최신'
+        ? posts.filter(post => post.소유자 === userName)
+        : selectedButton === '인기'
+            ? posts.filter(post => post.소유자 === userName)
+            : posts;
 
     const customStyles = {
         overlay: {
@@ -170,26 +212,77 @@ export default function Sharetrip() {
     return (
         <SharetripContainer>
             <NavBtnContainer>
-                <NavButton>최신</NavButton>
-                <NavButton>인기</NavButton>
+            <NavButton
+                    selected={selectedButton === '인기'}
+                    onClick={() => setSelectedButton('인기')}
+                >
+                    인기
+                </NavButton>
+                <NavButton
+                    selected={selectedButton === '최신'}
+                    onClick={() => setSelectedButton('최신')}
+                >
+                    최신
+                </NavButton>
             </NavBtnContainer>
             <Title>여행 공유</Title>
-            <CardsContainer>
-                {/* 카드 형식 콘텐츠 */}
-                {cardData.map((card) => (
-                    <div key={card.id} onClick={() => handleCardClick(card.id)}>
-                        <Card
-                        key={card.id}
-                        img={card.썸네일}
-                        title={card.제목}
-                        date={card.날짜}
-                        author={card.소유자}
-                        comment={card.댓글}
-                        likes={card.좋아요}
-                        />
+            {/* 리스트 또는 카드 형식의 콘텐츠가 렌더링 되는 부분 */}
+            {isListView ? (
+                <>
+                    <div>
+                        <Index>
+                            <div className="title no">No</div>
+                            <div className="title max">제목</div>
+                            <div className="title min">여행지</div>
+                            <div className="title min">소유자</div>
+                            <div className="title min">날짜</div>
+                        </Index>
+                        {/* filteredPosts가 비어 있을 경우 Empty 메시지 표시 */}
+                        {filteredPosts.length === 0 ? (
+                            <EmptyList>
+                                여행 일정이 없습니다.
+                            </EmptyList>
+                        ) : (
+                            filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
+                                <Line key={id} onClick={() => handleTripClick(id)}>
+                                    <div className="list no">{no}</div>
+                                    <div className="list max">{제목}</div>
+                                    <div className="list min">
+                                        <Tags tags={Array.isArray(여행지) ? 여행지 : [여행지]} />
+                                    </div>
+                                    <div className="list min">{소유자}</div>
+                                    <div className="list min">{날짜}</div>
+                                </Line>
+                            ))
+                        )}
                     </div>
-                ))}
-            </CardsContainer>
+                </>
+            ) : (
+                <>
+                    <CardsContainer>
+                        {/* 카드 형식 콘텐츠 */}
+                        {/* filteredPosts가 비어 있을 경우 Empty 메시지 표시 */}
+                        {filteredPosts.length === 0 ? (
+                            <EmptyCard>
+                                여행 일정이 없습니다.
+                            </EmptyCard>
+                        ) : (
+                            filteredPosts.map((post) => (
+                                <Card
+                                    key={post.id}
+                                    img={post.썸네일}
+                                    title={post.제목}
+                                    date={post.날짜}
+                                    author={post.소유자}
+                                    comment={post.댓글}
+                                    likes={post.좋아요}
+                                    onClick={() => handleTripClick(post.id)}
+                                />
+                            ))
+                        )}
+                    </CardsContainer>
+                </>
+            )}
         </SharetripContainer>
     );
 }

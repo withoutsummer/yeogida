@@ -67,7 +67,7 @@ const YesButton = styled.button`
     width: 115px;
     height: 40px;
     border-radius: 8px;
-    background-color: #F4A192;
+    background-color: #59ABE6;
     border: 1px solid #E0E0E0;
     display: flex;
     padding: 10px 16px;
@@ -82,7 +82,7 @@ const YesButton = styled.button`
     font-weight: 600;
     line-height: 21px; /* 131.25% */
     &:hover {
-        background-color: #E78B7A;
+        background-color: #0D90EE;
     }
 `;
 
@@ -104,7 +104,7 @@ const NoButton = styled.button`
     font-weight: 600;
     line-height: 21px;
     &:hover {
-        background-color: #E78B7A;
+        background-color: #0D90EE;
         color: #fff;
     }
 `;
@@ -158,8 +158,8 @@ const YesNoModal = ({
         >
             <ModalContent>
                 <svg xmlns="http://www.w3.org/2000/svg" width="52" height="51" viewBox="0 0 52 51" fill="none">
-                    <path d="M25.9998 48.8346C38.8865 48.8346 49.3332 38.388 49.3332 25.5013C49.3332 12.6147 38.8865 2.16797 25.9998 2.16797C13.1132 2.16797 2.6665 12.6147 2.6665 25.5013C2.6665 38.388 13.1132 48.8346 25.9998 48.8346Z" stroke="#FF7C64" stroke-width="4"/>
-                    <path d="M26 36.0026V37.1693M26 13.8359V27.8359V13.8359Z" stroke="#FF7C64" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M25.9998 48.8346C38.8865 48.8346 49.3332 38.388 49.3332 25.5013C49.3332 12.6147 38.8865 2.16797 25.9998 2.16797C13.1132 2.16797 2.6665 12.6147 2.6665 25.5013C2.6665 38.388 13.1132 48.8346 25.9998 48.8346Z" stroke="#0579A4" stroke-width="4"/>
+                    <path d="M26 36.0026V37.1693M26 13.8359V27.8359V13.8359Z" stroke="#0579A4" stroke-width="4" stroke-linecap="round"/>
                 </svg>
                 <ModalWrapper>{title}</ModalWrapper>
                 <BodyText>{bodyText}</BodyText>                
