@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Card from '../components/ScrapCard';
 import cardImg from './img/card_img.png';
@@ -88,6 +88,11 @@ function ScrapFolders({ onSelectFolder }) {
     const [modalChildren, setModalChildren] = useState('');
     const [thisFolderName, setThisFolderName] = useState('');
 
+    // 스크랩 폴더 상태 관리
+    // const [folderData, setFolderData] = useState([]);  // 폴더 데이터
+    // const [loading, setLoading] = useState(true);      // 로딩 상태 관리
+    // const [error, setError] = useState(null);          // 에러 상태 관리
+
     // 폴더 삭제 요청 Modal
     const handleDeleteFolder = (e, folderName) => {
         e.stopPropagation(); // 부모 요소로의 이벤트 전파 중단
@@ -109,12 +114,45 @@ function ScrapFolders({ onSelectFolder }) {
         console.log('폴더 이름 변경 코드 실행')
     }
 
+    // 임시 데이터 - 스크랩 폴더
     const folderData = [
         { folderId: 1, folderName: '부산' },
         { folderId: 2, folderName: '제주도' },
         { folderId: 3, folderName: '속초' },
         { folderId: 4, folderName: '경주' },
     ];
+
+    // 스크랩 폴더 목록 조회 API
+    // const getScrapFolderList = async () => {
+    //     try {
+    //         const response = await fetch('/mypage/scrap', {
+    //             method: 'GET',
+    //         });
+
+    //         console.log('Response:', response);  // 응답 확인
+
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();  // 서버로부터 받은 JSON 데이터를 자바스크립트 객체로 변환
+    //         console.log('Data:', data); 
+    //         setFolderData(data);  // 받은 데이터를 상태로 저장
+    //         setLoading(false);    // 로딩 완료
+    //     } catch (error) {
+    //         console.error('Error fetching folder data:', error);
+    //         setError(error.message);  // 에러 상태 저장
+    //         setLoading(false);
+    //     }
+    // };
+
+    // 컴포넌트가 마운트될 때 API 호출
+    // useEffect(() => {
+    //     getScrapFolderList();
+    // }, []);
+
+    // if (loading) return <p>로딩 중...</p>;  // 로딩 중일 때
+    // if (error) return <p>에러: {error}</p>; // 에러 발생 시
 
     return (
         <>
