@@ -113,7 +113,7 @@ const MiniMenuStyle = styled.div `
 `;
 
 const MiniMenuBtn = styled.button `
-    color: ${(props) => (props.selected ? "#F4A193" : "#000")};
+    color: ${(props) => (props.selected ? "#59abe6" : "#000")};
     font-weight: ${(props) => (props.selected ? "bold" : "normal")};
     font-size: 20px;
     border: none;
@@ -144,7 +144,7 @@ const FriendListSlide = styled.div `
     // 아래 요소들은 피그마랑 다름
     box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    border-left: 10px solid #508c4e;
+    border-left: 10px solid #0579a4;
     margin: 10px 0 10px 15px;
 
     &:focus {
@@ -193,7 +193,7 @@ const RequestIconStyle = styled.img `
 `;
 
 // ---------------친구 검색바 Component---------------
-function FriendSearchBar({ inputValue, handleChange, onEnterPress }) {
+function FriendSearchBar({ inputValue, handleChange, onEnterPress, selected }) {
     // const [isAddClicked, setIsAddClicked] = useState(0);
     const handleEnterDown = (event) => {
         if (event.key === 'Enter') {
@@ -202,7 +202,7 @@ function FriendSearchBar({ inputValue, handleChange, onEnterPress }) {
     }
 
     return (
-        <SearchBarStyle>
+        <SearchBarStyle style={{ visibility: selected === 1 ? 'hidden' : 'visible' }}>
             <LeftContent>
                 <img src={ searchIcon } alt='검색 돋보기 아이콘' />
             </LeftContent>
@@ -232,6 +232,9 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
     const sliderRef = useRef(null);
     const debouncedInputValue = useDebounce(inputValue, 1000); // 1초의 지연 시간 설정
 
+    const [friendList, setFriendList] = useState([]);
+    const [friendRequestList, setFriendRequestList] = useState([]);
+
     // 모달 열림 상태와 삭제할 친구 이름 상태 관리
     const [modals, setModals] = useState({
         oneBtnModal: false,
@@ -241,60 +244,49 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
     const [modalTitle, setModalTitle] = useState('');
     const [thisFriendName, setThisFriendName] = useState('');
     const [thisUserId, setThisUserId] = useState('');
-    const [modalAction, setModalAction] = useState(''); // 'reject' 또는 'approve'
-    
-    // 임시 데이터
-    const friendListData = [
-        { friendId: 1, friendName: 'alice', userId: 'alice1234', addDate: '2024-01-15' },
-        { friendId: 2, friendName: 'bob', userId: 'bob5678', addDate: '2024-01-20' },
-        { friendId: 3, friendName: 'charlie', userId: 'charlie9101', addDate: '2024-01-25' },
-        { friendId: 4, friendName: 'david', userId: 'david2345', addDate: '2024-02-01' },
-        { friendId: 5, friendName: 'eve', userId: 'eve6789', addDate: '2024-02-05' },
-        { friendId: 6, friendName: 'frank', userId: 'frank1230', addDate: '2024-02-10' },
-        { friendId: 7, friendName: 'grace', userId: 'grace5670', addDate: '2024-02-15' },
-        { friendId: 8, friendName: 'hannah', userId: 'hannah9102', addDate: '2024-02-20' },
-        { friendId: 9, friendName: 'isaac', userId: 'isaac3456', addDate: '2024-02-25' },
-        { friendId: 10, friendName: 'jack', userId: 'jack7890', addDate: '2024-03-01' },
-    ];
+    const [modalAction, setModalAction] = useState(''); // 'reject' 또는 'approve'   
 
-    const friendRequestData = [
-        { friendId: 1, friendName: 'kate', userId: 'kate2341', addDate: '2024-03-05' },
-        { friendId: 2, friendName: 'leo', userId: 'leo6782', addDate: '2024-03-10' }
-    ];
-
-    let dataToShow = []
-
-    /* ----------------------친구 목록/요청 필터링 관련 코드---------------------- */
-    if (selected) {
-        dataToShow = [...friendListData];
-        if (sortOption === 1) {
-            // 최신순 정렬
-            dataToShow = [...dataToShow].sort((a, b) => new Date(b.addDate) - new Date(a.addDate));
-        } else if (sortOption === 2) {
-            // 이름순 정렬
-            dataToShow = [...dataToShow].sort((a, b) => a.friendName.localeCompare(b.friendName));
+    const getFriendListAndRequest = async () => {
+        if (Number(selected) === 0) {
+            try {
+                const res = await fetch(sortOption === 1 ? '/data/friendlist_recentMockData.json' : '/data/friendlist_nameMockData.json');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const data = await res.json();
+                setFriendList(data); // 친구 목록을 설정
+                setFriendRequestList([]); // 친구 요청 목록 초기화
+            } catch (error) {
+                console.error('Error fetching friend list:', error);
+            }
+        } else if (Number(selected) === 1) {
+            try {
+                const res = await fetch('/data/friendrequestMockData.json');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const data = await res.json();
+                setFriendRequestList(data); // 친구 요청 목록 설정
+                setFriendList([]); // 친구 목록 초기화
+            } catch (error) {
+                console.error('Error fetching friend requests:', error);
+            }
         }
-    } else {
-        // 오래된 순 정렬
-        dataToShow = [...friendRequestData].sort((a, b) => new Date(a.dateRequested) - new Date(b.dateRequested));
-    }
+    };
     
-    // inputValue로 친구 목록을 필터링
-    // const filteredData = dataToShow.filter(friend => 
-    //     friend.friendId.includes(inputValue)
-    // );
-
+    useEffect(() => {
+        getFriendListAndRequest();
+    }, [selected, sortOption]);    
+    
     // Debounce된 입력값으로 친구 목록을 필터링
-    const filteredData = dataToShow.filter(friend =>
-        friend.userId.toLowerCase().includes(debouncedInputValue.toLowerCase())
-    );
+    const filteredData = debouncedInputValue
+    ? (Number(selected) === 0 
+        ? friendList.filter(friend => friend.userId.toLowerCase().includes(debouncedInputValue.toLowerCase()))
+        : friendRequestList.filter(request => request.userId.toLowerCase().includes(debouncedInputValue.toLowerCase())))
+    : (Number(selected) === 0 ? friendList : friendRequestList);
 
     const settings = {
         arrows: false,
         dots: true,
-        infinite: filteredData.length > 4,  // 현재 선택된 데이터의 길이에 따라 설정
+        infinite: filteredData.length > 4,
         speed: 500,
-        slidesToShow: 1,  
+        slidesToShow: 1,
         slidesToScroll: 1,
         rows: 4,
         slidesPerRow: 1,
@@ -365,7 +357,6 @@ function ListAndRequest({ selected, inputValue, sortOption }) {
             }
         }
     }, [modalAction]); // 상태가 변경될 때마다 모달 상태 업데이트
-    
 
     return (
         <>
@@ -445,6 +436,7 @@ export default function Friend() {
     const [sortOption, setSortOption] = useState(1);
 
     const handleClick = (index) => {
+        console.log("Setting selected:", index); // 로그 추가
         setIsMiniMenuClicked(index);
     };
 
@@ -475,6 +467,7 @@ export default function Friend() {
                     <FriendSearchBar 
                         inputValue={inputValue}
                         handleChange={handleChange}
+                        selected={ isMiniMenuClicked }
                     />
                     
                     <ArticleStyle>
@@ -507,7 +500,7 @@ export default function Friend() {
                         </MiniNavStyle>
                         {/* 목록 */}
                         <ListAndRequest 
-                            selected={ isMiniMenuClicked === 0 }
+                            selected={ isMiniMenuClicked === 1 }
                             inputValue={inputValue}
                             sortOption={sortOption}
                         />

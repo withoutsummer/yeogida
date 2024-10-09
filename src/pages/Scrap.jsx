@@ -51,7 +51,7 @@ const FolderName = styled.span`
 
 const ScrapBtn = styled.span`
     border-radius: 3px;
-    background-color: #f4a192;
+    background-color: #59abe6;
     color: #fff;
     text-align: center;
     line-height: 36px;
