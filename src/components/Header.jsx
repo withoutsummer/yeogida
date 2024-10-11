@@ -162,7 +162,7 @@ export default function Header() {
                                 <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
-                                <li onClick={() => navigate('/sharetrip')}>
+                                <li onClick={() => navigate('/shared-itineraries')}>
                                     여행공유
                                 </li>
                                 <li>
