@@ -182,9 +182,9 @@ const userinfoData = styled.div`
 `;
 
 // ----------비밀번호 확인 전 Component----------
-function BeforeCheck ({ btnClick }) {
+function BeforeCheck ({ btnClick, userInfo }) {
     const { register, handleSubmit, formState: { errors }, setError } = useForm();
-    const [myPassword, setMyPassword] = useState('1111'); // 임시 비밀번호
+    const [myPassword, setMyPassword] = useState(''); // 임시 비밀번호
     const [profileImg, setProfileImg] = useState(defaultProfileImg); // 임시 프로필 사진
     // const [isSubmitted, setIsSubmitted] = useState(false); // 확인 버튼을 눌렀는지 확인하는 상태
 
@@ -198,6 +198,23 @@ function BeforeCheck ({ btnClick }) {
                 message: '잘못된 비밀번호를 입력했습니다.',
             });
         }
+    };
+
+    // '비밀번호를 통한 본인 확인' API 연결
+    const checkPassword = async (data) => {
+        const response = await fetch('https://yeogida.net/mypage/account', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // 요청 헤더 설정
+            },
+            body: JSON.stringify({ password: data.passwordConfirm }), // 요청 본문에 password 전달
+        });
+
+        // 서버 응답 처리
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json(); // 서버로부터의 응답 데이터 반환
     };
 
     return (
@@ -243,7 +260,7 @@ function BeforeCheck ({ btnClick }) {
                 <Btn 
                     text='확인'
                     style={{marginLeft: 'auto', marginTop: '60px'}}
-                    onClick={handleSubmit(handleCheck)}
+                    onClick={handleSubmit(checkPassword)}
                 />
 
             </CheckPassword>
@@ -472,7 +489,7 @@ function EditInfo ({ userInfo, setUserInfo }) {
                     noValidate
                     onSubmit={handleSubmit((data) => alert(JSON.stringify(data)))}
                     >
-                        {/*아이디 */}
+                        {/* 아이디 */}
                         <InputContainer style={{ marginBottom: '50px' }}>
                             <Label>아이디</Label>
                             <span>{userInfo?.id}</span>
