@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
 import { addPost, getPosts } from '../mockdata/mytripMockData';
+import Map from '../components/Map'
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -111,12 +112,16 @@ const DateRange = styled.h3`
   text-align: center; /* 텍스트를 가운데 정렬 */
 `;
 
+const MapContainer = styled.div`
+  max-width: 950px;
+`;
+
 const DayTabs = styled.div`
   display: flex;
   border-bottom: 2px solid #E0E0E0;
-  width: 1400px;
+  width: 450px;
   height: 60px; 
-  margin: 0 auto;
+  margin: 20px auto;
   margin-bottom: 20px;
 `;
 
@@ -135,94 +140,17 @@ const DayTab = styled.button`
   font-weight: 600;
 `;
 
-const SearchContainer = styled.div`
-  max-width: 1400px;
-  margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-`;
-
-const SearchInput = styled.input`
-  width: 1400px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-`;
-
-const SearchButton = styled.button`
+const NavigationButton = styled.button`
   padding: 10px 20px;
-  background-color: #F4A192;
-  color: white;
+  background-color: transparent;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
 `;
 
-// 지도 컨테이너
-const MapContainer = styled.div`
-  position: relative;
-  width: 1400px;
-  height: 500px;
-  margin: 20px auto;
-`;
-
-// 지도 마커 스타일
-const markerContent = styled.div`
-  width: 32px;
-  height: 40px;
-  flex-shrink: 0;
-  fill: #000;
-
-  .text{
-    display: flex;
-    width: 19px;
-    height: 18px;
-    flex-direction: column;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #FFF;
-    text-align: center;
-    font-family: Inter;
-    font-size: 22px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 150%; /* 33px */
-    letter-spacing: -0.44px;
-  }
-`;
-
-// 검색 결과 리스트를 위한 스타일
-const SearchResultsContainer = styled.div`
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 300px;
-  max-height: 400px;
-  background-color: white;
-  border-radius: 8px;
-  padding: 10px;
-  overflow-y: auto;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* 지도 위에 오도록 높은 z-index 설정 */
-`;
-
-const SearchResultItem = styled.li`
-  list-style: none;
-  margin-bottom: 10px;
-  padding: 5px;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
-  &:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-// Quill 에디터를 포함하는 컨테이너
+// 지도와 탭 들어있는 부분
 const EditorContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
   max-width: 1400px;
   margin: 0 auto;
   margin-top: 20px;
@@ -240,9 +168,6 @@ export default function Editor({ onChange = () => {} }) {
 
   const [modalIsOpen, setModalIsOpen] = useState(false); // 모달 열림 상태 추가
 
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchResults, setSearchResults] = useState([]); // 검색 결과를 저장할 상태
-
   useEffect(() => {
     if (dateRange) {
       const [startDate, endDate] = dateRange.split(' ~ ').map(date => new Date(date.replace(/\//g, '-')));
@@ -251,80 +176,6 @@ export default function Editor({ onChange = () => {} }) {
       setDays(dayTabs);
     }
   }, [dateRange]);
-
-  const [map, setMap] = useState(null);
-
-  useEffect(() => {
-      if (window.naver && !map) { 
-        navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-
-        // 네이버 지도 옵션 선택
-        const mapOptions = {
-          // 지도의 초기 중심 좌표
-          center: new window.naver.maps.LatLng(37.52133, 126.9522),
-          logoControl: false,
-          mapDataControl: false,
-          scaleControl: true,
-          zoom: 14,
-          zoomControl: true,
-          zoomControlOptions: { position: 9 },
-          tileDuration: 300,
-          baseTileOpacity: 1,
-          background: 'white',
-          tileSpare: 7,
-        };
-
-        const mapInstance = new window.naver.maps.Map('map', mapOptions);
-        setMap(mapInstance);
-
-        // // 현재 내 위치 마커 표시
-        // new window.naver.maps.Marker({
-        //   // 생성될 마커의 위치
-        //   position: new window.naver.maps.LatLng(currentMyLocation.lat, currentMyLocation.lng),
-        //   // 마커를 표시할 map 객체
-        //   map: mapInstance,
-        //   icon: {
-        //     content: markerContent,
-        //     anchor: new naver.maps.Point(0, 50),  // 마커의 위치 설정
-        //   }
-        // });
-      }, (error) => {
-        console.error('Error fetching location', error);
-      });
-    }
-  }, [map]); 
-
-  const handleSearch = () => {
-    if (searchKeyword.trim() && map && window.naver && window.naver.maps && window.naver.maps.Service) {
-      window.naver.maps.Service.geocode({ query: searchKeyword }, (status, response) => {
-        if (status === window.naver.maps.Service.Status.ERROR) {
-          alert('검색결과가 없습니다. 다른 주소를 시도해 보세요.');
-        } else if (status === window.naver.maps.Service.Status.OK) {
-          const results = response.v2.addresses;
-          setSearchResults(results); 
-
-          if (results.length > 0) {
-            const firstResult = results[0];
-            const x = parseFloat(firstResult.x);
-            const y = parseFloat(firstResult.y);
-            const newLocation = new window.naver.maps.LatLng(y, x);
-
-            map.setCenter(newLocation);
-            new window.naver.maps.Marker({ position: newLocation, map });
-          } else {
-            alert('검색결과가 없습니다. 다른 주소를 시도해 보세요.');
-          }
-        }
-      });
-    }
-  };
-
-  const handleSearchItemClick = (x, y) => {
-    const newLocation = new window.naver.maps.LatLng(parseFloat(y), parseFloat(x));
-    map.setCenter(newLocation);
-    new window.naver.maps.Marker({ position: newLocation, map });
-  };
 
   const modules = {
     toolbar: [
@@ -349,6 +200,14 @@ export default function Editor({ onChange = () => {} }) {
     const newContent = [...value];
     newContent[currentDay - 1] = content;
     onChange(newContent);
+  };
+
+  const handlePreviousDay = () => {
+    setCurrentDay((prev) => (prev > 1 ? prev - 1 : prev));
+  };
+
+  const handleNextDay = () => {
+    setCurrentDay((prev) => (prev < days.length ? prev + 1 : prev));
   };
 
   const handleCancelClick = () => {
@@ -413,55 +272,36 @@ export default function Editor({ onChange = () => {} }) {
         <DateRange>{dateRange}</DateRange>
       </HeaderContainer>
 
-      {/* Day 탭을 선택할 수 있는 영역 */}
       <EditorContainer>
+        <MapContainer>
+          <Map />
+        </MapContainer>
+
+        {/* Day 탭을 선택할 수 있는 영역 */}
         <DayTabs>
-          {days.map((day, index) => (
-            <DayTab
-              key={index}
-              isSelected={currentDay === index + 1}
-              onClick={() => setCurrentDay(index + 1)}
-            >
-              {day}
-            </DayTab>
-          ))}
+          <NavigationButton onClick={handlePreviousDay}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
+              <path d="M27.8334 35.4161C27.5527 35.415 27.2752 35.3572 27.0175 35.2463C26.7597 35.1353 26.527 34.9734 26.3334 34.7702L18.2917 26.4369C17.91 26.0475 17.6962 25.5239 17.6962 24.9786C17.6962 24.4333 17.91 23.9097 18.2917 23.5202L26.625 15.1869C26.8193 14.9927 27.0499 14.8386 27.3037 14.7335C27.5575 14.6283 27.8295 14.5742 28.1042 14.5742C28.3789 14.5742 28.6509 14.6283 28.9047 14.7335C29.1585 14.8386 29.3891 14.9927 29.5834 15.1869C29.7776 15.3812 29.9317 15.6118 30.0368 15.8656C30.142 16.1194 30.1961 16.3914 30.1961 16.6661C30.1961 16.9408 30.142 17.2128 30.0368 17.4666C29.9317 17.7204 29.7776 17.951 29.5834 18.1452L22.7084 24.9994L29.3334 31.8744C29.7214 32.2647 29.9392 32.7928 29.9392 33.3432C29.9392 33.8935 29.7214 34.4216 29.3334 34.8119C29.1362 35.0075 28.902 35.1617 28.6444 35.2655C28.3868 35.3692 28.111 35.4204 27.8334 35.4161Z" fill="black"/>
+            </svg>
+          </NavigationButton>
+          <DayTab isSelected>{`DAY ${currentDay}`}</DayTab>
+          <NavigationButton onClick={handleNextDay}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="49" height="49" viewBox="0 0 49 49" fill="none">
+              <path d="M21.4375 34.7067C21.1688 34.7083 20.9025 34.6568 20.6537 34.5552C20.405 34.4536 20.1787 34.3039 19.988 34.1147C19.7966 33.9249 19.6447 33.699 19.5411 33.4502C19.4374 33.2015 19.384 32.9346 19.384 32.6651C19.384 32.3955 19.4374 32.1287 19.5411 31.8799C19.6447 31.6311 19.7966 31.4053 19.988 31.2155L26.7459 24.4984L20.2534 17.7405C19.8731 17.358 19.6597 16.8405 19.6597 16.3011C19.6597 15.7617 19.8731 15.2443 20.2534 14.8617C20.4432 14.6704 20.669 14.5185 20.9178 14.4148C21.1666 14.3112 21.4334 14.2578 21.703 14.2578C21.9725 14.2578 22.2393 14.3112 22.4881 14.4148C22.7369 14.5185 22.9627 14.6704 23.1525 14.8617L31.0334 23.0284C31.4075 23.41 31.617 23.9232 31.617 24.4576C31.617 24.992 31.4075 25.5051 31.0334 25.8867L22.8667 34.0534C22.6834 34.2513 22.4628 34.4109 22.2175 34.5231C21.9722 34.6352 21.7071 34.6976 21.4375 34.7067V34.7067Z" fill="black"/>
+            </svg>
+          </NavigationButton>
         </DayTabs>
+      </EditorContainer>
 
-        {/* Search*/}
-        <SearchContainer>
-          <SearchInput 
-            type="text" 
-            placeholder="장소, 주소 검색" 
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)} 
-          />
-          <SearchButton onClick={handleSearch}>Search</SearchButton>
-        </SearchContainer>
-
-        {/* 네이버 지도 삽입 */}
-        <MapContainer id="map">
-          <SearchResultsContainer>
-            {searchResults.map((result, index) => (
-              <SearchResultItem
-                key={index}
-                onClick={() => handleSearchItemClick(result.x, result.y)}
-              >
-                {result.roadAddress || result.jibunAddress}
-              </SearchResultItem>
-            ))}
-          </SearchResultsContainer>
-        </MapContainer>        
-
-        {/* Quill 에디터 */}
-        <ReactQuill
-          style={{ height: "600px" }}
+      {/* Quill 에디터 */}
+      <ReactQuill
+          style={{ width: "1400px", height: "600px", margin: "20px auto"}}
           theme="snow"
           modules={modules}
           formats={formats}
           value={value[currentDay - 1] || ''}
           onChange={handleContentChange}
         />
-      </EditorContainer>
     </div>
   );
 }

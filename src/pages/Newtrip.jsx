@@ -133,19 +133,65 @@ export default function Newtrip({ closeModal }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         // 모든 필드가 입력되었는지 확인
         if (!제목 || !기간 || 여행지.length === 0 || 공유자.length === 0 || !썸네일) {
             setModalMessage("모든 필드를 입력해 주세요."); // 메시지 설정
             setModalOpen(true); // 모달 열기
             return;
         }
-    
+
         // 입력된 데이터를 state로 editor로 전달
         navigate('/mytrip/editor', {
             state: inputs
         });
-    };    
+    }
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+        
+    //     // 모든 필드가 입력되었는지 확인
+    //     if (!제목 || !기간 || 여행지.length === 0 || 공유자.length === 0 || !썸네일) {
+    //         setModalMessage("모든 필드를 입력해 주세요."); // 메시지 설정
+    //         setModalOpen(true); // 모달 열기
+    //         return;
+    //     }
+    
+    //     // 데이터 준비
+    //     const requestData = {
+    //         user_id: 123, // 실제 사용자 ID로 대체해야 합니다
+    //         title: 제목,
+    //         startdate: 기간.split(' ~ ')[0], // 시작 날짜 추출
+    //         enddate: 기간.split(' ~ ')[1], // 종료 날짜 추출
+    //         destination: 여행지.join(', '), // 여러 여행지를 문자열로 합침
+    //         public_private: true, // 공개 여부 설정 (예: true)
+    //         thumbnail: 썸네일,
+    //         description: 제목 ? 제목 : null // description이 있으면 사용하고, 없으면 null로 설정
+    //     };
+    
+    //     try {
+    //         const response = await fetch('/api/itineraries', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(requestData),
+    //         });
+    
+    //         if (response.ok) {
+    //             const result = await response.json();
+    //             console.log('여행 일정 등록 성공:', result);
+    //             navigate('/mytrip/editor', { state: inputs });
+    //         } else {
+    //             setModalMessage('여행 일정 등록에 실패했습니다. 다시 시도해 주세요.');
+    //             setModalOpen(true);
+    //         }
+    //     } catch (error) {
+    //         console.error('네트워크 오류 발생:', error);
+    //         setModalMessage('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
+    //         setModalOpen(true);
+    //     }
+    // };
 
     const handleModalClose = () => {
         setModalOpen(false); // 모달 닫기

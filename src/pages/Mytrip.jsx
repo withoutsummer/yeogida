@@ -385,7 +385,7 @@ export default function MyTrip() {
                     여행 일정이 없습니다.
                 </EmptyList>
             ) : (
-                filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
+                filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜 }) => (
                     <Line key={id} onClick={() => handleTripClick(id)}>
                         <div className="list no">{no}</div>
                         <div className="list max">{제목}</div>

@@ -137,11 +137,12 @@ function SignUp() {
 
     //ID API 호출
     const checkIdDuplicate = async (userId) => {
-        const response = await fetch('/users/verify-id', {
+        const response = await fetch('https://yeogida.net/users/verify-id', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // 요청 헤더 설정
             },
+            credentials: 'include',
             body: JSON.stringify({ id: userId }), // 요청 본문에 userId 전달
         });
 
