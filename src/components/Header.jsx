@@ -75,7 +75,7 @@ const MyPageContainer = styled.div`
     color: #333;
 
     &:hover {
-        color: #707070;
+        color: #59abe6;
     }
 `;
 
