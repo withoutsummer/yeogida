@@ -62,7 +62,7 @@ function App() {
                     {/* 나의 여행 상세페이지 */}
                     <Route path="/mytrip/:id" element={<TripDetailPage />} />
                     {/* 여행 공유 */}
-                    <Route path="/sharetrip" element={<Sharetrip />} />
+                    <Route path="/shared-itineraries" element={<Sharetrip />} />
                     {/* 여행 공유 상세*/}
                     <Route path="/details/:id" element={<SharetripDetail />} />
                     {/* 마이페이지 */}

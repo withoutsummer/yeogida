@@ -1,67 +1,98 @@
 import React from "react";
+import styled from "styled-components";
 
-const styles = {
-    wrapper: {
-        margin: 8,
-        padding: 8,
-        display: "flex",
-        flexDirection: "row",
-        border: "1px solid grey",
-        borderRadius: 16,
-        alignItems: "flex-start", // 아이템 정렬
-    },
-    imageContainer: {
-        marginRight: 8, // 이미지와 텍스트 사이 간격
-    },
-    image: {
-        width: 50,
-        height: 50,
-        borderRadius: "50%", // 원형 이미지
-    },
-    contentContainer: {
-        display: "flex",
-        flexDirection: "column",
-    },
-    infoContainer: {
-        display: "flex",
-        flexDirection: "column", // 수직 나열
-    },
-    nameText: {
-        color: "black",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    dateText: {
-        color: "grey",
-        fontSize: 14,
-    },
-    commentText: {
-        color: "black",
-        fontSize: 16,
-        marginTop: 4, // 댓글과 이름-날짜 사이 간격
-    },
-};
+// 스타일 컴포넌트 정의
+const Wrapper = styled.div`
+  margin: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  border: 1px solid grey;
+  border-radius: 16px;
+  align-items: flex-start;
+  position: relative; /* 수정 및 삭제 텍스트를 배치하기 위한 상대 위치 */
+`;
 
-function Comment(props) {
-    return (
-        <div style={styles.wrapper}>
-            <div style={styles.imageContainer}>
-                <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-                    alt="Profile"
-                    style={styles.image}
-                />
-            </div>
+const ImageContainer = styled.div`
+  margin-right: 8px;
+`;
 
-            <div style={styles.contentContainer}>
-                <div style={styles.infoContainer}>
-                    <span style={styles.nameText}>{props.name}</span>
-                    <span style={styles.dateText}>{props.date}</span>
-                </div>
-                <span style={styles.commentText}>{props.comment}</span>
-            </div>
-        </div>
-    );
+const Image = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* 원형 이미지 */
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const NameText = styled.span`
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+`;
+
+const DateText = styled.span`
+  color: grey;
+  font-size: 14px;
+`;
+
+const CommentText = styled.span`
+  color: black;
+  font-size: 16px;
+  margin-top: 4px; /* 댓글과 이름-날짜 사이 간격 */
+`;
+
+const ActionText = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  display: flex;
+  gap: 8px; /* 수정 및 삭제 간의 간격 */
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ActionButton = styled.span`
+  color: grey;
+  font-size: 14px;
+  cursor: pointer; /* 클릭 가능한 텍스트 표시 */
+`;
+
+function Comment({ name, date, comment, onEdit, onDelete }) {
+  return (
+    <Wrapper>
+      <ImageContainer>
+        <Image
+          src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+          alt="Profile"
+        />
+      </ImageContainer>
+
+      <ContentContainer>
+        <InfoContainer>
+          <NameText>{name}</NameText>
+          <DateText>{date}</DateText>
+        </InfoContainer>
+        <CommentText>{comment}</CommentText>
+      </ContentContainer>
+
+      {/* 수정 및 삭제 텍스트 */}
+      <ActionText>
+        <ActionButton onClick={onEdit}>수정</ActionButton>
+        <ActionButton onClick={onDelete}>삭제</ActionButton>
+      </ActionText>
+    </Wrapper>
+  );
 }
 
 export default Comment;
