@@ -68,6 +68,8 @@ export default function Login() {
     // mokdata 이용한 api 연결 구현
     const handleLogin = async () => {
         if (userId && password) {
+            console.log('아이디:', userId);  // 입력된 아이디를 출력
+            console.log('비밀번호:', password);  // 입력된 비밀번호를 출력
             try {
                 // mockdata.json 파일에서 데이터 가져오기
                 const response = await fetch('/data/loginMokData.json');
@@ -84,10 +86,14 @@ export default function Login() {
                     // 홈 페이지로 이동
                     navigate('/home');
                 } else {
-                    openModal('아이디 또는 비밀번호가 일치하지 않습니다.');
+                    const errorMessage = '아이디 또는 비밀번호가 일치하지 않습니다.';
+                    openModal(errorMessage); //추가
+                    console.log(errorMessage); //세연추가
                 }
             } catch (error) {
-                openModal('서버와의 연결에 문제가 발생했습니다.');
+                const serverErrorMessage = '서버와의 연결에 문제가 발생했습니다.';
+                openModal(serverErrorMessage); //세연 추가
+                console.log(serverErrorMessage); // 서버 에러 메시지를 콘솔에 출력
             }
         } else {
             openModal('아이디와 비밀번호를 입력해주세요.');
