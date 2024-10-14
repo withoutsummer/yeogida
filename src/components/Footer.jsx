@@ -6,15 +6,20 @@ import IconGit from '../pages/./img/iconGithub.png';
 import IconGm from '../pages/./img/iconGmail.png';
 import logo from '../assets/yeogida_logo.png';
 
-const FooterStyle = styled.div`
+const FooterContainer = styled.footer`
+    display: block;
     width: 100%;
-    height: 240px; /* 푸터 높이 조정 */
-    padding: 20px 0; /* 위아래 패딩 줄임 */
+    padding: 80px 0;
+    background: #f5f5f5;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+`;
+const FooterStyle = styled.div`
     display: flex;
-    justify-content: space-between; /* 자식 요소 간격 조정 */
+    max-width: 1400px;
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* 상단 그림자 효과 */
-    background-color: #f5f5f5;
+    margin: 0 auto; /* 가운데 정렬 */
+    -webkit-box-flex: 1;
 `;
 
 const Logo = styled.img`
@@ -34,7 +39,7 @@ const LinksContainer = styled.div`
     display: flex;
     flex-direction: column; /* 링크를 세로로 배치 */
     align-items: flex-start; /* 왼쪽 정렬 */
-    margin: 0 400px 0 0;
+    margin: 0 250px 0 0;
 `;
 
 const LinksRow = styled.nav`
@@ -83,34 +88,40 @@ const Icon = styled.img`
 export default function Footer() {
     const navigate = useNavigate();
     return (
-        <FooterStyle>
-            <span className="logo" onClick={() => navigate('/')}>
-                <Logo src={logo} alt="Logo" />
-            </span>
-            <Divider />
-            <LinksContainer>
-                <LinksRow>
-                    <ul>
-                        <li onClick={() => navigate('/mytrip')}>나의여행</li>
-                        <li onClick={() => navigate('/sharetrip')}>여행공유</li>
-                        <li onClick={() => navigate('/mypage/editinfo')}>
-                            개인정보 수정
-                        </li>
-                        <li onClick={() => navigate('/mypage/friend')}>
-                            친구목록
-                        </li>
-                        <li onClick={() => navigate('/mypage/scrap')}>
-                            스크랩
-                        </li>
-                    </ul>
-                </LinksRow>
-                <FooterInfo>@made by SWUWEB TeamB</FooterInfo>
-            </LinksContainer>
-            <SocialIconsContainer>
-                <Icon src={IconInsta} alt="Icon 1" />
-                <Icon src={IconGit} alt="Icon 2" />
-                <Icon src={IconGm} alt="Icon 3" />
-            </SocialIconsContainer>
-        </FooterStyle>
+        <FooterContainer>
+            <FooterStyle>
+                <span className="logo" onClick={() => navigate('/')}>
+                    <Logo src={logo} alt="Logo" />
+                </span>
+                <Divider />
+                <LinksContainer>
+                    <LinksRow>
+                        <ul>
+                            <li onClick={() => navigate('/mytrip')}>
+                                나의여행
+                            </li>
+                            <li onClick={() => navigate('/sharetrip')}>
+                                여행공유
+                            </li>
+                            <li onClick={() => navigate('/mypage/editinfo')}>
+                                개인정보 수정
+                            </li>
+                            <li onClick={() => navigate('/mypage/friend')}>
+                                친구목록
+                            </li>
+                            <li onClick={() => navigate('/mypage/scrap')}>
+                                스크랩
+                            </li>
+                        </ul>
+                    </LinksRow>
+                    <FooterInfo>@made by SWUWEB TeamB</FooterInfo>
+                </LinksContainer>
+                <SocialIconsContainer>
+                    <Icon src={IconInsta} alt="Icon 1" />
+                    <Icon src={IconGit} alt="Icon 2" />
+                    <Icon src={IconGm} alt="Icon 3" />
+                </SocialIconsContainer>
+            </FooterStyle>
+        </FooterContainer>
     );
 }

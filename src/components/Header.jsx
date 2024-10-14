@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import logo from '../assets/yeogida_logo.png';
 import Bell from '../components/Bell';
+import Button from '../components/Btn';
 
 const HeaderStyle = styled.div`
     position: fixed; /* 고정된 위치 설정 */
@@ -48,23 +49,30 @@ const NavBox = styled.div`
     line-height: normal;
 `;
 
-const Button = styled.button`
-    width: 110px;
-    height: 50px;
+// const Button = styled.button`
+//     width: 110px;
+//     height: 50px;
+//     padding: 0 10px;
+//     justify-content: center;
+//     align-items: center;
+//     flex-shrink: 0;
+//     margin-left: 50px; /* Bell과 간격 조절 */
+//     border-radius: 5px;
+//     background: #59abe6;
+//     border: none;
+//     color: #fff;
+//     font-family: NanumGothic;
+//     font-size: 16px;
+//     font-style: normal;
+//     font-weight: 600;
+//     line-height: 150%; /* 24px */
+// `;
+
+const Btnstyle = styled.div`
     padding: 0 10px;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0;
-    margin-left: 50px; /* Bell과 간격 조절 */
-    border-radius: 5px;
-    background: #59ABE6;
-    border: none;
-    color: #fff;
-    font-family: NanumGothic;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 150%; /* 24px */
+    margin-left: 50px;
 `;
 
 const MyPageContainer = styled.div`
@@ -176,13 +184,31 @@ export default function Header() {
                                         {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
                                         {viewDropdown && (
                                             <StyledDropdown>
-                                                <DropdownMenu onClick={() =>navigate('/mypage/userinfo')}>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/userinfo'
+                                                        )
+                                                    }
+                                                >
                                                     회원정보 관리
                                                 </DropdownMenu>
-                                                <DropdownMenu onClick={() =>navigate('/mypage/friend')}>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/friend'
+                                                        )
+                                                    }
+                                                >
                                                     친구목록
                                                 </DropdownMenu>
-                                                <DropdownMenu onClick={() =>navigate('/mypage/scrap')}>
+                                                <DropdownMenu
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/mypage/scrap'
+                                                        )
+                                                    }
+                                                >
                                                     스크랩
                                                 </DropdownMenu>
                                             </StyledDropdown>
@@ -192,8 +218,28 @@ export default function Header() {
                             </ul>
                         </Nav>
                     </NavBox>
-                    <Bell/>
-                    <Button onClick={() => navigate('/login')}>로그인</Button>
+                    <Bell />
+                    {/* <Button
+                        onClick={() => navigate('/login')}
+                        hoverBackgroundColor="#0D90EE"
+                        hoverBorderColor="#0D90EE"
+                    >
+                        로그인
+                    </Button> */}
+                    <Btnstyle>
+                        <Button
+                            onClick={() => navigate('/login')}
+                            width="110px"
+                            height="50px"
+                            borderColor="#59abe6"
+                            backgroundColor="#59abe6"
+                            hoverBackgroundColor="#0D90EE"
+                            hoverBorderColor="#0D90EE"
+                            borderRadius="10px"
+                            fontSize="16px"
+                            text="로그인"
+                        />
+                    </Btnstyle>
                 </HeaderContainer>
             </HeaderStyle>
         </header>

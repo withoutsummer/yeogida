@@ -137,19 +137,43 @@ function SignUp() {
 
     //ID API 호출
     const checkIdDuplicate = async (userId) => {
-        const response = await fetch('/users/verify-id', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // 요청 헤더 설정
-            },
-            body: JSON.stringify({ id: userId }), // 요청 본문에 userId 전달
-        });
+        try {
+            console.log('ID 중복 확인 요청:', userId); // 요청을 보내기 전 로그 출력
 
-        // 서버 응답 처리
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const bodyData = JSON.stringify({ id: userId });
+            console.log('요청 본문 (body):', bodyData); // 요청 본문 로그 출력
+
+            const response = await fetch(
+                'https://yeogida.net/users/verify-id',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // 요청 헤더 설정
+                    },
+                    body: bodyData, // 요청 본문에 userId 전달
+                }
+            );
+
+            console.log('서버 응답 상태 코드:', response.status); // 서버 응답 상태 코드 출력
+
+            // 서버 응답 처리
+            if (!response.ok) {
+                console.error(
+                    'HTTP 에러 발생:',
+                    response.status,
+                    response.statusText
+                ); // 에러 로그 출력
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseData = await response.json();
+            console.log('서버 응답 데이터:', responseData); // 서버로부터의 응답 데이터 출력
+
+            return responseData; // 서버로부터의 응답 데이터 반환
+        } catch (error) {
+            console.error('ID 중복 확인 중 에러 발생:', error); // 에러 발생 시 에러 로그 출력
+            throw error; // 에러 다시 던지기
         }
-        return await response.json(); // 서버로부터의 응답 데이터 반환
     };
 
     // 전화번호 체크
