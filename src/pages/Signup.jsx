@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import styled from 'styled-components';
 import Button from '../components/Btn';
 import CommonModal from '../components/CommonModal';
+import {
+    checkIdDuplicate,
+    checkPhoneDuplicate,
+    checkEmailDuplicate,
+    verifyCertificationCode,
+    signUp,
+} from '../api/Signup/SignUpApi';
 
 const FormContainer = styled.form`
     display: flex;
@@ -85,6 +92,7 @@ function SignUp() {
         watch, // watch 추가
         trigger,
         formState: { isSubmitting, errors },
+        control,
     } = useForm();
     const [isIdChecked, setIsIdChecked] = useState(false);
     const [isPhoneChecked, setIsPhoneChecked] = useState(false);
@@ -101,33 +109,48 @@ function SignUp() {
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [isCertified, setIsCertified] = useState(false);
 
-    // 아이디 체크
+    //아이디 체크 여부
     const handleIdCheck = async (event) => {
         event.preventDefault();
         const userIdValue = watch('userId');
 
-        // 아이디 필드만 유효성 검사
         const isUserIdValid = await trigger('userId');
 
-        // 유효하지 않거나 값이 없으면 중복 확인을 하지 않음
         if (!isUserIdValid || !userIdValue) {
             return;
         }
+
         setIsCheckingId(true);
 
         try {
             const response = await checkIdDuplicate(userIdValue);
+            console.log('ID 중복 확인 요청 : %s', userIdValue);
+            const requestBody = { userId: userIdValue };
+            console.log('요청 본문:', requestBody);
+
+            // 응답 데이터 및 상태 코드 출력
+            console.log('ID 중복 확인 응답 상태 코드:', response.status);
+            console.log('ID 중복 확인 응답 데이터:', response);
 
             if (response.status === 200) {
-                setModalMessage(response.message); // '사용할 수 있는 아이디입니다.' 메시지 설정
-                setIsIdChecked(true);
+                // 성공적인 응답
+                setModalMessage(
+                    response.responseData.message ||
+                        '사용할 수 있는 아이디입니다.'
+                );
+                setIsIdChecked(true); // 아이디 중복 체크 성공 시 상태 업데이트
             } else if (response.status === 409) {
-                setModalMessage(response.message); // '이미 사용 중인 아이디입니다.' 메시지 설정
+                // 중복된 아이디일 경우
+                setModalMessage(
+                    response.responseData.message ||
+                        '이미 사용 중인 아이디입니다.'
+                );
                 setIsIdChecked(false);
+            } else {
+                setModalMessage('아이디 확인 중 문제가 발생했습니다.');
             }
         } catch (error) {
-            console.error('Error occurred during ID check:', error); // 에러 메시지 출력
-
+            console.error('Error occurred during ID check:', error);
             setModalMessage(
                 '아이디 확인 중 오류가 발생했습니다. 다시 시도해주세요.'
             );
@@ -137,93 +160,61 @@ function SignUp() {
         setIsCheckingId(false);
     };
 
-    //ID API 호출
-    const checkIdDuplicate = async (userId) => {
-        try {
-            console.log('ID 중복 확인 요청:', userId); // 요청을 보내기 전 로그 출력
-    
-            const bodyData = JSON.stringify({ id: userId });
-            console.log('요청 본문 (body):', bodyData); // 요청 본문 로그 출력
-    
-            const response = await fetch('https://yeogida.net/users/verify-id', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // 요청 헤더 설정
-                },
-                body: bodyData, // 요청 본문에 userId 전달
-            });
-    
-            console.log('서버 응답 상태 코드:', response.status); // 서버 응답 상태 코드 출력
-    
-            // 서버 응답 처리
-            if (!response.ok) {
-                console.error('HTTP 에러 발생:', response.status, response.statusText); // 에러 로그 출력
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const responseData = await response.json();
-            console.log('서버 응답 데이터:', responseData); // 서버로부터의 응답 데이터 출력
-    
-            return responseData; // 서버로부터의 응답 데이터 반환
-        } catch (error) {
-            console.error('ID 중복 확인 중 에러 발생:', error); // 에러 발생 시 에러 로그 출력
-            throw error; // 에러 다시 던지기
-        }
-    };
-    
+    // userId 값이 변경될 때마다 중복 확인 상태 초기화
+    const userIdValue = useWatch({ control, name: 'userId' }); // useWatch 사용
 
-    // 전화번호 체크
+    useEffect(() => {
+        if (userIdValue) {
+            setIsIdChecked(false); // 값이 변경되면 중복 확인 상태 초기화
+        }
+    }, [userIdValue]);
+
+    //전화번호 체크 여부
     const handlePhoneCheck = async (event) => {
         event.preventDefault();
         const phoneValue = watch('phone');
 
-        // 전화번호 필드만 유효성 검사 (trigger 함수 호출)
         const isPhoneValid = await trigger('phone');
 
-        // 빈 값이면 유효성 검사를 하지 않음
         if (!isPhoneValid || !phoneValue) {
             return;
         }
+
         setIsCheckingPhone(true);
 
         try {
             const response = await checkPhoneDuplicate(phoneValue);
+            console.log('전화번호 중복 확인 요청:', phoneValue);
+            const requestBody = { phonenumber: phoneValue };
+            console.log('요청 본문:', requestBody);
+
             if (response.status === 200) {
-                setModalMessage(response.message);
+                setModalMessage(
+                    response.responseData.message ||
+                        '사용할 수 있는 전화번호입니다.'
+                );
                 setIsPhoneChecked(true);
             } else if (response.status === 409) {
-                setModalMessage(response.message);
+                setModalMessage(
+                    response.responseData.message ||
+                        '이미 사용 중인 전화번호입니다.'
+                );
                 setIsPhoneChecked(false);
+            } else {
+                setModalMessage('전화번호 중복 확인 중 오류가 발생했습니다.');
             }
         } catch (error) {
-            setModalMessage(
-                '전화번호 확인 중 오류가 발생했습니다. 다시 시도해주세요.'
-            );
+            console.error('전화번호 확인 중 오류 발생:', error);
+            setModalMessage('서버와의 연결에 문제가 발생했습니다.');
         }
-
         setIsModalOpen(true);
         setIsCheckingPhone(false);
     };
 
-    //전화번호 API 요청
-    const checkPhoneDuplicate = async (phone) => {
-        const response = await fetch('/users/verify-phone', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application.json',
-            },
-            body: JSON.stringify({ phonenumber: phone }),
-        });
-
-        if (!response.ok)
-            throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-    };
-
     // 이메일 체크 및 인증번호 요청 함수
-    const handleEmailCheck = async (email, userName) => {
+    const handleEmailCheck = async () => {
         const emailValue = watch('email');
-        const nameValue = watch('userName'); // Assuming you have a name input field as well
+        const nameValue = watch('userName');
         const isEmailValid = await trigger('email');
         const isNameValid = await trigger('userName');
 
@@ -234,41 +225,23 @@ function SignUp() {
         setIsCheckingEmail(true);
 
         try {
-            // API 요청
-            const response = await fetch('/users/signup-sendnum', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    name: userName,
-                }),
-            });
+            console.log('이메일 중복 확인 요청:', emailValue, nameValue);
+            const response = await checkEmailDuplicate(emailValue, nameValue);
 
-            const data = await response.json();
+            setModalMessage(response.message);
 
             if (response.status === 200) {
-                setModalMessage(data.message);
                 setIsEmailDisabled(true);
                 setTimer(180);
                 setIsTimerRunning(true);
-                setShowCertificationInput(true); // 인증번호 입력 필드 표시
-            } else if (response.status === 409) {
-                setModalMessage('기존에 회원가입한 이메일입니다.');
-            } else if (response.status === 500) {
-                setModalMessage('500 서버 에러 발생');
-            } else {
-                setModalMessage('알 수 없는 오류가 발생했습니다.');
+                setShowCertificationInput(true);
             }
-
-            setIsModalOpen(true); // 모달을 띄움
         } catch (error) {
             setModalMessage(
                 '서버와 연결할 수 없습니다. 나중에 다시 시도해주세요.'
             );
-            setIsModalOpen(true); // 모달을 띄움
         } finally {
+            setIsModalOpen(true);
             setIsCheckingEmail(false);
         }
     };
@@ -295,37 +268,14 @@ function SignUp() {
         setIsEmailDisabled(false);
     }, [watch('email')]);
 
-    const handleCertificationCheck = async (email, certificationNum) => {
+    const handleCertificationCheck = async (certificationNum) => {
         try {
-            const response = await fetch('/users/verify-number', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: email,
-                    code: certificationNum,
-                }),
-            });
-            if (response.status === 200) {
-                const result = await response.json();
-                setModalMessage(result.message); // 성공 메시지
-                setIsModalOpen(true);
-            } else {
-                const errorData = await response.json();
-                switch (response.status) {
-                    case 404:
-                        setModalMessage(errorData.message); // 이미 회원가입 된 개인정보
-                        break;
-                    case 400:
-                        setModalMessage(errorData.message); // 비밀번호 불일치
-                        break;
-                    case 500:
-                        setModalMessage(errorData.message); // 비밀번호 불일치
-                        break;
-                    default:
-                        setModalMessage('인증에 실패했습니다.');
-                }
-                setIsModalOpen(true);
-            }
+            const response = await verifyCertificationCode(
+                watch('email'),
+                certificationNum
+            );
+            setModalMessage(response.message);
+            setIsModalOpen(true);
         } catch (error) {
             setModalMessage('인증에 실패했습니다. 다시 시도해주세요.');
             setIsModalOpen(true);
@@ -349,47 +299,26 @@ function SignUp() {
         nickName,
         birth
     ) => {
-        try {
-            const response = await fetch(
-                '/users/signup', // API 경로
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json', // 요청 헤더
-                    },
-                    body: JSON.stringify({
-                        id: userId,
-                        password: password,
-                        passwordCheck: passwordCheck,
-                        name: userName,
-                        phonenumber: phone,
-                        nickName: nickName,
-                        birth: birth,
-                    }), // 유효한 데이터 전송
-                }
-            );
+        const userData = {
+            id: userId,
+            password: password,
+            passwordCheck: passwordCheck,
+            name: userName,
+            phonenumber: phone,
+            email: email,
+            nickName: nickName,
+            birth: birth,
+        };
 
-            if (response.status === 201) {
-                const result = await response.json();
-                setModalMessage('회원가입에 성공하셨습니다.'); // 성공 메시지
-                setIsModalOpen(true);
-            } else {
-                const errorData = await response.json();
-                switch (response.status) {
-                    case 409:
-                        setModalMessage(errorData.message); // 이미 회원가입 된 개인정보
-                        break;
-                    case 400:
-                        setModalMessage(errorData.message); // 비밀번호 불일치
-                        break;
-                    default:
-                        setModalMessage('회원가입에 실패했습니다.');
-                }
-                setIsModalOpen(true);
+        try {
+            const response = await signUp(userData);
+            if (response.success) {
+                console.log('회원가입 성공:', response.message);
+                // 성공 처리 (e.g., 모달 띄우기 등)
             }
         } catch (error) {
-            setModalMessage('회원가입에 실패했습니다. 다시 시도해주세요.');
-            setIsModalOpen(true);
+            console.error('회원가입 오류:', error.message);
+            // 오류 처리 (e.g., 에러 메시지 모달 등)
         }
     };
 
@@ -420,8 +349,9 @@ function SignUp() {
                         },
                     })}
                     onChange={(e) => {
+                        setIsIdChecked(false); // 아이디가 변경될 때 중복 확인 초기화
                         register('userId').onChange(e);
-                        trigger('userId');
+                        trigger('userId'); // 유효성 검사 트리거
                     }}
                     aria-invalid={errors.userId ? 'true' : 'false'}
                 />
