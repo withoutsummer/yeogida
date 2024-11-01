@@ -83,7 +83,7 @@ export default function Login() {
                 if (response) {
                     // 로그인 성공
                     localStorage.setItem('token', responseData.token);
-                    navigate('/home');
+                    navigate('/');
                 } else if (status === 401) {
                     // 인증 실패
                     openModal('아이디 또는 비밀번호가 일치하지 않습니다.');

@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/Btn';
 import styled from 'styled-components';
 import CommonModal from '../components/CommonModal';
+import {
+    checkAccountExists,
+    sendVerificationCode,
+    fetchUserId,
+    resendCodeAPI,
+} from '../api/FindId/FindIdApi';
 
 const FindIdForm = styled.div`
     margin-top: 120px;
@@ -111,49 +117,30 @@ export default function FindId() {
         );
     };
 
-    //해당 계정 유무 확인(api 요청)
-    const checkAccountExists = async () => {
-        // try {
-        //     const response = await fetch('users/find/id', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //             name: formData.userName,
-        //             email: formData.email, // 전화번호는 하드코딩 예시
-        //         }),
-        //     });
-
-        //     if (response.status === 200) {
-        //         return true;
-        //     } else if (response.status === 404) {
-        //         openModal(
-        //             '가입 시 입력하신 회원 정보와 맞는지 다시 한번 확인해주세요.'
-        //         );
-        //         return false;
-        //     } else {
-        //         openModal(
-        //             '서버 에러가 발생했습니다. 나중에 다시 시도해주세요.'
-        //         );
-        //         return false;
-        //     }
-        // } catch (error) {
-        //     openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
-        //     return false;
-        // }
-
-        return true;
+    // 모달
+    const openModal = (message, navigateToPage = '') => {
+        setModalMessage(message);
+        setNavigateTo(navigateToPage);
+        setIsModalOpen(true);
     };
+
+    const closeModal = () => setIsModalOpen(false);
 
     // 이메일 인증하기 버튼 핸들러
     const handleSendCode = async () => {
         if (isFormValid()) {
-            const accountExists = await checkAccountExists(); // 계정 존재 여부 확인
-            if (accountExists) {
-                openModal('인증번호를 전송했습니다.');
-                setShowCertificationInput(true);
-                setTimer(180); // 타이머 초기화
+            try {
+                const accountExists = await checkAccountExists(
+                    formData.userName,
+                    formData.email
+                );
+                if (accountExists) {
+                    openModal('인증번호를 전송했습니다.');
+                    setShowCertificationInput(true);
+                    setTimer(180);
+                }
+            } catch (error) {
+                openModal(error.message);
             }
         }
     };
@@ -162,48 +149,39 @@ export default function FindId() {
     const handleSubmit = async () => {
         if (isCertificationValid()) {
             try {
-                const response = await fetch('/users/idpw-sendnum', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: formData.email,
-                        code: formData.certificationNum,
-                    }),
-                });
-
-                const data = await response.json();
-
-                if (response.status === 200) {
-                    // 인증 성공 시 ID를 가져오는 API 호출
-                    const idResponse = await fetch('/api/findId', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    if (idResponse.status === 200) {
-                        const data = await idResponse.json();
-                        const userId = data.id;
-
-                        // 성공 페이지로 아이디를 전달하면서 이동
-                        navigate('/find/id/success', { state: { userId } });
-                    } else {
-                        openModal('서버에서 아이디를 가져오지 못했습니다.');
-                    }
-                } else if (response.status === 404) {
-                    openModal(response.message);
-                } else if (response.status === 400) {
-                    openModal(response.message);
-                } else if (response.status === 400) {
-                    openModal(response.message);
-                } else {
-                    openModal('서버 오류가 발생했습니다. 다시 시도해주세요.');
-                }
+                await sendVerificationCode(
+                    formData.email,
+                    formData.certificationNum
+                );
+                const userId = await fetchUserId();
+                navigate('/find/id/success', { state: { userId } });
             } catch (error) {
-                openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+                openModal(error.message);
+            }
+        }
+    };
+
+    //인증번호 재전송 버튼 핸들러
+    const handleResendCode = async () => {
+        if (timer > 60) {
+            // 타이머가 1분 이상 남았을 경우
+            openModal(
+                '재발송 요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.'
+            );
+        } else {
+            try {
+                setFormData((prev) => ({
+                    ...prev,
+                    certificationNum: '',
+                }));
+                setTimer(180);
+                const message = await resendCodeAPI(
+                    formData.email,
+                    formData.userName
+                );
+                openModal(message);
+            } catch (error) {
+                openModal(error.message);
             }
         }
     };
@@ -226,62 +204,6 @@ export default function FindId() {
         }
         return () => clearInterval(interval);
     }, [showCertificationInput, timer]);
-
-    // 모달
-    const openModal = (message, navigateToPage = '') => {
-        setModalMessage(message);
-        setNavigateTo(navigateToPage);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
-
-    //인증번호 재전송 버튼 핸들러
-    const handleResendCode = () => {
-        if (timer > 60) {
-            // 타이머가 1분 이상 남았을 경우
-            openModal(
-                '재발송 요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.'
-            );
-        } else {
-            // 타이머가 1분 미만 남았을 경우
-            // openModal('인증번호를 재전송하였습니다.');
-            setFormData((prev) => ({
-                ...prev,
-                certificationNum: '', // 인증번호 입력 필드 초기화
-            }));
-            setTimer(180); // 타이머 초기화
-
-            // API 요청을 통해 인증번호를 재전송
-            resendCodeAPI();
-        }
-    };
-
-    // 인증번호 재전송 API 호출 함수
-    const resendCodeAPI = async () => {
-        try {
-            const response = await fetch('/api/resendCode', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: formData.email,
-                    name: formData.userName,
-                }),
-            });
-
-            if (response.status === 200) {
-                openModal('인증번호가 재전송되었습니다.');
-            } else {
-                openModal('서버 오류가 발생했습니다. 다시 시도해주세요.');
-            }
-        } catch (error) {
-            openModal('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
-        }
-    };
 
     return (
         <FindIdForm>
