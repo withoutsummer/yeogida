@@ -4,6 +4,7 @@ import Button from '../components/Btn';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import CommonModal from '../components/CommonModal';
+import { loginUser } from '../api/Login/LoginApi';
 
 const LoginForm = styled.div`
     display: flex;
@@ -65,76 +66,41 @@ export default function Login() {
         setIsModalOpen(false);
     };
 
-    // mokdata 이용한 api 연결 구현
-    const handleLogin = async () => {
+    const handleLogin = async (event) => {
+        event.preventDefault();
         if (userId && password) {
             try {
-                // mockdata.json 파일에서 데이터 가져오기
-                const response = await fetch('/data/loginMokData.json');
-                const mockData = await response.json();
+                console.log('로그인 요청 시작');
+                console.log('입력된 아이디:', userId);
+                console.log('입력된 비밀번호:', password);
 
-                const user = mockData.users.find(
-                    (u) => u.id === userId && u.password === password
+                // API 요청 및 응답 처리
+                const { response, status, responseData } = await loginUser(
+                    userId,
+                    password
                 );
 
-                if (user) {
-                    // mock JWT 토큰 저장
-                    localStorage.setItem('token', user.token);
-
-                    // 홈 페이지로 이동
+                if (response) {
+                    // 로그인 성공
+                    localStorage.setItem('token', responseData.token);
                     navigate('/home');
-                } else {
+                } else if (status === 401) {
+                    // 인증 실패
                     openModal('아이디 또는 비밀번호가 일치하지 않습니다.');
+                } else {
+                    // 기타 오류
+                    openModal(
+                        '로그인 중 문제가 발생했습니다. 다시 시도해주세요.'
+                    );
                 }
             } catch (error) {
+                console.error('Login request failed:', error);
                 openModal('서버와의 연결에 문제가 발생했습니다.');
             }
         } else {
             openModal('아이디와 비밀번호를 입력해주세요.');
         }
     };
-
-    // 실제 api 명세서 작성 시 코드
-    // const handleLogin = async () => {
-    //     if (userId && password) {
-    //         try {
-    //             // 서버로 로그인 요청
-    //             const response = await fetch('users/login', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 },
-    //                 body: JSON.stringify({
-    //                     id: userId,
-    //                     password: password,
-    //                 }),
-    //             });
-
-    //             const data = await response.json();
-
-    //             if (response.ok && data.status === 200) {
-    //                 // JWT 토큰이 있다면 로컬 스토리지에 저장 (서버 응답에 따라 수정 가능)
-    //                 localStorage.setItem('token', data.token);
-
-    //                 // 홈 페이지로 이동
-    //                 navigate('/home');
-    //             } else if (response.status === 401) {
-    //                 // 아이디 또는 비밀번호가 일치하지 않음
-    //                 openModal('아이디 또는 비밀번호가 일치하지 않습니다.');
-    //             } else {
-    //                 // 기타 서버 에러
-    //                 openModal(
-    //                     '로그인 중 문제가 발생했습니다. 다시 시도해주세요.'
-    //                 );
-    //             }
-    //         } catch (error) {
-    //             // 네트워크 에러 또는 서버 문제 처리
-    //             openModal('서버와의 연결에 문제가 발생했습니다.');
-    //         }
-    //     } else {
-    //         openModal('아이디와 비밀번호를 입력해주세요.');
-    //     }
-    // };
 
     return (
         <LoginForm>

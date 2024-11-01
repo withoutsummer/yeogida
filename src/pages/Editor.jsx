@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
 import { addPost, getPosts } from '../mockdata/mytripMockData';
+import { addShareTripPost } from '../mockdata/mytripMockData';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -230,7 +231,7 @@ const EditorContainer = styled.div`
   padding: 0 20px;
 `;
 
-export default function Editor({ onChange = () => {} }) {
+export default function Editor({ onChange = () => { } }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [], 여행지: destinationArray = [] } = location.state || {};
@@ -255,8 +256,8 @@ export default function Editor({ onChange = () => {} }) {
   const [map, setMap] = useState(null);
 
   useEffect(() => {
-      if (window.naver && !map) { 
-        navigator.geolocation.getCurrentPosition((position) => {
+    if (window.naver && !map) {
+      navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
 
         // 네이버 지도 옵션 선택
@@ -293,7 +294,7 @@ export default function Editor({ onChange = () => {} }) {
         console.error('Error fetching location', error);
       });
     }
-  }, [map]); 
+  }, [map]);
 
   const handleSearch = () => {
     if (searchKeyword.trim() && map && window.naver && window.naver.maps && window.naver.maps.Service) {
@@ -302,7 +303,7 @@ export default function Editor({ onChange = () => {} }) {
           alert('검색결과가 없습니다. 다른 주소를 시도해 보세요.');
         } else if (status === window.naver.maps.Service.Status.OK) {
           const results = response.v2.addresses;
-          setSearchResults(results); 
+          setSearchResults(results);
 
           if (results.length > 0) {
             const firstResult = results[0];
@@ -356,32 +357,42 @@ export default function Editor({ onChange = () => {} }) {
   };
 
   const handleModalClose = () => {
-      setModalIsOpen(false); // 모달 닫기
+    setModalIsOpen(false); // 모달 닫기
   };
 
-  const handleSaveClick = (e) => {
+  const handleSaveClick = async (e) => { // async 추가
     e.preventDefault();
 
-        // 기존 posts에서 no를 계산
-        const existingPosts = getPosts(); // 현재 포스트 목록 가져오기
-        const newIdNo = existingPosts.length ? Math.max(...existingPosts.map(post => post.no)) + 1 : 1; // 1부터 시작
+    // 기존 posts에서 no를 계산
+    const existingPosts = getPosts(); // 현재 포스트 목록 가져오기
+    const newIdNo = existingPosts.length ? Math.max(...existingPosts.map(post => post.no)) + 1 : 1; // 1부터 시작
 
-        const newPost = {
-            id: newIdNo,
-            no: newIdNo,
-            제목: title,
-            여행지: destinationArray,
-            소유자: 'seorin', // API 연결 시 변경 예정
-            날짜: dateRange,
-            썸네일: thumbnail,
-            댓글: "0",
-            좋아요: "0",
-            content: 'content'
-        };
+    const newPost = {
+      id: newIdNo,
+      no: newIdNo,
+      제목: title,
+      여행지: destinationArray,
+      소유자: 'seorin', // API 연결 시 변경 예정
+      날짜: dateRange,
+      썸네일: thumbnail,
+      댓글: "0",
+      좋아요: "0",
+      content: 'content'
+    };
 
-    addPost(newPost); // 새로운 포스트 추가
-    alert('저장 완료');
-    navigate('/mytrip'); // 나의 여행 페이지로 이동
+    try {
+      // MyTrip 페이지에 게시물 추가
+      addPost(newPost);
+
+      // ShareTrip 페이지에도 동일한 게시물 추가
+      addShareTripPost(newPost);
+
+      alert('저장 완료');
+      navigate('/mytrip'); // 나의 여행 페이지로 이동
+    } catch (error) {
+      console.error('저장 실패:', error);
+      alert('저장 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -393,19 +404,19 @@ export default function Editor({ onChange = () => {} }) {
 
       {/* 취소하기 모달창 */}
       <YesNoModal
-                isOpen={modalIsOpen}
-                onRequestClose={handleModalClose}
-                title="작성을 취소하시겠습니까?"
-                bodyText="작성 중이던 내용이 모두 삭제됩니다."
-                navigateTo="/other-page"
-            >
+        isOpen={modalIsOpen}
+        onRequestClose={handleModalClose}
+        title="작성을 취소하시겠습니까?"
+        bodyText="작성 중이던 내용이 모두 삭제됩니다."
+        navigateTo="/other-page"
+      >
       </YesNoModal>
 
       {/* 썸네일, 제목, 날짜를 표시하는 상단 영역 */}
       <HeaderContainer thumbnail={thumbnail}>
         <EditButton>
           <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-            <path d="M28.2916 10.7046L24.2958 6.70874C23.7743 6.21888 23.0909 5.9378 22.3756 5.91898C21.6604 5.90016 20.9632 6.1449 20.4166 6.60665L7.29161 19.7317C6.82023 20.207 6.52672 20.8301 6.46036 21.4962L5.83328 27.5775C5.81363 27.7911 5.84135 28.0064 5.91445 28.2081C5.98755 28.4097 6.10424 28.5928 6.25619 28.7442C6.39246 28.8793 6.55407 28.9862 6.73175 29.0588C6.90943 29.1314 7.09968 29.1682 7.29161 29.1671H7.42286L13.5041 28.6129C14.1703 28.5465 14.7933 28.253 15.2687 27.7817L28.3937 14.6567C28.9031 14.1185 29.1784 13.4003 29.1593 12.6595C29.1402 11.9187 28.8281 11.2157 28.2916 10.7046V10.7046ZM23.3333 15.5754L19.4249 11.6671L22.2687 8.7504L26.2499 12.7317L23.3333 15.5754Z" fill="white"/>
+            <path d="M28.2916 10.7046L24.2958 6.70874C23.7743 6.21888 23.0909 5.9378 22.3756 5.91898C21.6604 5.90016 20.9632 6.1449 20.4166 6.60665L7.29161 19.7317C6.82023 20.207 6.52672 20.8301 6.46036 21.4962L5.83328 27.5775C5.81363 27.7911 5.84135 28.0064 5.91445 28.2081C5.98755 28.4097 6.10424 28.5928 6.25619 28.7442C6.39246 28.8793 6.55407 28.9862 6.73175 29.0588C6.90943 29.1314 7.09968 29.1682 7.29161 29.1671H7.42286L13.5041 28.6129C14.1703 28.5465 14.7933 28.253 15.2687 27.7817L28.3937 14.6567C28.9031 14.1185 29.1784 13.4003 29.1593 12.6595C29.1402 11.9187 28.8281 11.2157 28.2916 10.7046V10.7046ZM23.3333 15.5754L19.4249 11.6671L22.2687 8.7504L26.2499 12.7317L23.3333 15.5754Z" fill="white" />
           </svg>
         </EditButton>
         <Title>{title}</Title>
@@ -429,11 +440,11 @@ export default function Editor({ onChange = () => {} }) {
 
         {/* Search*/}
         <SearchContainer>
-          <SearchInput 
-            type="text" 
-            placeholder="장소, 주소 검색" 
+          <SearchInput
+            type="text"
+            placeholder="장소, 주소 검색"
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)} 
+            onChange={(e) => setSearchKeyword(e.target.value)}
           />
           <SearchButton onClick={handleSearch}>Search</SearchButton>
         </SearchContainer>
@@ -450,7 +461,7 @@ export default function Editor({ onChange = () => {} }) {
               </SearchResultItem>
             ))}
           </SearchResultsContainer>
-        </MapContainer>        
+        </MapContainer>
 
         {/* Quill 에디터 */}
         <ReactQuill

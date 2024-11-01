@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import logo from '../assets/yeogida_logo.png';
 import Bell from '../components/Bell';
 import Button from '../components/Btn';
+import { logoutUser } from '../api/Logout/Logout';
 
 const HeaderStyle = styled.div`
     position: fixed; /* 고정된 위치 설정 */
@@ -83,7 +84,7 @@ const MyPageContainer = styled.div`
     color: #333;
 
     &:hover {
-        color: #707070;
+        color: #59abe6;
     }
 `;
 
@@ -138,6 +139,28 @@ export default function Header() {
     const navigate = useNavigate();
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Check if the user is logged in by checking for a token in localStorage
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token);
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            const { status } = await logoutUser(); // 로그아웃 API 호출
+            if (status === 200) {
+                localStorage.removeItem('token');
+                setIsLoggedIn(false);
+                navigate('/'); // 로그아웃 후 메인 페이지로 이동
+            } else {
+                console.error('로그아웃에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('서버 오류가 발생했습니다.', error);
+        }
+    };
 
     useEffect(() => {
         let timeout;
@@ -170,7 +193,11 @@ export default function Header() {
                                 <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
-                                <li onClick={() => navigate('/sharetrip')}>
+                                <li
+                                    onClick={() =>
+                                        navigate('/shared-itineraries')
+                                    }
+                                >
                                     여행공유
                                 </li>
                                 <li>
@@ -219,26 +246,36 @@ export default function Header() {
                         </Nav>
                     </NavBox>
                     <Bell />
-                    {/* <Button
-                        onClick={() => navigate('/login')}
-                        hoverBackgroundColor="#0D90EE"
-                        hoverBorderColor="#0D90EE"
-                    >
-                        로그인
-                    </Button> */}
+                    {/* Other Navigation Elements */}
                     <Btnstyle>
-                        <Button
-                            onClick={() => navigate('/login')}
-                            width="110px"
-                            height="50px"
-                            borderColor="#59abe6"
-                            backgroundColor="#59abe6"
-                            hoverBackgroundColor="#0D90EE"
-                            hoverBorderColor="#0D90EE"
-                            borderRadius="10px"
-                            fontSize="16px"
-                            text="로그인"
-                        />
+                        {isLoggedIn ? (
+                            <Button
+                                onClick={() => navigate('/login')}
+                                width="110px"
+                                height="50px"
+                                borderColor="#59abe6"
+                                backgroundColor="#59abe6"
+                                hoverBackgroundColor="#0D90EE"
+                                hoverBorderColor="#0D90EE"
+                                borderRadius="10px"
+                                fontSize="16px"
+                                text="로그인"
+                            />
+                        ) : (
+                            <Button
+                                onClick={handleLogout}
+                                width="110px"
+                                height="50px"
+                                borderColor="#59abe6"
+                                backgroundColor="#59abe6"
+                                hoverBackgroundColor="#0D90EE"
+                                hoverBorderColor="#0D90EE"
+                                borderRadius="10px"
+                                fontSize="16px"
+                                text="로그아웃
+                                "
+                            />
+                        )}
                     </Btnstyle>
                 </HeaderContainer>
             </HeaderStyle>
