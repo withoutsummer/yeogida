@@ -143,12 +143,13 @@ export default function Card({
     width,
     height,
     heightImg,
-    img,
+    thumbnail,
     heightBody,
     title,
-    date,
+    startdate,
+    enddate,
     authorImg,
-    author,
+    user_id,
     comment,
     likes,
     onClick,
@@ -156,12 +157,12 @@ export default function Card({
 }) {
     return (
         <CardContainer onClick={onClick} width={width} height={height}>
-            <CardImage src={img} alt={title} heightImg={heightImg} />
+            <CardImage src={thumbnail} alt={title} heightImg={heightImg} />
             <CardBody heightBody={heightBody}>
                 <CardTitle>{title}</CardTitle>
                 {isHomePage && (
                     <>
-                        <CardDate>{date}</CardDate>
+                        <CardDate>{startdate} ~ {enddate}</CardDate>
                     </>
                 )}
             </CardBody>
@@ -177,7 +178,7 @@ export default function Card({
                     >
                         <circle cx="15" cy="15" r="15" fill="#D9D9D9" />
                     </svg>
-                    <span>by</span> {author}
+                    <span>by</span> {user_id}
                 </CardAuthor>
                 <CardInteraction>
                     <CardComment>

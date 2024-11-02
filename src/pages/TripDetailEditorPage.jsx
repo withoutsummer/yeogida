@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
 import Map from '../components/Map'
-import TimeDropdown from '../components/TimeDropDown';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -158,157 +157,171 @@ const EditorContainer = styled.div`
   padding: 0 20px;
 `;
 
-export default function Editor({ onChange = () => { } }) {
-  const location = useLocation();
-  const navigate = useNavigate();
+export default function TripDetailEditorPage({ onChange = () => { } }) {
+    const { id } = useParams(); // URL 파라미터에서 ID 가져오기
+    const location = useLocation();
+    const navigate = useNavigate();
 
-  const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [], 여행지: destinationArray = [], 상세내용: description = '' } = location.state || {};
+    // 위치 상태에서 게시물 가져오기
+    const { posts, editedTrip } = location.state || {};
+    const trip = editedTrip || (posts ? posts.find(post => post.id === Number(id)) : null);
+    const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [], 여행지: destinationArray = [] } = trip || {};
 
-  const [currentDay, setCurrentDay] = useState(1);
-  const [days, setDays] = useState([]);
+    const [currentDay, setCurrentDay] = useState(1);
+    const [days, setDays] = useState([]);
+    const [itineraryDetails, setItineraryDetails] = useState({});
+    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [modalOpen, setModalOpen] = useState(false); // 모달 열림 상태 추가
 
-  const [modalOpen, setModalOpen] = useState(false); // 모달 열림 상태 추가
-  const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
+    useEffect(() => {
+      if (dateRange) {
+        const [startDate, endDate] = dateRange.split(' ~ ').map(date => new Date(date.replace(/\//g, '-')));
+        const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+        const dayTabs = Array.from({ length: dayCount }, (_, i) => `DAY ${i + 1}`);
+        setDays(dayTabs);
+      }
+    }, [dateRange]);
 
-  const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}/${month}/${day}`;
+    };
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}/${month}/${day}`;
-  };
+    const modules = {
+        toolbar: [
+        [{ 'header': [1, 2, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+        ['link', 'image'],
+        [{ 'align': [] }, { 'color': [] }, { 'background': [] }],
+        ['clean']
+        ],
+    };
 
-  useEffect(() => {
-    if (dateRange) {
-      const [startDate, endDate] = dateRange.split(' ~ ').map(date => new Date(date.replace(/\//g, '-')));
-      const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-      const dayTabs = Array.from({ length: dayCount }, (_, i) => `DAY ${i + 1}`);
-      setDays(dayTabs);
-    }
-  }, [dateRange]);
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'bullet', 'indent',
+        'link', 'image',
+        'align', 'color', 'background',
+    ];
 
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-      ['link', 'image'],
-      [{ 'align': [] }, { 'color': [] }, { 'background': [] }],
-      ['clean']
-    ],
-  };
+    const handleContentChange = (content, delta, source, editor) => {
+        const newContent = [...value];
+        newContent[currentDay - 1] = content;
+        onChange(newContent);
+    };
 
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike', 'blockquote',
-    'list', 'bullet', 'indent',
-    'link', 'image',
-    'align', 'color', 'background',
-  ];
+    const handlePreviousDay = () => {
+        setCurrentDay((prev) => (prev > 1 ? prev - 1 : prev));
+    };
 
-  const handleContentChange = (content, delta, source, editor) => {
-    const newContent = [...value];
-    newContent[currentDay - 1] = content;
-    onChange(newContent);
-  };
+    const handleNextDay = () => {
+        setCurrentDay((prev) => (prev < days.length ? prev + 1 : prev));
+    };
 
-  const handlePreviousDay = () => {
-    setCurrentDay((prev) => (prev > 1 ? prev - 1 : prev));
-  };
+    const handleCancelClick = () => {
+        setModalOpen(true); // 모달 열기
+    };
 
-  const handleNextDay = () => {
-    setCurrentDay((prev) => (prev < days.length ? prev + 1 : prev));
-  };
+    const handleSaveClick = async () => {
+      try {
+          await updateItinerary(id, { value });
+          navigate(`/mytrip/${id}`);
+      } catch (error) {
+          console.error("저장 중 오류 발생:", error.message);
+      }
+    };
 
-  const handleCancelClick = () => {
-    setModalOpen(true); // 모달 열기
-  };
+    const handleModalClose = () => {
+        setModalOpen(false); // 모달 닫기
+    };
 
-  const handleModalClose = () => {
-    setModalOpen(false); // 모달 닫기
-  };
+    // const fetchUserId = async () => {
+    //       try {
+    //           const response = await fetch('https://yeogida.net/mypage/account', {
+    //               method: 'GET',
+    //               headers: {
+    //                   'Content-Type': 'application/json'
+    //               },
+    //           });
+        
+    //           if (!response.ok) {
+    //               const errorText = await response.text();
+    //               console.error('HTTP 에러 발생:', response.status, errorText);
+    //               throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
+    //           }
+        
+    //           const userData = await response.json();
+    //           console.log('사용자 정보:', userData);
+    //           return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
+    //       } catch (error) {
+    //           console.error('네트워크 오류 발생:', error);
+    //           throw error; // 오류를 호출한 쪽으로 전달
+    //       }
+    //   };
 
-  // const fetchUserId = async () => {
-  //       try {
-  //           const response = await fetch('https://yeogida.net/mypage/account', {
-  //               method: 'GET',
-  //               headers: {
-  //                   'Content-Type': 'application/json'
-  //               },
-  //           });
-    
-  //           if (!response.ok) {
-  //               const errorText = await response.text();
-  //               console.error('HTTP 에러 발생:', response.status, errorText);
-  //               throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
-  //           }
-    
-  //           const userData = await response.json();
-  //           console.log('사용자 정보:', userData);
-  //           return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
-  //       } catch (error) {
-  //           console.error('네트워크 오류 발생:', error);
-  //           throw error; // 오류를 호출한 쪽으로 전달
-  //       }
-  //   };
-
-  const submitTravelPlan = async (requestData) => {
-        try {
-            console.log('새 여행 생성 요청'); // 요청을 보내기 전 로그
-            console.log('요청 본문 (body):', requestData); // 요청 본문 로그 출력
-    
-            const response = await fetch('https://yeogida.net/api/itineraries', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // 요청 헤더 설정
-                },
-                body: JSON.stringify(requestData),
-            });
-    
-            // 서버 응답 확인
-            if (!response.ok) {
-                const errorText = await response.text(); // 에러 발생 시 응답 텍스트 확인
-                console.error('HTTP 에러 발생:', response.status, errorText); // 에러 로그 출력
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-            }
-    
-            const result = await response.json();
-            console.log('여행 일정 등록 성공:', result);
-            navigate('/mytrip'); // 나의 여행 페이지로 이동
+    // 여행 상세 API
+    const fetchItineraryDetails = async (itinerary_id) => {
+      try {
+          const response = await fetch(`https://yeogida.net/api/itineraries/${itinerary_id}`);
+          
+          // 응답이 성공적인 경우
+          if (!response.ok) {
+              throw new Error('일정 정보를 불러오는 데 실패했습니다.');
+          }
+  
+          const data = await response.json(); // JSON 형태로 변환
+            console.log(data); // 데이터 확인
+            return data; // 필요한 경우 반환
         } catch (error) {
-            console.error('네트워크 오류 발생:', error);
-            setModalMessage('여행 일정 등록에 실패했습니다. 다시 시도해 주세요.'); // 에러 메시지 설정
-            setModalOpen(true); // 모달 열기
+            console.error('오류:', error);
+        }
+    };    
+
+    // API 호출
+    useEffect(() => {
+      const fetchDetails = async () => {
+          if (id) {
+              const details = await fetchItineraryDetails(id);
+              console.log(details);
+              setItineraryDetails(details);
+              setLoading(false); // 로딩 종료
+          }
+      };
+
+      fetchDetails();
+    }, [id]);
+
+    // 여행 일정 수정 함수
+    const updateItinerary = async (itineraryId, updatedData) => {
+        try {
+        const response = await fetch(`https://yeogida.net/api/itineraries/${itineraryId}`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData), // 수정할 데이터
+        });
+    
+        if (!response.ok) {
+            throw new Error('여행 일정 수정에 실패했습니다.');
+        }
+    
+        const result = await response.json(); // 성공 시 반환된 데이터를 JSON 형식으로 변환
+        console.log('수정된 여행 일정:', result);
+        } catch (error) {
+        console.error('오류 발생:', error.message);
         }
     };
 
-  const handleSaveClick = async (e) => { // async 추가
-    e.preventDefault();
-
-    // 요청 데이터 생성
-    const requestData = {
-        itinerary_id: itineraryId,
-        user_id: 10,
-        //user_id: await fetchUserId(), // user_id를 동적으로 가져오는 함수 호출
-        title: title,
-        startdate: dateRange.split(' ~ ')[0], // 시작 날짜 추출
-        enddate: dateRange.split(' ~ ')[1], // 종료 날짜 추출
-        destination: destinationArray.join(', '), // 여러 여행지를 문자열로 합침
-        public_private: true, // 공개 여부 설정 (예: true)
-        thumbnail: thumbnail,
-        likenumber: 0, // 초기 값 설정
-        description: value[currentDay - 1] || '', // 에디터 내용을 description에 저장
-        created_at: new Date().toISOString(), // 현재 날짜와 시간
-        updated_at: new Date().toISOString(), // 현재 날짜와 시간
-    };        
-
-    // API 호출
-    await submitTravelPlan(requestData);
-    // itinerary_id 증가
-    setItineraryId(prevId => prevId + 1); 
-  };
+    // 로딩 중일 때 처리
+    if (loading) {
+      return <div>로딩 중...</div>; // 로딩 중 메시지
+    }
 
   return (
     <div>
@@ -328,15 +341,15 @@ export default function Editor({ onChange = () => { } }) {
       </YesNoModal>
 
       {/* 썸네일, 제목, 날짜를 표시하는 상단 영역 */}
-      <HeaderContainer thumbnail={thumbnail}>
+      <HeaderContainer thumbnail={itineraryDetails.thumbnail || ''}>
         <EditButton>
           <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
             <path d="M28.2916 10.7046L24.2958 6.70874C23.7743 6.21888 23.0909 5.9378 22.3756 5.91898C21.6604 5.90016 20.9632 6.1449 20.4166 6.60665L7.29161 19.7317C6.82023 20.207 6.52672 20.8301 6.46036 21.4962L5.83328 27.5775C5.81363 27.7911 5.84135 28.0064 5.91445 28.2081C5.98755 28.4097 6.10424 28.5928 6.25619 28.7442C6.39246 28.8793 6.55407 28.9862 6.73175 29.0588C6.90943 29.1314 7.09968 29.1682 7.29161 29.1671H7.42286L13.5041 28.6129C14.1703 28.5465 14.7933 28.253 15.2687 27.7817L28.3937 14.6567C28.9031 14.1185 29.1784 13.4003 29.1593 12.6595C29.1402 11.9187 28.8281 11.2157 28.2916 10.7046V10.7046ZM23.3333 15.5754L19.4249 11.6671L22.2687 8.7504L26.2499 12.7317L23.3333 15.5754Z" fill="white" />
           </svg>
         </EditButton>
-        <Title>{title}</Title>
-        <UserId>사용자</UserId>
-        <DateRange>{formatDate(dateRange.split(' ~ ')[0])} ~ {formatDate(dateRange.split(' ~ ')[1])}</DateRange>
+        <Title>{itineraryDetails.title}</Title>
+        <UserId>{itineraryDetails.user_id}</UserId>
+        <DateRange>{formatDate(itineraryDetails.startdate)} ~ {formatDate(itineraryDetails.enddate)}</DateRange>
       </HeaderContainer>
 
       <EditorContainer>

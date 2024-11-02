@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import DateInput from '../components/DateInput';
@@ -85,12 +85,7 @@ const ModalButton = styled.button`
 `;
 
 export default function Newtrip({ closeModal }) {
-    const sharedOptions = [
-        { value: 'none', label: '없음'},
-        { value: 'user1', label: 'User 1' },
-        { value: 'user2', label: 'User 2' },
-        { value: 'user3', label: 'User 3' },
-    ];
+    const [sharedOptions, setSharedOptions] = useState([{ value: 'none', label: '없음' }]);
 
     const [inputs, setInputs] = useState({
         제목: "",
@@ -105,6 +100,8 @@ export default function Newtrip({ closeModal }) {
 
     const [modalOpen, setModalOpen] = useState(false); // 모달 상태
     const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
+
+    const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
 
     const onChange = (e) => {
         const { value, name } = e.target;
@@ -122,14 +119,22 @@ export default function Newtrip({ closeModal }) {
     };
 
     const handleDateRangeChange = (startDate, endDate) => {
+        const formatDate = (date) => {
+            const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            return offsetDate.toISOString(); // ISO 8601 형식으로 변환
+        };
+    
         const formattedPeriod = startDate && endDate ? 
-            `${startDate.toISOString().split('T')[0].replace(/-/g, '/')} ~ ${endDate.toISOString().split('T')[0].replace(/-/g, '/')}` : 
+            `${formatDate(startDate)} ~ ${formatDate(endDate)}` : 
             '';
+    
         setInputs({
             ...inputs,
             기간: formattedPeriod,
+            startdate: startDate ? formatDate(startDate) : '', // startdate 추가
+            enddate: endDate ? formatDate(endDate) : '' // enddate 추가
         });
-    };
+    };    
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -147,51 +152,32 @@ export default function Newtrip({ closeModal }) {
         });
     }
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-        
-    //     // 모든 필드가 입력되었는지 확인
-    //     if (!제목 || !기간 || 여행지.length === 0 || 공유자.length === 0 || !썸네일) {
-    //         setModalMessage("모든 필드를 입력해 주세요."); // 메시지 설정
-    //         setModalOpen(true); // 모달 열기
-    //         return;
-    //     }
-    
-    //     // 데이터 준비
-    //     const requestData = {
-    //         user_id: 123, // 실제 사용자 ID로 대체해야 합니다
-    //         title: 제목,
-    //         startdate: 기간.split(' ~ ')[0], // 시작 날짜 추출
-    //         enddate: 기간.split(' ~ ')[1], // 종료 날짜 추출
-    //         destination: 여행지.join(', '), // 여러 여행지를 문자열로 합침
-    //         public_private: true, // 공개 여부 설정 (예: true)
-    //         thumbnail: 썸네일,
-    //         description: 제목 ? 제목 : null // description이 있으면 사용하고, 없으면 null로 설정
-    //     };
-    
-    //     try {
-    //         const response = await fetch('/api/itineraries', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(requestData),
-    //         });
-    
-    //         if (response.ok) {
-    //             const result = await response.json();
-    //             console.log('여행 일정 등록 성공:', result);
-    //             navigate('/mytrip/editor', { state: inputs });
-    //         } else {
-    //             setModalMessage('여행 일정 등록에 실패했습니다. 다시 시도해 주세요.');
-    //             setModalOpen(true);
-    //         }
-    //     } catch (error) {
-    //         console.error('네트워크 오류 발생:', error);
-    //         setModalMessage('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
-    //         setModalOpen(true);
-    //     }
-    // };
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const response = await fetch('/mypage/friend?status=name', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                
+                if (!response.ok) {
+                    console.error('친구 목록 불러오기 실패:', response.status);
+                    return;
+                }
+
+                const friends = await response.json();
+                const options = friends.map(friend => ({
+                    value: friend.name, // 친구 이름 또는 다른 고유 식별자
+                    label: friend.name, // 표시할 라벨
+                }));
+                setSharedOptions(options);
+            } catch (error) {
+                console.error('네트워크 오류 발생:', error);
+            }
+        };
+
+        fetchFriends();
+    }, []);   
 
     const handleModalClose = () => {
         setModalOpen(false); // 모달 닫기

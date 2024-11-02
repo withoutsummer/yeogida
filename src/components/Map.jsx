@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import useGeolocation from '../assets/hooks/useGeolocation';
 
 const SearchContainer = styled.div`
@@ -95,24 +94,48 @@ function Map() {
   }, [currentMyLocation]);
 
   const handleSearch = async () => {
+    if (!searchQuery) return; // 검색어가 없으면 함수 종료
+
     try {
-      const response = await axios.get(`http://localhost:3000/api/places/search?query=${searchQuery}`);
-      setSearchResults(response.data.items.map((item) => ({
-        title: item.title,
-        address: item.roadAddress,
-        lat: item.mapx,
-        lng: item.mapy,
-      })));
+        console.log('장소 검색 요청 시작'); // 요청 시작 로그
+        console.log(`검색어: ${searchQuery}`); // 검색어 확인
+
+        const response = await fetch(`https://yeogida.net/api/places/search?query=${encodeURIComponent(searchQuery)}`);
+        
+        if (response.status === 404) {
+            console.error('검색 결과가 없습니다.');
+            setSearchResults([]); // 빈 결과를 표시
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error('네트워크 응답이 실패했습니다.');
+        }
+
+        const data = await response.json();
+        console.log('검색된 장소 결과:', data);
+
+        setSearchResults((data || []).map((item) => ({
+            title: item.title,
+            address: item.roadAddress,
+            lat: item.mapx,
+            lng: item.mapy,
+        })));
+
+        console.log('장소 검색 완료');
     } catch (error) {
-      console.error('Error fetching place data:', error);
+        console.error('장소 검색 중 오류 발생:', error); // 오류 발생 로그
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch(); // Enter 키 입력 시 검색 실행
+        }
+    };
+
+
 
   const createCustomMarker = (index) => {
     return `
@@ -144,6 +167,7 @@ function Map() {
     <>
       <SearchContainer>
         <SearchInput
+          type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
