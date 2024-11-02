@@ -18,7 +18,7 @@ import ImgGangneung from './img/home_gangneung.png';
 
 const HomeContainer = styled.div`
     width: 100%;
-    margin: 55px 0 0 0;
+    margin: 95px 0 0 0;
 `;
 
 const Slide = styled.div`
@@ -55,7 +55,7 @@ const CustomSwiper = styled(Swiper)`
     }
 
     .swiper-pagination-bullet {
-        background-color: #e0e0e0; /* Default bullet color */
+        background-color: #fff; /* Default bullet color */
         width: 13px;
         height: 13px;
         margin: 0 11px !important;
@@ -64,7 +64,7 @@ const CustomSwiper = styled(Swiper)`
     }
 
     .swiper-pagination-bullet-active {
-        background-color: #59abe6; /* Active bullet color */
+        background-color: #fff; /* Active bullet color */
         width: 80px;
         border-radius: 15px;
         transition: all 0.2s ease;
