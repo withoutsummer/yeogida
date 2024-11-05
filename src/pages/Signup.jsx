@@ -109,6 +109,19 @@ function SignUp() {
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [isCertified, setIsCertified] = useState(false);
 
+    const openModal = (title, navigateToPage = '') => {
+        setModalTitle(title);
+        setNavigateTo(navigateToPage);
+        setIsModalOpen(true);
+
+        document.body.setAttribute('inert', true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        document.body.removeAttribute('inert');
+    };
+
     //아이디 체크 여부
     const handleIdCheck = async (event) => {
         event.preventDefault();
@@ -280,12 +293,6 @@ function SignUp() {
             setModalMessage('인증에 실패했습니다. 다시 시도해주세요.');
             setIsModalOpen(true);
         }
-    };
-
-    // 모달 닫기 함수
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setModalMessage(''); // 메시지 초기화
     };
 
     // 회원가입 처리

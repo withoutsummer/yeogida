@@ -1,6 +1,6 @@
 export const checkAccountExists = async (userName, email) => {
     try {
-        const response = await fetch('/users/idpw-sendnum', {
+        const response = await fetch('https://yeogida.net/users/idpw-sendnum', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,54 +23,23 @@ export const checkAccountExists = async (userName, email) => {
     }
 };
 
-export const sendVerificationCode = async (
-    userName,
-    email,
-    certificationNum
-) => {
+export const sendVerificationCode = async (name, id, email, code) => {
     try {
-        const response = await fetch('https://yeogida.net/users/find/id', {
+        const response = await fetch('https://yeogida.net/users/find/pw', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                name: userName,
-                email: email,
-                code: certificationNum,
-            }),
+            body: JSON.stringify({ name, id, email, code }),
         });
 
         const data = await response.json();
-        console.log('Verification response:', data); // 응답 데이터 콘솔에 출력
-
-        if (!response.ok) {
+        if (!response.ok)
             throw new Error(data.message || '인증 요청에 실패했습니다.');
-        }
 
         return data;
     } catch (error) {
         console.error('Verification code request failed:', error);
-        throw error;
-    }
-};
-
-export const fetchUserId = async () => {
-    try {
-        const response = await fetch('https://yeogida.net/api/findId', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok)
-            throw new Error('서버에서 아이디를 가져오지 못했습니다.');
-
-        const data = await response.json();
-        return data.id;
-    } catch (error) {
-        console.error('Fetch user ID request failed:', error);
         throw error;
     }
 };
