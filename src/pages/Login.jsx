@@ -90,7 +90,7 @@ export default function Login() {
                 } else {
                     // 기타 오류
                     openModal(
-                        '로그인 중 문제가 발생했습니다. 다시 시도해주세요.'
+                        '로그인 중 문제가 발생했습니다.다시 시도해주세요.'
                     );
                 }
             } catch (error) {

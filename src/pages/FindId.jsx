@@ -13,9 +13,9 @@ import {
 
 const FindIdForm = styled.div`
     margin-top: 120px;
-    box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
+    box-sizing: border-box;
     min-width: 1050px;
-    padding: 50px 0px;
+    padding: 50px 0;
 `;
 
 const TitleStyle = styled.h3`
@@ -27,13 +27,14 @@ const TitleStyle = styled.h3`
 
 const FindIdInput = styled.div`
     max-width: 490px;
-    padding: 0px 10px 6px;
+    padding: 0 10px 6px;
     margin: auto;
     position: relative;
 `;
+
 const TitleLabel = styled.label`
     display: inline-block;
-    padding: 0px 0px 15px;
+    padding-bottom: 15px;
     font-size: 24px;
     line-height: 19px;
     margin-top: 25px;
@@ -47,86 +48,58 @@ export default function FindId() {
     const [formData, setFormData] = useState({
         userName: '',
         email: '',
+        certificationNum: '',
     });
-
-    const [errors, setErrors] = useState({
-        userName: '',
-        email: '',
-    });
-
+    const [errors, setErrors] = useState({});
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [timer, setTimer] = useState(180);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
+    const [userId, setUserId] = useState(''); // ID 값을 저장할 상태 추가
     const navigate = useNavigate();
 
-    const validate = (fieldName, value) => {
+    // Validation function
+    const validateField = (name, value) => {
         let error = '';
-        switch (fieldName) {
-            case 'userName':
-                if (!value) error = '이름을 입력해주세요.';
-                break;
-            case 'email':
-                if (!value) error = '이메일을 입력해주세요.';
-                break;
-            default:
-                break;
+        if (!value) {
+            error =
+                name === 'userName'
+                    ? '이름을 입력해주세요.'
+                    : '이메일을 입력해주세요.';
         }
-        setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: error }));
+        setErrors((prev) => ({ ...prev, [name]: error }));
     };
 
     const handleChange = (e) => {
         const { id, value } = e.target;
 
-        // 인증번호 필드에서 숫자만 입력 가능하게 처리
-        if (id === 'certificationNum' && !/^\d*$/.test(value)) {
-            return; // 숫자가 아니면 상태 업데이트를 하지 않음
-        }
+        // Allow only numbers for certification number
+        if (id === 'certificationNum' && !/^\d*$/.test(value)) return;
 
-        // 인증번호 입력 중이면 이름과 이메일 필드는 수정 불가
-        if (showCertificationInput && (id === 'userName' || id === 'email')) {
+        if (showCertificationInput && (id === 'userName' || id === 'email'))
             return;
-        }
 
-        setFormData({ ...formData, [id]: value });
-        validate(id, value);
+        setFormData((prev) => ({ ...prev, [id]: value }));
+        validateField(id, value);
     };
 
-    const isFormValid = () => {
-        return (
-            !errors.userName &&
-            !errors.email &&
-            formData.userName &&
-            formData.email
-        );
-    };
+    const isFormValid = () =>
+        formData.userName &&
+        formData.email &&
+        !errors.userName &&
+        !errors.email;
+    const isCertificationValid = () => formData.certificationNum?.length === 6;
 
-    const isCertificationValid = () => {
-        return (
-            formData.certificationNum && formData.certificationNum.length === 6
-        );
-    };
-
-    const isEmailValid = () => {
-        return (
-            formData.userName &&
-            !errors.userName &&
-            formData.email &&
-            !errors.eamil
-        );
-    };
-
-    // 모달
-    const openModal = (message, navigateToPage = '') => {
+    // Modal control
+    const openModal = (message, target = '') => {
         setModalMessage(message);
-        setNavigateTo(navigateToPage);
+        setNavigateTo(target);
         setIsModalOpen(true);
     };
-
     const closeModal = () => setIsModalOpen(false);
 
-    // 이메일 인증하기 버튼 핸들러
+    // Send verification code
     const handleSendCode = async () => {
         if (isFormValid()) {
             try {
@@ -135,9 +108,9 @@ export default function FindId() {
                     formData.email
                 );
                 if (accountExists) {
-                    openModal('인증번호를 전송했습니다.');
+                    openModal('인증번호를 전송했습니다.이메일을 확인해주세요.');
                     setShowCertificationInput(true);
-                    setTimer(180);
+                    setTimer(180); // reset timer
                 }
             } catch (error) {
                 openModal(error.message);
@@ -145,36 +118,39 @@ export default function FindId() {
         }
     };
 
-    //인증번호 입력 후 확인 버튼 핸들러
+    // Submit verification code
     const handleSubmit = async () => {
         if (isCertificationValid()) {
             try {
-                await sendVerificationCode(
+                const response = await sendVerificationCode(
+                    formData.userName,
                     formData.email,
                     formData.certificationNum
                 );
-                const userId = await fetchUserId();
-                navigate('/find/id/success', { state: { userId } });
+                if (response.status === 200) {
+                    const id = await fetchUserId(); // ID 가져오기
+                    setUserId(id); // ID 상태에 저장
+                    navigate('/find/id/success', { state: { userId: id } }); // ID를 성공 페이지로 전달
+
+                    setFormData((prev) => ({ ...prev, certificationNum: '' }));
+                    setTimeout(() => navigate('/find/id/success'), 1000);
+                }
             } catch (error) {
                 openModal(error.message);
             }
         }
     };
 
-    //인증번호 재전송 버튼 핸들러
+    // Resend code handler with timing restriction
     const handleResendCode = async () => {
         if (timer > 60) {
-            // 타이머가 1분 이상 남았을 경우
             openModal(
                 '재발송 요청이 너무 빠릅니다. 잠시 후 다시 시도해주세요.'
             );
         } else {
             try {
-                setFormData((prev) => ({
-                    ...prev,
-                    certificationNum: '',
-                }));
-                setTimer(180);
+                setFormData((prev) => ({ ...prev, certificationNum: '' }));
+                setTimer(180); // reset timer
                 const message = await resendCodeAPI(
                     formData.email,
                     formData.userName
@@ -186,23 +162,19 @@ export default function FindId() {
         }
     };
 
-    // 타이머가 종료되었을 때의 useEffect 수정
+    // Timer management
     useEffect(() => {
-        let interval = null;
         if (showCertificationInput && timer > 0) {
-            interval = setInterval(() => {
-                setTimer((prevTimer) => prevTimer - 1);
-            }, 1000);
+            const interval = setInterval(
+                () => setTimer((prev) => prev - 1),
+                1000
+            );
+            return () => clearInterval(interval);
         } else if (timer === 0) {
             openModal('유효 시간이 만료되었습니다. 다시 시도해주세요.');
-            setShowCertificationInput(false); // 입력 필드 숨기기
-            setFormData((prev) => ({
-                ...prev,
-                certificationNum: '', // 인증번호 필드 값 초기화
-            }));
-            // 인증번호 삭제 로직 추가
+            setShowCertificationInput(false);
+            setFormData((prev) => ({ ...prev, certificationNum: '' }));
         }
-        return () => clearInterval(interval);
     }, [showCertificationInput, timer]);
 
     return (
@@ -220,7 +192,7 @@ export default function FindId() {
                     value={formData.userName}
                     error={!!errors.userName}
                     errorMessage={errors.userName}
-                    disabledInput={showCertificationInput} // 인증번호 입력 중일 때 비활성화
+                    disabledInput={showCertificationInput}
                 />
                 <TitleLabel>이메일</TitleLabel>
                 <FindInput
@@ -235,8 +207,8 @@ export default function FindId() {
                     errorMessage={errors.email}
                     isEmailVerification={true}
                     onSendCode={handleSendCode}
-                    disabledBtn={showCertificationInput || !isEmailValid()}
-                    disabledInput={showCertificationInput} // 인증번호 입력 중일 때 비활성화
+                    disabledBtn={showCertificationInput || !isFormValid()}
+                    disabledInput={showCertificationInput}
                 />
 
                 {showCertificationInput && (
@@ -267,7 +239,7 @@ export default function FindId() {
                         fontSize="26px"
                         text="확인"
                         onClick={handleSubmit}
-                        disabled={!isCertificationValid()} // 인증번호 입력 중이면 비활성화
+                        disabled={!isCertificationValid()}
                     />
                 </ButtonStyle>
                 <CommonModal

@@ -59,9 +59,10 @@ const CommonModal = ({
         >
             <div
                 style={{
-                    fontSize: '24px',
+                    fontSize: '22px',
                     fontWeight: 'bold',
-                    marginBottom: '50px',
+                    marginTop: '20px',
+                    marginBottom: '15px',
                     textAlign: 'center',
                 }}
             >
@@ -78,7 +79,7 @@ const CommonModal = ({
             >
                 {children}
             </div>
-            
+
             {type === 1 && (
                 <Button
                     onClick={handleConfirm}
@@ -119,11 +120,11 @@ const CommonModal = ({
                         borderRadius="10px"
                         fontSize="18px"
                         backgroundColor="#fff"
-                        borderColor='#e9e9e9'
+                        borderColor="#e9e9e9"
                         hoverBackgroundColor="#e9e9e9"
-                        hoverBorderColor='#e9e9e9'
-                        color='#000'
-                        hoverColor='#000'
+                        hoverBorderColor="#e9e9e9"
+                        color="#000"
+                        hoverColor="#000"
                         text="취 소"
                     />
                 </div>

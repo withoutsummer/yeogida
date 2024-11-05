@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import FindInput from '../components/FindInputField';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Btn';
 import styled from 'styled-components';
 import CommonModal from '../components/CommonModal';
+import { apiRequest } from '../api/FindPassword/ResetPasswordApi';
 
 const ResetForm = styled.div`
     box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
@@ -111,30 +112,16 @@ export default function ResetPassword() {
     const handleSubmit = async () => {
         if (isFormValid()) {
             try {
-                const response = await fetch(
-                    'http://your-backend-domain.com/users/reset-pw',
-                    {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            newPassword: formData.password,
-                            newPasswordCheck: formData.passwordConfirm,
-                        }),
-                    }
-                );
-                if (response.ok) {
-                    openModal(
-                        '비밀번호가 성공적으로 변경되었습니다.',
-                        '/login'
-                    );
-                } else {
-                    openModal('비밀번호 변경에 실패했습니다.');
-                }
+                const response = await apiRequest('/users/reset-pw', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        newPassword: formData.password,
+                        newPasswordCheck: formData.passwordConfirm,
+                    }),
+                });
+                openModal('비밀번호가 성공적으로 변경되었습니다.', '/login');
             } catch (error) {
-                openModal('서버 오류가 발생했습니다.');
+                openModal(error.message);
             }
         }
     };

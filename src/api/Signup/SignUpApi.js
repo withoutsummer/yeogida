@@ -8,6 +8,7 @@ const makeApiRequest = async (url, method = 'GET', body = null) => {
         const options = {
             method,
             headers,
+            credentials: 'include',
         };
 
         if (body) {

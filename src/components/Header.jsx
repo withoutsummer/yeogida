@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import logo from '../assets/yeogida_logo.png';
 import Bell from '../components/Bell';
 import Button from '../components/Btn';
-import { logoutUser } from '../api/Logout/Logout';
+import CommonModal from '../components/CommonModal';
+import { logoutUser } from '../api/Logout/LogoutApi';
 
 const HeaderStyle = styled.div`
     position: fixed; /* 고정된 위치 설정 */
@@ -49,25 +50,6 @@ const NavBox = styled.div`
     font-weight: 600;
     line-height: normal;
 `;
-
-// const Button = styled.button`
-//     width: 110px;
-//     height: 50px;
-//     padding: 0 10px;
-//     justify-content: center;
-//     align-items: center;
-//     flex-shrink: 0;
-//     margin-left: 50px; /* Bell과 간격 조절 */
-//     border-radius: 5px;
-//     background: #59abe6;
-//     border: none;
-//     color: #fff;
-//     font-family: NanumGothic;
-//     font-size: 16px;
-//     font-style: normal;
-//     font-weight: 600;
-//     line-height: 150%; /* 24px */
-// `;
 
 const Btnstyle = styled.div`
     padding: 0 10px;
@@ -140,27 +122,70 @@ export default function Header() {
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [navigateTo, setNavigateTo] = useState('');
 
+    // 토큰이 유효한지 확인하는 함수
+    const isTokenValid = (token) => {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])); // JWT payload 디코딩
+            const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
+            return Date.now() < exp; // 현재 시간과 비교
+        } catch (error) {
+            console.error('토큰 파싱 중 오류 발생:', error);
+            return false;
+        }
+    };
+
+    // 로그인 여부를 토큰으로 확인
     useEffect(() => {
-        // Check if the user is logged in by checking for a token in localStorage
         const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token);
+
+        if (token && isTokenValid(token)) {
+            setIsLoggedIn(true);
+        } else {
+            setIsLoggedIn(false);
+            localStorage.removeItem('token'); // 만료된 토큰 삭제
+        }
     }, []);
 
     const handleLogout = async () => {
         try {
-            const { status } = await logoutUser(); // 로그아웃 API 호출
+            const { status, error } = await logoutUser();
+
             if (status === 200) {
+                console.log('로그아웃 성공: 사용자 세션이 삭제되었습니다.');
                 localStorage.removeItem('token');
                 setIsLoggedIn(false);
-                navigate('/'); // 로그아웃 후 메인 페이지로 이동
-            } else {
-                console.error('로그아웃에 실패했습니다.');
+                navigate('/'); // 로그아웃 성공 시 메인 페이지로 리다이렉트
+            } else if (status === 401) {
+                console.warn(
+                    '로그아웃 실패: 유효하지 않거나 만료된 토큰입니다.'
+                );
+                console.error(error);
+                openModal('유효하지 않은 세션입니다. 다시 로그인해 주세요.');
+            } else if (status === 500) {
+                console.error('로그아웃 실패: 서버 오류가 발생했습니다.');
+                console.error(error);
+                openModal(
+                    '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+                );
             }
         } catch (error) {
-            console.error('서버 오류가 발생했습니다.', error);
+            console.error('로그아웃 중 서버 오류가 발생했습니다:', error);
+            openModal('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         }
     };
+
+    // 모달
+    const openModal = (message, navigateToPage = '') => {
+        setModalMessage(message);
+        setNavigateTo(navigateToPage);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => setIsModalOpen(false);
 
     useEffect(() => {
         let timeout;
@@ -250,7 +275,20 @@ export default function Header() {
                     <Btnstyle>
                         {isLoggedIn ? (
                             <Button
-                                onClick={() => navigate('/login')}
+                                onClick={handleLogout} // 로그아웃 버튼
+                                width="110px"
+                                height="50px"
+                                borderColor="#59abe6"
+                                backgroundColor="#59abe6"
+                                hoverBackgroundColor="#0D90EE"
+                                hoverBorderColor="#0D90EE"
+                                borderRadius="10px"
+                                fontSize="16px"
+                                text="로그아웃"
+                            />
+                        ) : (
+                            <Button
+                                onClick={() => navigate('/login')} // 로그인 버튼
                                 width="110px"
                                 height="50px"
                                 borderColor="#59abe6"
@@ -261,22 +299,14 @@ export default function Header() {
                                 fontSize="16px"
                                 text="로그인"
                             />
-                        ) : (
-                            <Button
-                                onClick={handleLogout}
-                                width="110px"
-                                height="50px"
-                                borderColor="#59abe6"
-                                backgroundColor="#59abe6"
-                                hoverBackgroundColor="#0D90EE"
-                                hoverBorderColor="#0D90EE"
-                                borderRadius="10px"
-                                fontSize="16px"
-                                text="로그아웃
-                                "
-                            />
                         )}
                     </Btnstyle>
+                    <CommonModal
+                        isOpen={isModalOpen}
+                        onRequestClose={closeModal}
+                        title={modalMessage}
+                        navigateTo={navigateTo}
+                    />
                 </HeaderContainer>
             </HeaderStyle>
         </header>
