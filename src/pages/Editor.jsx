@@ -5,7 +5,6 @@ import 'react-quill/dist/quill.snow.css';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
 import Map from '../components/Map'
-import TimeDropdown from '../components/TimeDropDown';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -162,7 +161,9 @@ export default function Editor({ onChange = () => { } }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { 제목: title = '', 기간: dateRange = '', 썸네일: thumbnail = '', value = [], 여행지: destinationArray = [], 상세내용: description = '' } = location.state || {};
+  const { 제목: title = '', 기간: dateRange = '', 썸네일: initialThumbnail = '', value = [], 여행지: destinationArray = [], 상세내용: description = '' } = location.state || {};
+  const [thumbnail, setThumbnail] = useState(initialThumbnail); // 초기 썸네일 파일 객체
+  const [thumbnailPreview, setThumbnailPreview] = useState(initialThumbnail ? URL.createObjectURL(initialThumbnail) : null); // 미리보기용 URL
 
   const [currentDay, setCurrentDay] = useState(1);
   const [days, setDays] = useState([]);
@@ -254,60 +255,76 @@ export default function Editor({ onChange = () => { } }) {
   //       }
   //   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        setThumbnail(file); // 파일 객체 업데이트
+        setThumbnailPreview(URL.createObjectURL(file)); // 미리보기 URL 생성
+    }
+  };
+
   const submitTravelPlan = async (requestData) => {
-        try {
-            console.log('새 여행 생성 요청'); // 요청을 보내기 전 로그
-            console.log('요청 본문 (body):', requestData); // 요청 본문 로그 출력
-    
-            const response = await fetch('https://yeogida.net/api/itineraries', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // 요청 헤더 설정
-                },
-                body: JSON.stringify(requestData),
-            });
-    
-            // 서버 응답 확인
-            if (!response.ok) {
-                const errorText = await response.text(); // 에러 발생 시 응답 텍스트 확인
-                console.error('HTTP 에러 발생:', response.status, errorText); // 에러 로그 출력
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-            }
-    
-            const result = await response.json();
-            console.log('여행 일정 등록 성공:', result);
-            navigate('/mytrip'); // 나의 여행 페이지로 이동
-        } catch (error) {
-            console.error('네트워크 오류 발생:', error);
-            setModalMessage('여행 일정 등록에 실패했습니다. 다시 시도해 주세요.'); // 에러 메시지 설정
-            setModalOpen(true); // 모달 열기
-        }
-    };
+      try {
+          const formData = new FormData();
+          
+          // FormData에 텍스트 데이터 추가
+          formData.append('itinerary_id', requestData.itinerary_id);
+          formData.append('user_id', requestData.user_id);
+          formData.append('title', requestData.title);
+          formData.append('startdate', requestData.startdate);
+          formData.append('enddate', requestData.enddate);
+          formData.append('destination', requestData.destination);
+          formData.append('public_private', requestData.public_private);
+          formData.append('likenumber', requestData.likenumber);
+          formData.append('description', requestData.description);
+          formData.append('created_at', requestData.created_at);
+          formData.append('updated_at', requestData.updated_at);
+          
+          // FormData에 파일 추가
+          if (requestData.thumbnail) {
+              formData.append('thumbnail', requestData.thumbnail);
+          }
 
-  const handleSaveClick = async (e) => { // async 추가
-    e.preventDefault();
+          const response = await fetch('https://yeogida.net/api/itineraries', {
+              method: 'POST',
+              body: formData, // FormData를 전송합니다.
+          });
 
-    // 요청 데이터 생성
-    const requestData = {
-        itinerary_id: itineraryId,
-        user_id: 10,
-        //user_id: await fetchUserId(), // user_id를 동적으로 가져오는 함수 호출
-        title: title,
-        startdate: dateRange.split(' ~ ')[0], // 시작 날짜 추출
-        enddate: dateRange.split(' ~ ')[1], // 종료 날짜 추출
-        destination: destinationArray.join(', '), // 여러 여행지를 문자열로 합침
-        public_private: true, // 공개 여부 설정 (예: true)
-        thumbnail: thumbnail,
-        likenumber: 0, // 초기 값 설정
-        description: value[currentDay - 1] || '', // 에디터 내용을 description에 저장
-        created_at: new Date().toISOString(), // 현재 날짜와 시간
-        updated_at: new Date().toISOString(), // 현재 날짜와 시간
-    };        
+          if (!response.ok) {
+              const errorText = await response.text();
+              console.error('HTTP 에러 발생:', response.status, errorText);
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+          }
 
-    // API 호출
-    await submitTravelPlan(requestData);
-    // itinerary_id 증가
-    setItineraryId(prevId => prevId + 1); 
+          const result = await response.json();
+          console.log('여행 일정 등록 성공:', result);
+          navigate('/mytrip'); // 성공 시 나의 여행 페이지로 이동
+      } catch (error) {
+          console.error('네트워크 오류 발생:', error);
+          setModalMessage(`여행 일정 등록에 실패했습니다: ${error.message}`);
+      }
+  };
+
+  const handleSaveClick = async (e) => {
+      e.preventDefault();
+
+      const requestData = {
+          itinerary_id: itineraryId,
+          user_id: 10,
+          title,
+          startdate: dateRange.split(' ~ ')[0],
+          enddate: dateRange.split(' ~ ')[1],
+          destination: destinationArray.join(', '),
+          public_private: true,
+          thumbnail, // 파일 객체
+          likenumber: 0,
+          description: value[currentDay - 1] || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+      };
+
+      await submitTravelPlan(requestData);
+      setItineraryId(prevId => prevId + 1);
   };
 
   return (
@@ -328,7 +345,7 @@ export default function Editor({ onChange = () => { } }) {
       </YesNoModal>
 
       {/* 썸네일, 제목, 날짜를 표시하는 상단 영역 */}
-      <HeaderContainer thumbnail={thumbnail}>
+      <HeaderContainer thumbnail={thumbnailPreview}>
         <EditButton>
           <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
             <path d="M28.2916 10.7046L24.2958 6.70874C23.7743 6.21888 23.0909 5.9378 22.3756 5.91898C21.6604 5.90016 20.9632 6.1449 20.4166 6.60665L7.29161 19.7317C6.82023 20.207 6.52672 20.8301 6.46036 21.4962L5.83328 27.5775C5.81363 27.7911 5.84135 28.0064 5.91445 28.2081C5.98755 28.4097 6.10424 28.5928 6.25619 28.7442C6.39246 28.8793 6.55407 28.9862 6.73175 29.0588C6.90943 29.1314 7.09968 29.1682 7.29161 29.1671H7.42286L13.5041 28.6129C14.1703 28.5465 14.7933 28.253 15.2687 27.7817L28.3937 14.6567C28.9031 14.1185 29.1784 13.4003 29.1593 12.6595C29.1402 11.9187 28.8281 11.2157 28.2916 10.7046V10.7046ZM23.3333 15.5754L19.4249 11.6671L22.2687 8.7504L26.2499 12.7317L23.3333 15.5754Z" fill="white" />

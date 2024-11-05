@@ -8,23 +8,21 @@ const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
 `;
 
 const SearchInput = styled.input`
   width: 800px;
   padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 16px;
 `;
 
 const SearchButton = styled.button`
+  width: 100px;
   padding: 10px 20px;
   background-color: #59ABE6;
   color: white;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
 `;
@@ -73,7 +71,6 @@ function Map() {
         zoom: 14,
         zoomControl: true,
         zoomControlOptions: { position: 9 },
-        tileDuration: 300,
         baseTileOpacity: 1,
         background: 'white',
         tileSpare: 7,
@@ -128,14 +125,11 @@ function Map() {
     }
   };
 
-
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleSearch(); // Enter 키 입력 시 검색 실행
         }
     };
-
-
 
   const createCustomMarker = (index) => {
     return `
@@ -173,7 +167,7 @@ function Map() {
           onKeyDown={handleKeyDown}
           placeholder="장소 검색"
         />
-        <SearchButton onClick={handleSearch}>검색</SearchButton>
+        <SearchButton onClick={handleSearch}>검 색</SearchButton>
       </SearchContainer>
 
       {searchResults.length > 0 && (

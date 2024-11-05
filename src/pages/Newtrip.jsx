@@ -186,14 +186,12 @@ export default function Newtrip({ closeModal }) {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // 이미지 업로드 후 URL을 받는 로직
-            const imageUrl = URL.createObjectURL(file); // 로컬 파일 미리보기 URL
             setInputs({
                 ...inputs,
-                썸네일: imageUrl, // URL을 썸네일로 설정
+                썸네일: file // 파일 객체를 상태에 저장
             });
         }
-    };
+    };    
 
     return (
         <NewTripContainer>
