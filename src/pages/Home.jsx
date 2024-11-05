@@ -262,6 +262,12 @@ export default function Home() {
             좋아요: '0',
         },
     ];
+
+    // 컴포넌트가 처음 렌더링될 때 상단으로 스크롤
+    useEffect(() => {
+        window.scrollTo(0, 0); // 상단으로 스크롤
+    }, []);
+
     return (
         <HomeContainer>
             <CustomSwiper
