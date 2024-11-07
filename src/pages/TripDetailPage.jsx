@@ -234,29 +234,29 @@ export default function TripDetailPage() {
     }
 
     return (
-        <div>
-          <ButtonContainer>
-              <NavButton onClick={handleEditClick}>수정하기</NavButton>
-              <NavButton onClick={handleDeleteClick}>삭제하기</NavButton>
-          </ButtonContainer>
+      <div>
+        <ButtonContainer>
+            <NavButton onClick={handleEditClick}>수정하기</NavButton>
+            <NavButton onClick={handleDeleteClick}>삭제하기</NavButton>
+        </ButtonContainer>
 
-          {/* 삭제하기 모달창 */}
-          <YesNoModal
-            isOpen={modalOpen}
-            onRequestClose={handleModalClose}
-            title="일정을 삭제하시겠습니까?"
-            bodyText="삭제된 일정은 다시 복구할 수 없습니다."
-            navigateTo="/mytrip"
-          >
-          </YesNoModal>
+        {/* 삭제하기 모달창 */}
+        <YesNoModal
+          isOpen={modalOpen}
+          onRequestClose={handleModalClose}
+          title="일정을 삭제하시겠습니까?"
+          bodyText="삭제된 일정은 다시 복구할 수 없습니다."
+          navigateTo="/mytrip"
+        >
+        </YesNoModal>
 
-          <HeaderContainer thumbnail={itineraryDetails.thumbnail || ''}>
-              <Title>{itineraryDetails.title}</Title>
-              <UserId>{itineraryDetails.user_id}</UserId>
-              <DateRange>{formatDate(itineraryDetails.startdate)} ~ {formatDate(itineraryDetails.enddate)}</DateRange>
-          </HeaderContainer>
+        <HeaderContainer thumbnail={itineraryDetails.thumbnail || ''}>
+            <Title>{itineraryDetails.title}</Title>
+            <UserId>{itineraryDetails.user_id}</UserId>
+            <DateRange>{formatDate(itineraryDetails.startdate)} ~ {formatDate(itineraryDetails.enddate)}</DateRange>
+        </HeaderContainer>
 
-          <ContentContainer>
+        <ContentContainer>
           <DayTabs>
             {days.map((day, index) => (
               <DayTab
@@ -271,10 +271,10 @@ export default function TripDetailPage() {
 
           <h2>상세 내용</h2>
           <Content dangerouslySetInnerHTML={{ __html: itineraryDetails.description }} />
-
-              <h2>댓글</h2>
-              <CommentList /> {/* 댓글 목록 렌더링 */}
-          </ContentContainer>
-        </div>
+          
+          <h2>댓글</h2>
+          <CommentList /> {/* 댓글 목록 렌더링 */}
+        </ContentContainer>
+      </div>
     );
 }

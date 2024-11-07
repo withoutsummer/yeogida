@@ -271,40 +271,38 @@ const DropdownItem = styled.div`
 
 export default function MyTrip() {
     const navigate = useNavigate();
-
     const [posts, setPosts] = useState([]);
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
     const offset = (page - 1) * limit;
     const [isListView, setIsListView] = useState(false);
     const [selectedButton, setSelectedButton] = useState('전체일정'); // 선택된 버튼을 추적하는 상태
-    const userId = 10; // 사용자 이름 임시 설정
+    const [userId, setUserId] = useState(null);
     const [sortOrder, setSortOrder] = useState('newest'); // 정렬 상태 추가
     const [showDropdown, setShowDropdown] = useState(false);
 
-    // const fetchUserId = async () => {
-    //     try {
-    //         const response = await fetch('https://yeogida.net/mypage/account', {
-    //             method: 'GET',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //         });
+    const fetchUserId = async () => {
+        try {
+            const response = await fetch('https://yeogida.net/mypage/account', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
     
-    //         if (!response.ok) {
-    //             const errorText = await response.text();
-    //             console.error('HTTP 에러 발생:', response.status, errorText);
-    //             throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
-    //         }
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('HTTP 에러 발생:', response.status, errorText);
+                throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
+            }
     
-    //         const userData = await response.json();
-    //         console.log('사용자 정보:', userData);
-    //         return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
-    //     } catch (error) {
-    //         console.error('네트워크 오류 발생:', error);
-    //         throw error; // 오류를 호출한 쪽으로 전달
-    //     }
-    // };    
+            const userData = await response.json();
+            console.log('사용자 정보:', userData);
+            setUserId(userData.user_id);
+        } catch (error) {
+            console.error('네트워크 오류 발생:', error);
+        }
+    };    
 
 
     useEffect(() => {
@@ -326,6 +324,7 @@ export default function MyTrip() {
         };
     
         fetchTrips();
+        fetchUserId();
     }, [sortOrder]);    
 
     const handleSortChange = (order) => {
@@ -356,12 +355,9 @@ export default function MyTrip() {
     
             const data = await response.json(); // JSON 형태로 변환
             console.log(data); // 데이터 확인
-    
-            // 여기에서 data를 사용하여 상태 업데이트 또는 다른 작업 수행
             return data; // 필요한 경우 반환
         } catch (error) {
             console.error('오류:', error);
-            // 에러 처리 로직 추가
         }
     };    
 

@@ -97,10 +97,8 @@ export default function Newtrip({ closeModal }) {
 
     const { 제목, 기간, 여행지, 공유자, 썸네일 } = inputs;
     const navigate = useNavigate();
-
     const [modalOpen, setModalOpen] = useState(false); // 모달 상태
     const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
-
     const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
 
     const onChange = (e) => {
@@ -167,7 +165,7 @@ export default function Newtrip({ closeModal }) {
 
                 const friends = await response.json();
                 const options = friends.map(friend => ({
-                    value: friend.name, // 친구 이름 또는 다른 고유 식별자
+                    value: friend.name,
                     label: friend.name, // 표시할 라벨
                 }));
                 setSharedOptions(options);
@@ -180,7 +178,7 @@ export default function Newtrip({ closeModal }) {
     }, []);   
 
     const handleModalClose = () => {
-        setModalOpen(false); // 모달 닫기
+        setModalOpen(false);
     };
 
     const handleImageChange = (e) => {

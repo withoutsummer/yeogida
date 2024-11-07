@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
 import Map from '../components/Map'
@@ -89,6 +90,8 @@ const EditButton = styled.button`
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+    margin-right: 10px;
+    margin-bottom: 10px;
     height: 35px;
     background-color: transparent;
     border: none;
@@ -115,35 +118,38 @@ const MapContainer = styled.div`
   max-width: 950px;
 `;
 
+const TabContainer = styled.div`
+  display: flex;
+  flex-direction: column;  /* 탭과 콘텐츠를 세로로 배치 */
+  border: 1px solid #ddd;
+  width: 450px;
+  margin: 20px auto;
+  background-color: #EEF5FF;
+`;
 const DayTabs = styled.div`
   display: flex;
-  border-bottom: 2px solid #E0E0E0;
+  border-bottom: 1px solid #E0E0E0;
   width: 450px;
-  height: 60px; 
-  margin: 20px auto;
+  margin: 10px auto;
   margin-bottom: 20px;
 `;
 
-const DayTab = styled.button`
-  padding: 10px 20px;
-  background-color: #EEF5FF;
-  color: #000;
-  border: none;
-  cursor: pointer;
-  flex-grow: 1;
-  color: #000;
-  text-align: center;
-  font-family: NanumGothic;
+const DayTab = styled.div`
+  flex-shrink: 0;  /* 탭이 축소되지 않도록 설정 */
+  padding: 10px 20px 20px;
   font-size: 20px;
-  font-style: normal;
-  font-weight: 600;
+  font-weight: ${(props) => (props.isSelected ? 'bold' : 'normal')};
+  color: ${(props) => (props.isSelected ? '#59ABE6' : '#888')};
+  cursor: pointer;
+  border-bottom: ${(props) => (props.isSelected ? '3px solid #59ABE6' : '1px solid transparent')};
+  white-space: nowrap;
+  text-align: center;  /* 텍스트를 중앙 정렬 */
+  font-family: NanumGothic;
 `;
 
-const NavigationButton = styled.button`
-  padding: 10px 20px;
-  background-color: #EEF5FF;
-  border: none;
-  cursor: pointer;
+const Content = styled.div`
+  padding: 20px;
+  font-family: NanumGothic;
 `;
 
 // 지도와 탭 들어있는 부분
@@ -165,6 +171,7 @@ export default function Editor({ onChange = () => { } }) {
   const [thumbnail, setThumbnail] = useState(initialThumbnail); // 초기 썸네일 파일 객체
   const [thumbnailPreview, setThumbnailPreview] = useState(initialThumbnail ? URL.createObjectURL(initialThumbnail) : null); // 미리보기용 URL
 
+  const [activeTab, setActiveTab] = useState(0);
   const [currentDay, setCurrentDay] = useState(1);
   const [days, setDays] = useState([]);
 
@@ -172,6 +179,7 @@ export default function Editor({ onChange = () => { } }) {
   const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
 
   const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
+  const [userId, setUserId] = useState(null); // 사용자 ID
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -209,18 +217,10 @@ export default function Editor({ onChange = () => { } }) {
     'align', 'color', 'background',
   ];
 
-  const handleContentChange = (content, delta, source, editor) => {
+  const handleContentChange = (content) => {
     const newContent = [...value];
     newContent[currentDay - 1] = content;
     onChange(newContent);
-  };
-
-  const handlePreviousDay = () => {
-    setCurrentDay((prev) => (prev > 1 ? prev - 1 : prev));
-  };
-
-  const handleNextDay = () => {
-    setCurrentDay((prev) => (prev < days.length ? prev + 1 : prev));
   };
 
   const handleCancelClick = () => {
@@ -231,36 +231,42 @@ export default function Editor({ onChange = () => { } }) {
     setModalOpen(false); // 모달 닫기
   };
 
-  // const fetchUserId = async () => {
-  //       try {
-  //           const response = await fetch('https://yeogida.net/mypage/account', {
-  //               method: 'GET',
-  //               headers: {
-  //                   'Content-Type': 'application/json'
-  //               },
-  //           });
+  const fetchUserId = async () => {
+        try {
+            const response = await fetch('https://yeogida.net/mypage/account', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
     
-  //           if (!response.ok) {
-  //               const errorText = await response.text();
-  //               console.error('HTTP 에러 발생:', response.status, errorText);
-  //               throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
-  //           }
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('HTTP 에러 발생:', response.status, errorText);
+                throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
+            }
     
-  //           const userData = await response.json();
-  //           console.log('사용자 정보:', userData);
-  //           return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
-  //       } catch (error) {
-  //           console.error('네트워크 오류 발생:', error);
-  //           throw error; // 오류를 호출한 쪽으로 전달
-  //       }
-  //   };
+            const userData = await response.json();
+            console.log('사용자 정보:', userData);
+            return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
+        } catch (error) {
+            console.error('네트워크 오류 발생:', error);
+            throw error; // 오류를 호출한 쪽으로 전달
+        }
+  };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        setThumbnail(file); // 파일 객체 업데이트
-        setThumbnailPreview(URL.createObjectURL(file)); // 미리보기 URL 생성
-    }
+  useEffect(() => {
+    fetchUserId();
+  }, []);
+
+  // 구현 예정
+  const handleEditClick = () => {
+    
+  }
+
+  const handleTabClick = (index) => {
+    setActiveTab(index);
+    setCurrentDay(index + 1);
   };
 
   const submitTravelPlan = async (requestData) => {
@@ -346,13 +352,13 @@ export default function Editor({ onChange = () => { } }) {
 
       {/* 썸네일, 제목, 날짜를 표시하는 상단 영역 */}
       <HeaderContainer thumbnail={thumbnailPreview}>
-        <EditButton>
+        <EditButton onClick={handleEditClick}>
           <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
             <path d="M28.2916 10.7046L24.2958 6.70874C23.7743 6.21888 23.0909 5.9378 22.3756 5.91898C21.6604 5.90016 20.9632 6.1449 20.4166 6.60665L7.29161 19.7317C6.82023 20.207 6.52672 20.8301 6.46036 21.4962L5.83328 27.5775C5.81363 27.7911 5.84135 28.0064 5.91445 28.2081C5.98755 28.4097 6.10424 28.5928 6.25619 28.7442C6.39246 28.8793 6.55407 28.9862 6.73175 29.0588C6.90943 29.1314 7.09968 29.1682 7.29161 29.1671H7.42286L13.5041 28.6129C14.1703 28.5465 14.7933 28.253 15.2687 27.7817L28.3937 14.6567C28.9031 14.1185 29.1784 13.4003 29.1593 12.6595C29.1402 11.9187 28.8281 11.2157 28.2916 10.7046V10.7046ZM23.3333 15.5754L19.4249 11.6671L22.2687 8.7504L26.2499 12.7317L23.3333 15.5754Z" fill="white" />
           </svg>
         </EditButton>
         <Title>{title}</Title>
-        <UserId>사용자</UserId>
+        <UserId>{userId}</UserId>
         <DateRange>{formatDate(dateRange.split(' ~ ')[0])} ~ {formatDate(dateRange.split(' ~ ')[1])}</DateRange>
       </HeaderContainer>
 
@@ -361,20 +367,31 @@ export default function Editor({ onChange = () => { } }) {
           <Map />
         </MapContainer>
 
-        {/* Day 탭을 선택할 수 있는 영역 */}
-        <DayTabs>
-          <NavigationButton onClick={handlePreviousDay}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
-              <path d="M27.8334 35.4161C27.5527 35.415 27.2752 35.3572 27.0175 35.2463C26.7597 35.1353 26.527 34.9734 26.3334 34.7702L18.2917 26.4369C17.91 26.0475 17.6962 25.5239 17.6962 24.9786C17.6962 24.4333 17.91 23.9097 18.2917 23.5202L26.625 15.1869C26.8193 14.9927 27.0499 14.8386 27.3037 14.7335C27.5575 14.6283 27.8295 14.5742 28.1042 14.5742C28.3789 14.5742 28.6509 14.6283 28.9047 14.7335C29.1585 14.8386 29.3891 14.9927 29.5834 15.1869C29.7776 15.3812 29.9317 15.6118 30.0368 15.8656C30.142 16.1194 30.1961 16.3914 30.1961 16.6661C30.1961 16.9408 30.142 17.2128 30.0368 17.4666C29.9317 17.7204 29.7776 17.951 29.5834 18.1452L22.7084 24.9994L29.3334 31.8744C29.7214 32.2647 29.9392 32.7928 29.9392 33.3432C29.9392 33.8935 29.7214 34.4216 29.3334 34.8119C29.1362 35.0075 28.902 35.1617 28.6444 35.2655C28.3868 35.3692 28.111 35.4204 27.8334 35.4161Z" fill="black"/>
-            </svg>
-          </NavigationButton>
-          <DayTab isSelected>{`DAY ${currentDay}`}</DayTab>
-          <NavigationButton onClick={handleNextDay}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="49" height="49" viewBox="0 0 49 49" fill="none">
-              <path d="M21.4375 34.7067C21.1688 34.7083 20.9025 34.6568 20.6537 34.5552C20.405 34.4536 20.1787 34.3039 19.988 34.1147C19.7966 33.9249 19.6447 33.699 19.5411 33.4502C19.4374 33.2015 19.384 32.9346 19.384 32.6651C19.384 32.3955 19.4374 32.1287 19.5411 31.8799C19.6447 31.6311 19.7966 31.4053 19.988 31.2155L26.7459 24.4984L20.2534 17.7405C19.8731 17.358 19.6597 16.8405 19.6597 16.3011C19.6597 15.7617 19.8731 15.2443 20.2534 14.8617C20.4432 14.6704 20.669 14.5185 20.9178 14.4148C21.1666 14.3112 21.4334 14.2578 21.703 14.2578C21.9725 14.2578 22.2393 14.3112 22.4881 14.4148C22.7369 14.5185 22.9627 14.6704 23.1525 14.8617L31.0334 23.0284C31.4075 23.41 31.617 23.9232 31.617 24.4576C31.617 24.992 31.4075 25.5051 31.0334 25.8867L22.8667 34.0534C22.6834 34.2513 22.4628 34.4109 22.2175 34.5231C21.9722 34.6352 21.7071 34.6976 21.4375 34.7067V34.7067Z" fill="black"/>
-            </svg>
-          </NavigationButton>
-        </DayTabs>
+        <TabContainer>
+          <DayTabs>
+            {/* Swiper 컴포넌트를 사용하여 탭을 스와이프 가능하게 만들기 */}
+            <Swiper
+              spaceBetween={0} // 슬라이드 간 간격을 0으로 설정하여 탭들이 붙어서 보이게 함
+              slidesPerView={3} // 한 화면에 3개의 탭을 보여줌
+              onSlideChange={(swiper) => setActiveTab(swiper.realIndex)} // 슬라이드가 변경될 때 activeTab 업데이트
+              loop={false} // loop 활성화로 무한 스와이프를 방지
+            >
+              {days.map((day, index) => (
+                <SwiperSlide key={index}>
+                  <DayTab
+                    isSelected={activeTab === index}
+                    onClick={() => handleTabClick(index)}>
+                    {day}
+                  </DayTab>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </DayTabs>
+          {/* 콘텐츠 부분 */}
+          <Content>
+            {`DAY ${activeTab + 1} Content`}
+          </Content>
+        </TabContainer>
       </EditorContainer>
 
       {/* Quill 에디터 */}

@@ -140,33 +140,33 @@ const Bell = () => {
     const [hovered, setHovered] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
-    const userId = 10; // 사용자 이름 임시 설정
+    const [userId, setUserId] = useState(null); // 사용자 ID
     const [friendRequests, setFriendRequests] = useState([]);
     const [friendRequestCount, setFriendRequestCount] = useState(0);
 
-    // const fetchUserId = async () => {
-    //     try {
-    //         const response = await fetch('https://yeogida.net/mypage/account', {
-    //             method: 'GET',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //         });
+    const fetchUserId = async () => {
+        try {
+            const response = await fetch('https://yeogida.net/mypage/account', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
     
-    //         if (!response.ok) {
-    //             const errorText = await response.text();
-    //             console.error('HTTP 에러 발생:', response.status, errorText);
-    //             throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
-    //         }
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('HTTP 에러 발생:', response.status, errorText);
+                throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
+            }
     
-    //         const userData = await response.json();
-    //         console.log('사용자 정보:', userData);
-    //         return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
-    //     } catch (error) {
-    //         console.error('네트워크 오류 발생:', error);
-    //         throw error; // 오류를 호출한 쪽으로 전달
-    //     }
-    // };    
+            const userData = await response.json();
+            console.log('사용자 정보:', userData);
+            return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
+        } catch (error) {
+            console.error('네트워크 오류 발생:', error);
+            throw error; // 오류를 호출한 쪽으로 전달
+        }
+    };    
 
     const handleBellClick = () => {
         setIsDropdownOpen(!isDropdownOpen); // 드롭다운 열기/닫기 토글
@@ -209,12 +209,9 @@ const Bell = () => {
     
             const data = await response.json(); // JSON 형태로 변환
             console.log(data); // 데이터 확인
-    
-            // 여기에서 data를 사용하여 상태 업데이트 또는 다른 작업 수행
             return data; // 필요한 경우 반환
         } catch (error) {
             console.error('오류:', error);
-            // 에러 처리 로직 추가
         }
     };    
 
@@ -250,6 +247,7 @@ const Bell = () => {
     
         loadNotifications();
         fetchFriendRequests();
+        fetchUserId();
     }, [userId]); // userId가 변경될 때마다 다시 호출
 
     // 특정 알림의 상태 업데이트
@@ -294,7 +292,7 @@ const Bell = () => {
             }
     
             // 3. 사용자의 여행에 일정 추가
-            const addToItineraryResponse = await fetch(`https://yeogida.net/api/itineraries/add`, {
+            const addToItineraryResponse = await fetch(`https://yeogida.net/api/itineraries`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -304,7 +302,6 @@ const Bell = () => {
     
             if (addToItineraryResponse.ok) {
                 console.log("일정이 여행에 추가되었습니다.");
-                // 필요 시 상태 업데이트 등 추가 로직을 수행
             } else {
                 console.error("일정 추가 실패");
             }
@@ -336,7 +333,7 @@ const Bell = () => {
         <BellWrapper
             onMouseEnter={() => setHovered(true)} 
             onMouseLeave={() => setHovered(false)}
-            onClick={handleBellClick} // 클릭 이벤트 추가
+            onClick={handleBellClick}
         >
             {hovered ? (
                 isDropdownOpen ? (

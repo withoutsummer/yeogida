@@ -8,49 +8,119 @@ const SearchContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
 `;
 
 const SearchInput = styled.input`
   width: 800px;
   padding: 10px;
   border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 16px;
 `;
 
 const SearchButton = styled.button`
-  width: 100px;
   padding: 10px 20px;
   background-color: #59ABE6;
   color: white;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
+  font-family: NanumGothic;
   font-size: 16px;
 `;
 
 const SearchResultsContainer = styled.div`
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 300px;
-  max-height: 400px;
-  background-color: white;
-  border-radius: 8px;
-  padding: 10px;
-  overflow-y: auto;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  max-width: 950px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #ddd;
+`;
+
+const SearchResults = styled.ul`
+  margin: 0;
+  padding: 0;
+  overflow-y: auto; /* 스크롤 추가 */
+  list-style: none;
 `;
 
 const SearchResultItem = styled.li`
-  list-style: none;
-  margin-bottom: 10px;
-  padding: 5px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
+  position: relative;
+
+  .text-container {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+  }
+
+  .title {
+    font-family: NanumGothic;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  .address {
+    font-family: NanumGothic;
+    font-size: 12px;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 150px;
+  }
+
+  .add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    width: 70px;
+    background-color: transparent;
+    color: #4CAF50;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #4CAF50;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
   &:hover {
     background-color: #f5f5f5;
   }
+
+  &:hover .add-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+`;
+
+const NoResultsMessage = styled.div`
+  display: flex;
+  width: 20%;
+  margin-top: 250px;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: NanumGothic;
+  font-size: 14px;
+  color: #000;
+  text-align: center;
+`;
+
+const MapContainer = styled.div`
+  width: 80%;
+  height: 500px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
 `;
 
 function Map() {
@@ -77,16 +147,6 @@ function Map() {
       };
 
       mapRef.current = new naver.maps.Map('map', mapOptions);
-
-      const samples = [
-        { lat: currentMyLocation.lat, lng: currentMyLocation.lng },
-        { lat: 37.5666103, lng: 126.9783882 },
-        { lat: 37.5796103, lng: 126.9772882 },
-      ];
-
-      samples.forEach((sample, i) => {
-        addMarker(sample.lat, sample.lng, i + 1);
-      });
     }
   }, [currentMyLocation]);
 
@@ -170,19 +230,28 @@ function Map() {
         <SearchButton onClick={handleSearch}>검 색</SearchButton>
       </SearchContainer>
 
-      {searchResults.length > 0 && (
-        <SearchResultsContainer>
-          <ul>
-            {searchResults.map((result, index) => (
-              <SearchResultItem key={index} onClick={() => addMarker(result.lat, result.lng, index + 1)}>
-                {result.title} - {result.address}
-              </SearchResultItem>
-            ))}
-          </ul>
-        </SearchResultsContainer>
-      )}
-
-      <div id="map" style={{ width: '900px', height: '500px', margin: '20px auto' }} />
+      <SearchResultsContainer>
+        {searchResults.length > 0 ? (
+            <SearchResults>
+              {searchResults.map((result, index) => (
+                <SearchResultItem key={index} onClick={() => addMarker(result.lat, result.lng, index + 1)}>
+                  <div className="text-container">
+                    <span className="title">{result.title}</span>
+                    <span className="address">{result.address}</span>
+                  </div>
+                  <button className="add-button" onClick={() => addMarker(result.lat, result.lng, index + 1)}>
+                    + 추가
+                  </button>
+                </SearchResultItem>
+              ))}
+            </SearchResults>
+        ) : (
+          <NoResultsMessage>
+            원하는 장소를 검색해보세요.
+          </NoResultsMessage>
+        )}
+        <MapContainer id="map" /> 
+      </SearchResultsContainer>
     </>
   );
 }
