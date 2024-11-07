@@ -21,6 +21,7 @@ import FindPassword from './pages/FindPassword';
 import FindIdSuccess from './pages/FindIdSuccess';
 import ResetPassword from './pages/ResetPassword';
 import TripDetailPage from './pages/TripDetailPage';
+import TripDetailEditorPage from './pages/TripDetailEditorPage';
 
 // 스크롤을 최상단으로 끌어올려주는 컴포넌트 생성
 const ScrollToTop = () => {
@@ -61,6 +62,8 @@ function App() {
                     <Route path="/mytrip/editor" element={<Editor />} />
                     {/* 나의 여행 상세페이지 */}
                     <Route path="/mytrip/:id" element={<TripDetailPage />} />
+                    {/* 나의 여행 상세페이지 수정 */}
+                    <Route path="/mytrip/editor/:id" element={<TripDetailEditorPage />} />
                     {/* 여행 공유 */}
                     <Route path="/shared-itineraries" element={<Sharetrip />} />
                     {/* 여행 공유 상세*/}

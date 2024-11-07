@@ -215,9 +215,15 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-                                <li onClick={() => navigate('/mytrip')}>
-                                    나의여행
-                                </li>
+                            <li onClick={() => {
+                                if (isLoggedIn) {
+                                    navigate('/mytrip');
+                                } else {
+                                    openModal('로그인이 필요합니다.', '/login');
+                                }
+                            }}>
+                                나의여행
+                            </li>
                                 <li
                                     onClick={() =>
                                         navigate('/shared-itineraries')

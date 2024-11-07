@@ -5,23 +5,25 @@ const TagsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     padding: 10px;
+    max-width: 100%; /* 최대 너비 설정 */
 `;
 
 const Tag = styled.div`
     height: 30px;
-    width: 60px;
+    min-width: 60px; /* 최소 너비를 설정 */
     margin: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    padding: 0 2px;
     background-color: #59ABE6;
     border-radius: 25px;
     font-size: 16px;
     color: #fff;
     font-family: NanumGothic;
+    white-space: nowrap;
 `;
 
 export default function Tags({ tags }) {

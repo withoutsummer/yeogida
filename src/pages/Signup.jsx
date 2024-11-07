@@ -109,14 +109,6 @@ function SignUp() {
     const [showCertificationInput, setShowCertificationInput] = useState(false);
     const [isCertified, setIsCertified] = useState(false);
 
-    const openModal = (title, navigateToPage = '') => {
-        setModalTitle(title);
-        setNavigateTo(navigateToPage);
-        setIsModalOpen(true);
-
-        document.body.setAttribute('inert', true);
-    };
-
     const closeModal = () => {
         setIsModalOpen(false);
         document.body.removeAttribute('inert');
