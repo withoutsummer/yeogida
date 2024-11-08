@@ -126,36 +126,6 @@ export default function Header() {
     const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
 
-    // 토큰이 유효한지 확인하는 함수
-    const isTokenValid = (token) => {
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1])); // JWT payload 디코딩
-            const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
-            return Date.now() < exp; // 현재 시간과 비교
-        } catch (error) {
-            console.error('토큰 파싱 중 오류 발생:', error);
-            return false;
-        }
-    };
-
-    // 로그인 여부를 토큰으로 확인
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const checkLoginStatus = () => {
-            if (token && isTokenValid(token)) {
-                setIsLoggedIn(true);
-            } else {
-                setIsLoggedIn(false);
-                localStorage.removeItem('token');
-            }
-        };
-
-        checkLoginStatus(); // 처음 실행 시 확인
-        const intervalId = setInterval(checkLoginStatus, 60000); // 1분마다 확인
-
-        return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
-    }, []);
-
     const handleLogout = async () => {
         try {
             const { status, error } = await logoutUser();

@@ -81,8 +81,6 @@ export default function Login() {
                 );
 
                 if (response) {
-                    // 로그인 성공
-                    localStorage.setItem('token', responseData.token);
                     navigate('/');
                 } else if (status === 401) {
                     // 인증 실패
