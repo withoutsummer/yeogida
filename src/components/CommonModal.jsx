@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
 import Button from './Btn';
 import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
@@ -30,6 +30,18 @@ const CommonModal = ({
     const handleCancel = () => {
         onRequestClose();
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.setAttribute('inert', 'true');
+        } else {
+            document.body.removeAttribute('inert');
+        }
+
+        return () => {
+            document.body.removeAttribute('inert');
+        };
+    }, [isOpen]);
 
     return (
         <Modal

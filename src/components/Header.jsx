@@ -141,13 +141,19 @@ export default function Header() {
     // 로그인 여부를 토큰으로 확인
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const checkLoginStatus = () => {
+            if (token && isTokenValid(token)) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+                localStorage.removeItem('token');
+            }
+        };
 
-        if (token && isTokenValid(token)) {
-            setIsLoggedIn(true);
-        } else {
-            setIsLoggedIn(false);
-            localStorage.removeItem('token'); // 만료된 토큰 삭제
-        }
+        checkLoginStatus(); // 처음 실행 시 확인
+        const intervalId = setInterval(checkLoginStatus, 60000); // 1분마다 확인
+
+        return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 해제
     }, []);
 
     const handleLogout = async () => {
