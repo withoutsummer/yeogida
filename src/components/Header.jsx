@@ -117,40 +117,67 @@ export const Nav = styled.nav`
     }
 `;
 
+// 쿠키 읽기 유틸리티 함수
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
 export default function Header() {
-    const navigate = useNavigate();
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
 
+    const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // 초기 쿠키를 통한 로그인 상태 확인 및 주기적 확인
+    useEffect(() => {
+        const checkLoginStatus = () => {
+            const token = getCookie('token');
+            setIsLoggedIn(!!token);
+        };
+
+        checkLoginStatus(); // 컴포넌트가 마운트될 때 로그인 상태 확인
+
+        // 로그인 상태가 변경되었을 때마다 확인
+        const interval = setInterval(checkLoginStatus, 3000);
+        return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 해제
+    }, []);
+
+    // 로그아웃 핸들러 함수
     const handleLogout = async () => {
         try {
             const { status, error } = await logoutUser();
 
             if (status === 200) {
                 console.log('로그아웃 성공: 사용자 세션이 삭제되었습니다.');
-                localStorage.removeItem('token');
                 setIsLoggedIn(false);
-                navigate('/'); // 로그아웃 성공 시 메인 페이지로 리다이렉트
+                navigate('/login');
             } else if (status === 401) {
-                console.warn(
-                    '로그아웃 실패: 유효하지 않거나 만료된 토큰입니다.'
+                openModal(
+                    '세션이 만료되었습니다. 다시 로그인해 주세요.',
+                    '/login'
                 );
-                console.error(error);
-                openModal('유효하지 않은 세션입니다. 다시 로그인해 주세요.');
-            } else if (status === 500) {
-                console.error('로그아웃 실패: 서버 오류가 발생했습니다.');
-                console.error(error);
+            } else {
                 openModal(
                     '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
                 );
             }
         } catch (error) {
-            console.error('로그아웃 중 서버 오류가 발생했습니다:', error);
             openModal('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+    };
+
+    // 로그인 필수 페이지 이동 처리 함수
+    const navigateWithAuthCheck = (path) => {
+        if (isLoggedIn) {
+            navigate(path);
+        } else {
+            openModal('로그인이 필요합니다.', '/login');
         }
     };
 
@@ -191,15 +218,13 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-                            <li onClick={() => {
-                                if (isLoggedIn) {
-                                    navigate('/mytrip');
-                                } else {
-                                    openModal('로그인이 필요합니다.', '/login');
-                                }
-                            }}>
-                                나의여행
-                            </li>
+                                <li
+                                    onClick={() =>
+                                        navigateWithAuthCheck('/mytrip')
+                                    }
+                                >
+                                    나의여행
+                                </li>
                                 <li
                                     onClick={() =>
                                         navigate('/shared-itineraries')
@@ -220,7 +245,7 @@ export default function Header() {
                                             <StyledDropdown>
                                                 <DropdownMenu
                                                     onClick={() =>
-                                                        navigate(
+                                                        navigateWithAuthCheck(
                                                             '/mypage/userinfo'
                                                         )
                                                     }
@@ -229,7 +254,7 @@ export default function Header() {
                                                 </DropdownMenu>
                                                 <DropdownMenu
                                                     onClick={() =>
-                                                        navigate(
+                                                        navigateWithAuthCheck(
                                                             '/mypage/friend'
                                                         )
                                                     }
@@ -238,7 +263,7 @@ export default function Header() {
                                                 </DropdownMenu>
                                                 <DropdownMenu
                                                     onClick={() =>
-                                                        navigate(
+                                                        navigateWithAuthCheck(
                                                             '/mypage/scrap'
                                                         )
                                                     }

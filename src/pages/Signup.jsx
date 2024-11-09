@@ -485,7 +485,7 @@ function SignUp() {
                     {...register('phone', {
                         required: '숫자만 입력해주세요.',
                         pattern: {
-                            value: /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/,
+                            value: /^01(?:0|1|[6-9])-(?:\d{3}|\d{4})-\d{4}$/,
                             message: '010-1234-5678 형식으로 입력해주세요.',
                         },
                     })}
@@ -494,7 +494,28 @@ function SignUp() {
                         e.target.value = e.target.value.replace(/[^0-9]/g, '');
                     }}
                     onChange={(e) => {
-                        // 값 변경 시 유효성 검사 트리거하지 않도록 수정
+                        // 입력값을 포맷에 맞게 변환
+                        const rawValue = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+                        let formattedValue = rawValue;
+
+                        if (rawValue.length > 3 && rawValue.length <= 7) {
+                            formattedValue = `${rawValue.slice(
+                                0,
+                                3
+                            )}-${rawValue.slice(3)}`;
+                        } else if (rawValue.length > 7) {
+                            formattedValue = `${rawValue.slice(
+                                0,
+                                3
+                            )}-${rawValue.slice(3, 7)}-${rawValue.slice(
+                                7,
+                                11
+                            )}`;
+                        }
+
+                        e.target.value = formattedValue;
+
+                        // 유효성 검사 트리거
                         register('phone').onChange(e);
                         trigger('phone');
                     }}
