@@ -217,7 +217,8 @@ function SignUp() {
     };
 
     // 이메일 체크 및 인증번호 요청 함수
-    const handleEmailCheck = async () => {
+    const handleEmailCheck = async (event) => {
+        event.preventDefault();
         const emailValue = watch('email');
         const nameValue = watch('userName');
         const isEmailValid = await trigger('email');
