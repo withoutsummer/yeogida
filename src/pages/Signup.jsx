@@ -217,7 +217,8 @@ function SignUp() {
     };
 
     // 이메일 체크 및 인증번호 요청 함수
-    const handleEmailCheck = async () => {
+    const handleEmailCheck = async (event) => {
+        event.preventDefault();
         const emailValue = watch('email');
         const nameValue = watch('userName');
         const isEmailValid = await trigger('email');
@@ -239,6 +240,9 @@ function SignUp() {
                 setIsEmailDisabled(true);
                 setTimer(180);
                 setIsTimerRunning(true);
+                setModalMessage(
+                    '인증번호를 발송했습니다. 이메일을 확인해주세요.'
+                );
                 setShowCertificationInput(true);
             }
         } catch (error) {
