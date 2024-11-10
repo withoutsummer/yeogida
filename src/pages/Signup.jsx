@@ -239,6 +239,9 @@ function SignUp() {
                 setIsEmailDisabled(true);
                 setTimer(180);
                 setIsTimerRunning(true);
+                setModalMessage(
+                    '인증번호를 발송했습니다. 이메일을 확인해주세요.'
+                );
                 setShowCertificationInput(true);
             }
         } catch (error) {
