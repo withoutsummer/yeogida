@@ -412,7 +412,7 @@ export default function SharetripDetail() {
         </MapContainer>
 
         <h2>상세 내용</h2>
-
+        
         <h2>댓글</h2>
         <CommentList /> 
       </ContentContainer>
