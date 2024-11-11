@@ -39,32 +39,57 @@ function App() {
   const location = useLocation();
 
   const checkLoginStatus = async () => {
+    console.log("Checking login status...");
+
     try {
+      console.log("Sending request to /users/me...");
       const response = await axios.post(
         "https://www.yeogida.net/users/me",
         {},
         { withCredentials: true } // 쿠키 포함
       );
+      console.log("Login status check successful:", response.data);
       setIsAuthenticated(true);
     } catch (error) {
+      console.error("Error in /users/me request:", error.message);
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+      }
+
       if (error.response && error.response.status === 419) {
+        console.log("Token expired, attempting to refresh token...");
         try {
-          await axios.post(
+          const refreshResponse = await axios.post(
             "https://www.yeogida.net/users/refresh",
             {},
             { withCredentials: true } // 쿠키 포함
           );
+          console.log("Token refresh successful:", refreshResponse.data);
           setIsAuthenticated(true);
         } catch (refreshError) {
+          console.error(
+            "Error in /users/refresh request:",
+            refreshError.message
+          );
+          if (refreshError.response) {
+            console.error(
+              "Refresh response status:",
+              refreshError.response.status
+            );
+            console.error("Refresh response data:", refreshError.response.data);
+          }
           setIsAuthenticated(false);
         }
       } else {
+        console.log("User is not authenticated.");
         setIsAuthenticated(false);
       }
     }
   };
 
   useEffect(() => {
+    console.log("Location changed:", location.pathname);
     checkLoginStatus();
   }, [location]);
 
