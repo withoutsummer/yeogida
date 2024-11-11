@@ -40,12 +40,20 @@ function App() {
 
   const checkLoginStatus = async () => {
     try {
-      const response = await axios.post("https://www.yeogida.net/users/me");
+      const response = await axios.post(
+        "https://www.yeogida.net/users/me",
+        {},
+        { withCredentials: true } // 쿠키 포함
+      );
       setIsAuthenticated(true);
     } catch (error) {
       if (error.response && error.response.status === 419) {
         try {
-          await axios.post("https://www.yeogida.net/users/refresh");
+          await axios.post(
+            "https://www.yeogida.net/users/refresh",
+            {},
+            { withCredentials: true } // 쿠키 포함
+          );
           setIsAuthenticated(true);
         } catch (refreshError) {
           setIsAuthenticated(false);
