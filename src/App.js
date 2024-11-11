@@ -36,6 +36,7 @@ const ScrollToTop = () => {
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [accessToken, setAccessToken] = useState(null); // Access Token 상태 추가
   const location = useLocation();
 
   const checkLoginStatus = async () => {
@@ -46,7 +47,12 @@ function App() {
       const response = await axios.post(
         "https://www.yeogida.net/users/me",
         {},
-        { withCredentials: true } // 쿠키 포함
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // accessToken을 Authorization 헤더에 포함
+          },
+          withCredentials: true, // 쿠키 포함
+        }
       );
       console.log("Login status check successful:", response.data);
       setIsAuthenticated(true);
@@ -63,10 +69,14 @@ function App() {
           const refreshResponse = await axios.post(
             "https://www.yeogida.net/users/refresh",
             {},
-            { withCredentials: true } // 쿠키 포함
+            { withCredentials: true }
           );
-          console.log("Token refresh successful:", refreshResponse.data);
+          const newAccessToken = refreshResponse.data.accessToken;
+          console.log("Token refresh successful:", newAccessToken);
+          setAccessToken(newAccessToken); // 새로운 accessToken 저장
           setIsAuthenticated(true);
+          // 새 accessToken으로 다시 /users/me 요청
+          await checkLoginStatus();
         } catch (refreshError) {
           console.error(
             "Error in /users/refresh request:",
