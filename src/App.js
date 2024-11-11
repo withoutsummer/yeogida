@@ -40,12 +40,12 @@ function App() {
 
   const checkLoginStatus = async () => {
     try {
-      const response = await axios.post("/users/me");
+      const response = await axios.post("http://www.yeogida.net/users/me");
       setIsAuthenticated(true);
     } catch (error) {
       if (error.response && error.response.status === 419) {
         try {
-          await axios.post("/users/refresh");
+          await axios.post("http://www.yeogida.net/users/refresh");
           setIsAuthenticated(true);
         } catch (refreshError) {
           setIsAuthenticated(false);
@@ -61,39 +61,37 @@ function App() {
   }, [location]);
 
   return (
-    <Router>
-      <div className="App">
-        <Header isAuthenticated={isAuthenticated} /> {/* 상태 전달 */}
-        <ScrollToTop /> {/* ScrollToTop 컴포넌트를 추가 */}
-        <Routes>
-          <Route path="/" element={<Home />} /> {/* 메인 */}
-          <Route path="/login" element={<Login />} /> {/* 로그인 */}
-          <Route path="/signup" element={<Signup />} /> {/* 회원가입 */}
-          <Route path="/find/id" element={<FindId />} /> {/* 아이디 찾기 */}
-          <Route path="/find/password" element={<FindPassword />} />{" "}
-          {/* 비밀번호 찾기 */}
-          {/* 아이디 찾기 성공 */}
-          <Route path="/find/id/success" element={<FindIdSuccess />} />
-          {/* 비밀번호 재설정 */}
-          <Route path="/find/password/reset" element={<ResetPassword />} />
-          {/* 나의 여행 */}
-          <Route path="/mytrip" element={<Mytrip />} />
-          {/*새 여행 만들기*/}
-          <Route path="/mytrip/editor" element={<Editor />} />
-          {/* 나의 여행 상세페이지 */}
-          <Route path="/mytrip/:id" element={<TripDetailPage />} />
-          {/* 나의 여행 상세페이지 수정 */}
-          <Route path="/mytrip/editor/:id" element={<TripDetailEditorPage />} />
-          {/* 여행 공유 */}
-          <Route path="/shared-itineraries" element={<Sharetrip />} />
-          {/* 여행 공유 상세*/}
-          <Route path="/details/:id" element={<SharetripDetail />} />
-          {/* 마이페이지 */}
-          <Route path="/mypage/*" element={<Mypage />} />{" "}
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    <div className="App">
+      <Header isAuthenticated={isAuthenticated} /> {/* 상태 전달 */}
+      <ScrollToTop /> {/* ScrollToTop 컴포넌트를 추가 */}
+      <Routes>
+        <Route path="/" element={<Home />} /> {/* 메인 */}
+        <Route path="/login" element={<Login />} /> {/* 로그인 */}
+        <Route path="/signup" element={<Signup />} /> {/* 회원가입 */}
+        <Route path="/find/id" element={<FindId />} /> {/* 아이디 찾기 */}
+        <Route path="/find/password" element={<FindPassword />} />{" "}
+        {/* 비밀번호 찾기 */}
+        {/* 아이디 찾기 성공 */}
+        <Route path="/find/id/success" element={<FindIdSuccess />} />
+        {/* 비밀번호 재설정 */}
+        <Route path="/find/password/reset" element={<ResetPassword />} />
+        {/* 나의 여행 */}
+        <Route path="/mytrip" element={<Mytrip />} />
+        {/*새 여행 만들기*/}
+        <Route path="/mytrip/editor" element={<Editor />} />
+        {/* 나의 여행 상세페이지 */}
+        <Route path="/mytrip/:id" element={<TripDetailPage />} />
+        {/* 나의 여행 상세페이지 수정 */}
+        <Route path="/mytrip/editor/:id" element={<TripDetailEditorPage />} />
+        {/* 여행 공유 */}
+        <Route path="/shared-itineraries" element={<Sharetrip />} />
+        {/* 여행 공유 상세*/}
+        <Route path="/details/:id" element={<SharetripDetail />} />
+        {/* 마이페이지 */}
+        <Route path="/mypage/*" element={<Mypage />} />{" "}
+      </Routes>
+      <Footer />
+    </div>
   );
 }
 
