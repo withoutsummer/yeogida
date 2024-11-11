@@ -1,11 +1,10 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   useLocation,
   BrowserRouter as Router,
   Route,
   Routes,
-  useNavigate,
 } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -24,58 +23,47 @@ import ResetPassword from "./pages/ResetPassword";
 import TripDetailPage from "./pages/TripDetailPage";
 import TripDetailEditorPage from "./pages/TripDetailEditorPage";
 
-const checkLoginStatus = async (navigate, setUser) => {
-  try {
-    const response = await fetch("/users/me", {
-      method: "GET",
-      credentials: "include", // 쿠키 포함
-    });
-
-    if (response.status === 200) {
-      const data = await response.json();
-      setUser(data.user); // 사용자 정보를 저장해 로그인 상태 유지
-    } else if (response.status === 401) {
-      // 액세스 토큰이 만료된 경우, 리프레시 토큰으로 갱신 시도
-      const refreshResponse = await fetch("/users/refresh", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (refreshResponse.status === 200) {
-        // 새로운 액세스 토큰을 백엔드에서 다시 쿠키에 저장하도록 처리함
-        checkLoginStatus(navigate, setUser); // 로그인 상태 재확인
-      } else {
-        navigate("/login"); // 로그인 필요
-      }
-    } else {
-      navigate("/login");
-    }
-  } catch (error) {
-    console.error("로그인 상태 확인 중 오류 발생:", error);
-    navigate("/login");
-  }
-};
-
 // 스크롤을 최상단으로 끌어올려주는 컴포넌트 생성
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null); // 사용자 상태 저장
 
   useEffect(() => {
-    // 페이지 이동 시 로그인 상태 확인
-    checkLoginStatus(navigate, setUser);
     window.scrollTo(0, 0);
-  }, [pathname, navigate]);
+  }, [pathname]);
 
   return null;
 };
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const location = useLocation();
+
+  const checkLoginStatus = async () => {
+    try {
+      const response = await axios.post("/users/me");
+      setIsAuthenticated(true);
+    } catch (error) {
+      if (error.response && error.response.status === 419) {
+        try {
+          await axios.post("/users/refresh");
+          setIsAuthenticated(true);
+        } catch (refreshError) {
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, [location]);
+
   return (
     <Router>
       <div className="App">
-        <Header />
+        <Header isAuthenticated={isAuthenticated} /> {/* 상태 전달 */}
         <ScrollToTop /> {/* ScrollToTop 컴포넌트를 추가 */}
         <Routes>
           <Route path="/" element={<Home />} /> {/* 메인 */}
@@ -101,7 +89,7 @@ function App() {
           {/* 여행 공유 상세*/}
           <Route path="/details/:id" element={<SharetripDetail />} />
           {/* 마이페이지 */}
-          <Route path="/mypage/*" element={<Mypage />} />
+          <Route path="/mypage/*" element={<Mypage />} />{" "}
         </Routes>
         <Footer />
       </div>
