@@ -112,13 +112,16 @@ export default function ResetPassword() {
     const handleSubmit = async () => {
         if (isFormValid()) {
             try {
-                const response = await apiRequest('/users/reset-pw', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        newPassword: formData.password,
-                        newPasswordCheck: formData.passwordConfirm,
-                    }),
-                });
+                const response = await apiRequest(
+                    'https://www.yeogida.net/users/reset-pw',
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            newPassword: formData.password,
+                            newPasswordCheck: formData.passwordConfirm,
+                        }),
+                    }
+                );
                 openModal('비밀번호가 성공적으로 변경되었습니다.', '/login');
             } catch (error) {
                 openModal(error.message);
