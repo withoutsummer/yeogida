@@ -277,13 +277,21 @@ function SignUp() {
         setIsEmailDisabled(false);
     }, [watch('email')]);
 
-    const handleCertificationCheck = async (certificationNum) => {
+    const handleCertificationCheck = async (event, certificationNum) => {
+        event.preventDefault(); // 기본 제출 방지
+
         try {
             const response = await verifyCertificationCode(
                 watch('email'),
                 certificationNum
             );
-            setModalMessage(response.message);
+
+            // 200번 상태 코드 확인 후 성공 메시지 설정
+            if (response.status === 200) {
+                setModalMessage('인증에 성공하였습니다.');
+            } else {
+                setModalMessage(response.message); // 200이 아닐 때의 기본 메시지
+            }
             setIsModalOpen(true);
         } catch (error) {
             setModalMessage('인증에 실패했습니다. 다시 시도해주세요.');

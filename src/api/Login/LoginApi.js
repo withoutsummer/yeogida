@@ -1,5 +1,5 @@
 export const loginUser = async (userId, password) => {
-    const apiURL = 'https://yeogida.net/users/login';
+    const apiURL = 'https://www.yeogida.net/users/login';
 
     try {
         const response = await fetch(apiURL, {
