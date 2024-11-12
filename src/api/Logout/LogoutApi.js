@@ -1,5 +1,5 @@
 export const logoutUser = async () => {
-    const apiURL = 'https://yeogida.net/users/logout';
+    const apiURL = 'https://www.yeogida.net/users/logout';
 
     try {
         const response = await fetch(apiURL, {

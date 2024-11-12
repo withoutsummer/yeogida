@@ -54,34 +54,34 @@ const makeApiRequest = async (url, method = 'GET', body = null) => {
 
 // ID 중복 체크 API
 export const checkIdDuplicate = async (userId) => {
-    const url = 'https://yeogida.net/users/verify-id';
+    const url = 'https://www.yeogida.net/users/verify-id';
     const body = { id: userId };
     return await makeApiRequest(url, 'POST', body);
 };
 
 // 전화번호 중복 체크 API
 export const checkPhoneDuplicate = async (phone) => {
-    const url = 'https://yeogida.net/users/verify-phone';
+    const url = 'https://www.yeogida.net/users/verify-phone';
     const body = { phonenumber: phone };
     return await makeApiRequest(url, 'POST', body);
 };
 
 //이메일 중복 체크 및 인증번호 전송
 export const checkEmailDuplicate = async (email, userName) => {
-    const url = 'https://yeogida.net/users/signup-sendnum';
+    const url = 'https://www.yeogida.net/users/signup-sendnum';
     const body = { email: email, name: userName };
     return await makeApiRequest(url, 'POST', body);
 };
 
 // 인증번호 확인 API
 export const verifyCertificationCode = async (email, code) => {
-    const url = 'https://yeogida.net/users/verify-number';
+    const url = 'https://www.yeogida.net/users/verify-number';
     const body = { email, code };
     return await makeApiRequest(url, 'POST', body);
 };
 
 // 회원가입 요청 API
 export const signUp = async (userData) => {
-    const url = 'https://yeogida.net/users/signup';
+    const url = 'https://www.yeogida.net/users/signup';
     return await makeApiRequest(url, 'POST', userData);
 };
