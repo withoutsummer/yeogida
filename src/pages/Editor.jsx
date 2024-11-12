@@ -316,7 +316,7 @@ export default function Editor({ onChange = () => { } }) {
 
       const requestData = {
           itinerary_id: itineraryId,
-          user_id: 10,
+          user_id: userId,
           title,
           startdate: dateRange.split(' ~ ')[0],
           enddate: dateRange.split(' ~ ')[1],
