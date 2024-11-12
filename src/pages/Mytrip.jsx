@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Pagination from './Pagination';
@@ -6,8 +6,6 @@ import Modal from 'react-modal';
 import Newtrip from './Newtrip';
 import Card from '../components/Card';
 import Tags from '../components/Tags';
-import { getPosts } from '../mockdata/mytripMockData';
-import { Select, MenuItem } from '@mui/material'; // MUI Select 및 MenuItem import
 
 const MyTripContainer = styled.div`
     display: flex;
@@ -225,48 +223,161 @@ const CardsContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+// 드롭다운 스타일 컴포넌트
+const SortDropdownWrapper = styled.div`
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+`;
+
+const SortTitle = styled.div`
+    text-align: center; /* 텍스트 중앙 정렬 */
+    font-family: NanumGothic;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 54px; /* 높이와 같은 line-height 설정 */
+`;
+
+const DropdownMenu = styled.div`
+    width: 120px;
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    background-color: #fff;
+`;
+
+const DropdownItem = styled.div`
+    width: 100%;
+    text-align: center; /* 텍스트 중앙 정렬 */
+    font-family: NanumGothic;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 54px; /* 높이와 같은 line-height 설정 */
+    box-sizing: border-box;
+    color: black;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #EEF5FF;
+        color: #000;
+    }
+`;
+
 export default function MyTrip() {
-    const [posts, setPosts] = useState(getPosts());
+    const navigate = useNavigate();
+    const [posts, setPosts] = useState([]);
     const [limit, setLimit] = useState(10);
     const [page, setPage] = useState(1);
     const offset = (page - 1) * limit;
     const [isListView, setIsListView] = useState(false);
     const [selectedButton, setSelectedButton] = useState('전체일정'); // 선택된 버튼을 추적하는 상태
-    const userName = 'seorin'; // 사용자 이름을 설정
-    const [sortPath, setSortPath] = useState('latest'); // 초기값을 'latest'로 설정
+    const [userId, setUserId] = useState(null);
+    const [sortOrder, setSortOrder] = useState('newest'); // 정렬 상태 추가
+    const [showDropdown, setShowDropdown] = useState(false);
 
-    const navigate = useNavigate(); // 페이지 이동을 위한 hook 추가
-
-    const handleTripClick = (id) => {
-        // 여행 일정을 클릭하면 해당 ID의 상세 페이지로 이동
-        const tripData = posts.find(post => post.id === id);
-        if (tripData) {
-            navigate(`/mytrip/${id}`, { state: { posts } }); // posts를 state로 전달
+    const fetchUserId = async () => {
+        try {
+            const response = await fetch('https://yeogida.net/mypage/account', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('HTTP 에러 발생:', response.status, errorText);
+                throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
+            }
+    
+            const userData = await response.json();
+            console.log('사용자 정보:', userData);
+            setUserId(userData.user_id);
+        } catch (error) {
+            console.error('네트워크 오류 발생:', error);
         }
+    };    
+
+
+    useEffect(() => {
+        const fetchTrips = async () => {
+            try {
+                const response = await fetch(`https://yeogida.net/api/itineraries?sort=${sortOrder}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+    
+                if (!response.ok) throw new Error('Error fetching trips');
+                const data = await response.json();
+                setPosts(data);
+            } catch (error) {
+                console.error('Error fetching trips:', error);
+            }
+        };
+    
+        fetchTrips();
+        fetchUserId();
+    }, [sortOrder]);    
+
+    const handleSortChange = (order) => {
+        setSortOrder(order);
+        setShowDropdown(false); // 드롭다운 닫기
     };
+
+    const handleTripClick = async (itinerary_id) => {
+        // 여행 일정을 클릭하면 해당 ID의 상세 페이지로 이동
+        const tripData = await fetchItineraryDetails(itinerary_id);
+    
+        if (tripData) {
+            navigate(`/mytrip/${itinerary_id}`, { state: { tripData } }); // tripData를 state로 전달
+        } else {
+            console.error('일정을 찾을 수 없습니다.');
+        }
+    };  
+    
+    // 여행 상세 API
+    const fetchItineraryDetails = async (itinerary_id) => {
+        try {
+            const response = await fetch(`https://yeogida.net/api/itineraries/${itinerary_id}`);
+            
+            // 응답이 성공적인 경우
+            if (!response.ok) {
+                throw new Error('일정 정보를 불러오는 데 실패했습니다.');
+            }
+    
+            const data = await response.json(); // JSON 형태로 변환
+            console.log(data); // 데이터 확인
+            return data; // 필요한 경우 반환
+        } catch (error) {
+            console.error('오류:', error);
+        }
+    };    
 
     const toggleView = () => {
         setIsListView(!isListView);
     };
 
-    // 정렬 옵션 정의
-    const SORT_OPTIONS = [
-        { value: 'latest', label: '최신순' },
-        { value: 'oldest', label: '오래된순' }
-    ];
-
-    const onSortChange = (type, value) => {
-        setSortPath(value);
-        // 추가적으로 구현 예정
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
     };
-
-    const [tags, setTags] = useState([]); // 빈 배열로 초기화
 
     // '내가 만든 일정' 필터링
     const filteredPosts = selectedButton === '내가 만든 일정'
-        ? posts.filter(post => post.소유자 === userName)
+        ? posts.filter(post => post.user_id === userId)
         : selectedButton === '공유 받은 일정'
-            ? posts.filter(post => post.소유자 !== userName)
+            ? posts.filter(post => post.user_id !== userId)
             : posts;
 
     const [isOpen, setIsOpen] = useState(false);
@@ -352,60 +463,67 @@ export default function MyTrip() {
                         </svg>
                     </ViewButton>
                 )}
-                {/* <Select
-                    labelId="filter-select-label"
-                    id="filter-select"
-                    value={sortPath}
-                    sx={{ fontSize: '0.9rem', borderRadius: 0 }}
-                    onChange={(event) =>
-                        onSortChange('sort', event.target.value)
-                    }                
-                >
-                    {SORT_OPTIONS.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </Select> */}
             </ListContainer>
             
             {/* 리스트 또는 카드 형식의 콘텐츠가 렌더링 되는 부분 */}
             {isListView ? (
-            <div>
-            <Index>
-                <div className="title no">No</div>
-                <div className="title max">제목</div>
-                <div className="title min">여행지</div>
-                <div className="title min">소유자</div>
-                <div className="title min">날짜</div>
-            </Index>
-            {/* filteredPosts가 비어 있을 경우 Empty 메시지 표시 */}
-            {filteredPosts.length === 0 ? (
-                <EmptyList>
-                    여행 일정이 없습니다.
-                </EmptyList>
-            ) : (
-                filteredPosts.slice(offset, offset + limit).map(({ id, no, 제목, 여행지, 소유자, 날짜, 아이콘 }) => (
-                    <Line key={id} onClick={() => handleTripClick(id)}>
-                        <div className="list no">{no}</div>
-                        <div className="list max">{제목}</div>
-                        <div className="list min">
-                            <Tags tags={Array.isArray(여행지) ? 여행지 : [여행지]} />
+                <div>
+                    <Index>
+                        <div className="title no">No</div>
+                        <div className="title max">제목</div>
+                        <div className="title min">여행지</div>
+                        <div className="title min">소유자</div>
+                        <div className="title min">
+                        <SortDropdownWrapper 
+                            onClick={() => setShowDropdown((prev) => !prev)} // 클릭 시 드롭다운 토글
+                            onMouseLeave={() => setShowDropdown(false)} // 마우스가 나가면 드롭다운 닫기
+                        >
+                            <SortTitle>
+                                날짜 ▼
+                            </SortTitle>
+                            {showDropdown && ( // 드롭다운 표시
+                                <DropdownMenu>
+                                    <DropdownItem onClick={() => handleSortChange('newest')}>최신순</DropdownItem>
+                                    <DropdownItem onClick={() => handleSortChange('oldest')}>오래된순</DropdownItem>
+                                </DropdownMenu>
+                            )}
+                        </SortDropdownWrapper>
                         </div>
-                        <div className="list min">{소유자}</div>
-                        <div className="list min">{날짜}</div>
-                    </Line>
-                ))
-            )}
+                    </Index>
+                    {/* filteredPosts가 비어 있을 경우 Empty 메시지 표시 */}
+                    {filteredPosts.length === 0 ? (
+                        <EmptyList>
+                            여행 일정이 없습니다.
+                        </EmptyList>
+                    ) : (
+                        filteredPosts.slice(offset, offset + limit).map((post, index) => {
+                            const { itinerary_id, title, destination, user_id, startdate, enddate } = post;
+                            const no = offset + index + 1; // 번호 계산
+                            // destination 문자열을 쉼표로 구분하여 배열로 변환
+                            const destinationArray = destination.split(',').map(dest => dest.trim());
+                        
+                            return (
+                                <Line key={itinerary_id} onClick={() => handleTripClick(itinerary_id)}>
+                                    <div className="list no">{no}</div>
+                                    <div className="list max">{title}</div>
+                                    <div className="list min">
+                                        <Tags tags={destinationArray} />
+                                    </div>
+                                    <div className="list min">{user_id}</div>
+                                    <div className="list min">{formatDate(startdate)} ~ {formatDate(enddate)}</div>
+                                </Line>
+                            );
+                        })                        
+                    )}
 
-            <Pagination 
-                total={posts.length}
-                limit={limit}
-                page={page}
-                setPage={setPage}
-            />
-        </div>
-    ) : (
+                    <Pagination 
+                        total={posts.length}
+                        limit={limit}
+                        page={page}
+                        setPage={setPage}
+                    />
+            </div>
+        ) : (
         <CardsContainer>
             {/* filteredPosts가 비어 있을 경우 Empty 메시지 표시 */}
             {filteredPosts.length === 0 ? (
@@ -415,14 +533,15 @@ export default function MyTrip() {
             ) : (
                 filteredPosts.map((post) => (
                     <Card
-                        key={post.id}
-                        img={post.썸네일}
-                        title={post.제목}
-                        date={post.날짜}
-                        author={post.소유자}
-                        comment={post.댓글}
-                        likes={post.좋아요}
-                        onClick={() => handleTripClick(post.id)}
+                        key={post.itinerary_id}
+                        thumbnail={post.thumbnail}
+                        title={post.title}
+                        startdate={formatDate(post.startdate)}
+                        enddate={formatDate(post.enddate)}
+                        user_id={post.user_id}
+                        comment={post.comment}
+                        likes={post.likenumber}
+                        onClick={() => handleTripClick(post.itinerary_id)}
                     />
                 ))
             )}

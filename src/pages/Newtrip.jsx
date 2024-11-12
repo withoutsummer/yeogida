@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import DateInput from '../components/DateInput';
@@ -85,12 +85,7 @@ const ModalButton = styled.button`
 `;
 
 export default function Newtrip({ closeModal }) {
-    const sharedOptions = [
-        { value: 'none', label: '없음'},
-        { value: 'user1', label: 'User 1' },
-        { value: 'user2', label: 'User 2' },
-        { value: 'user3', label: 'User 3' },
-    ];
+    const [sharedOptions, setSharedOptions] = useState([{ value: 'none', label: '없음' }]);
 
     const [inputs, setInputs] = useState({
         제목: "",
@@ -102,9 +97,9 @@ export default function Newtrip({ closeModal }) {
 
     const { 제목, 기간, 여행지, 공유자, 썸네일 } = inputs;
     const navigate = useNavigate();
-
     const [modalOpen, setModalOpen] = useState(false); // 모달 상태
     const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
+    const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
 
     const onChange = (e) => {
         const { value, name } = e.target;
@@ -122,46 +117,79 @@ export default function Newtrip({ closeModal }) {
     };
 
     const handleDateRangeChange = (startDate, endDate) => {
+        const formatDate = (date) => {
+            const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            return offsetDate.toISOString(); // ISO 8601 형식으로 변환
+        };
+    
         const formattedPeriod = startDate && endDate ? 
-            `${startDate.toISOString().split('T')[0].replace(/-/g, '/')} ~ ${endDate.toISOString().split('T')[0].replace(/-/g, '/')}` : 
+            `${formatDate(startDate)} ~ ${formatDate(endDate)}` : 
             '';
+    
         setInputs({
             ...inputs,
             기간: formattedPeriod,
+            startdate: startDate ? formatDate(startDate) : '', // startdate 추가
+            enddate: endDate ? formatDate(endDate) : '' // enddate 추가
         });
-    };
+    };    
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         // 모든 필드가 입력되었는지 확인
         if (!제목 || !기간 || 여행지.length === 0 || 공유자.length === 0 || !썸네일) {
             setModalMessage("모든 필드를 입력해 주세요."); // 메시지 설정
             setModalOpen(true); // 모달 열기
             return;
         }
-    
+
         // 입력된 데이터를 state로 editor로 전달
         navigate('/mytrip/editor', {
             state: inputs
         });
-    };    
+    }
+
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const response = await fetch('/mypage/friend?status=name', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                
+                if (!response.ok) {
+                    console.error('친구 목록 불러오기 실패:', response.status);
+                    return;
+                }
+
+                const friends = await response.json();
+                const options = friends.map(friend => ({
+                    value: friend.name,
+                    label: friend.name, // 표시할 라벨
+                }));
+                setSharedOptions(options);
+            } catch (error) {
+                console.error('네트워크 오류 발생:', error);
+            }
+        };
+
+        fetchFriends();
+    }, []);   
 
     const handleModalClose = () => {
-        setModalOpen(false); // 모달 닫기
+        setModalOpen(false);
     };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // 이미지 업로드 후 URL을 받는 로직
-            const imageUrl = URL.createObjectURL(file); // 로컬 파일 미리보기 URL
             setInputs({
                 ...inputs,
-                썸네일: imageUrl, // URL을 썸네일로 설정
+                썸네일: file // 파일 객체를 상태에 저장
             });
         }
-    };
+    };    
 
     return (
         <NewTripContainer>
