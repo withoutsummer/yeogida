@@ -1,3 +1,18 @@
-body{
-    margin : 0;
+body {
+    font-family: 'NanumGothic', sans-serif;
+    margin: 0;
+    height: 100vh; /* 전체 화면 높이 설정 */
+}
+
+input[aria-invalid='true'] {
+    border: 1px solid red; /* 오류가 있는 경우 빨간색 테두리 */
+}
+
+input[aria-invalid='false'] {
+    border: 1px solid #e0e0e0; /* 오류가 없는 경우 초록색 테두리 */
+}
+
+.error-message {
+    color: red; /* 에러 메시지를 빨간색으로 설정 */
+    font-size: 12px; /* 필요에 따라 글자 크기 조정 */
 }
