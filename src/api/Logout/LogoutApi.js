@@ -1,5 +1,5 @@
 export const logoutUser = async () => {
-    const apiURL = 'https://yeogida.net/users/logout';
+    const apiURL = 'https://www.yeogida.net/users/logout';
 
     try {
         const response = await fetch(apiURL, {
@@ -8,6 +8,7 @@ export const logoutUser = async () => {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
+            credentials: 'include',
         });
 
         if (response.status === 200) {

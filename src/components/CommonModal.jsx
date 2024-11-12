@@ -1,35 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
 import Button from './Btn';
-import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
+import { useNavigate } from 'react-router-dom';
 
-// 모달의 루트 엘리먼트 설정
 Modal.setAppElement('#root');
 
 const CommonModal = ({
     isOpen,
     onRequestClose,
-    type = 1, // type의 기본 값을 1로 설정
+    type = 1,
     title,
     children,
     navigateTo,
     onConfirm,
 }) => {
-    const navigate = useNavigate(); // navigate 훅 사용
+    const navigate = useNavigate();
 
     const handleConfirm = () => {
-        if (navigateTo) {
-            navigate(navigateTo); // navigateTo가 주어지면 해당 페이지로 이동
-        }
-        if (onConfirm) {
-            onConfirm();
-        }
-        onRequestClose(); // 모달 닫기
-    };
-
-    const handleCancel = () => {
+        if (navigateTo) navigate(navigateTo);
+        if (onConfirm) onConfirm();
         onRequestClose();
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => (document.body.style.overflow = 'unset');
+    }, [isOpen]);
 
     return (
         <Modal
@@ -54,8 +54,10 @@ const CommonModal = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                     borderRadius: '10px',
+                    border: 'none', // 스타일링 개선
                 },
             }}
+            shouldCloseOnOverlayClick={true}
         >
             <div
                 style={{
@@ -113,7 +115,7 @@ const CommonModal = ({
                         text="확 인"
                     />
                     <Button
-                        onClick={handleCancel}
+                        onClick={onRequestClose} // 취소 버튼 동작 개선
                         width="190px"
                         height="50px"
                         borderRadius="10px"

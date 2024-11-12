@@ -1,5 +1,5 @@
 export const loginUser = async (userId, password) => {
-    const apiURL = 'https://yeogida.net/users/login';
+    const apiURL = 'https://www.yeogida.net/users/login';
 
     try {
         const response = await fetch(apiURL, {
@@ -8,6 +8,7 @@ export const loginUser = async (userId, password) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ id: userId, password: password }),
+            credentials: 'include',
         });
 
         // API 응답 정보 로그

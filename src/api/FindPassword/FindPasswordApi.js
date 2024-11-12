@@ -1,12 +1,15 @@
 export const checkAccountExists = async (userName, email) => {
     try {
-        const response = await fetch('https://yeogida.net/users/idpw-sendnum', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: userName, email: email }),
-        });
+        const response = await fetch(
+            'https://www.yeogida.net/users/idpw-sendnum',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: userName, email: email }),
+            }
+        );
 
         if (response.status === 200) return true;
         if (response.status === 404)

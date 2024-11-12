@@ -104,7 +104,6 @@ export default function Newtrip({ closeModal }) {
     const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false); // 모달 상태
     const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
-    const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
 
     const onChange = (e) => {
         const { value, name } = e.target;

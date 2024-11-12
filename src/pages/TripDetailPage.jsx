@@ -116,26 +116,34 @@ const TabContainer = styled.div`
   background-color: #EEF5FF;
 `;
 
+// 지도와 탭 들어있는 부분
+const DetailContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 20px;
+`;
+
 const DayTabs = styled.div`
   display: flex;
-  border-bottom: 2px solid #E0E0E0;
-  width: 1400px;
-  height: 60px; 
-  margin: 0 auto;
+  border-bottom: 1px solid #E0E0E0;
+  width: 450px;
+  margin: 10px auto;
   margin-bottom: 20px;
 `;
 
-const DayTab = styled.button`
-  padding: 10px 20px;
-  background-color: ${({ isSelected }) => (isSelected ? '#E0E0E0' : '#FFF')};
-  color: ${({ isSelected }) => (isSelected ? '#000' : '#707070')};
-  border: none;
-  cursor: pointer;
-  flex-grow: 1;
-  text-align: center;
-  font-family: NanumGothic;
+const DayTab = styled.div`
+  flex-shrink: 0;  /* 탭이 축소되지 않도록 설정 */
+  padding: 10px 20px 20px;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: ${(props) => (props.isSelected ? 'bold' : 'normal')};
+  color: ${(props) => (props.isSelected ? '#59ABE6' : '#888')};
+  cursor: pointer;
+  border-bottom: ${(props) => (props.isSelected ? '3px solid #59ABE6' : '1px solid transparent')};
+  white-space: nowrap;
+  text-align: center;  /* 텍스트를 중앙 정렬 */
+  font-family: NanumGothic;
 `;
 
 const Content = styled.div`
@@ -146,24 +154,30 @@ const Content = styled.div`
 
 // 여행 상세 페이지 컴포넌트
 export default function TripDetailPage( ) {
-    const { itinerary_id } = useParams(); // URL에서 itinerary_id 가져오기
-    const location = useLocation();
-    const [content, setContent] = useState("");
-    const { posts } = location.state || {}; // 전달된 posts 받아오기
-    const tripData = posts?.find(post => post.itinerary_id === itinerary_id); // posts에서 해당 일정 찾기
-    const navigate = useNavigate();
+    const { id } = useParams(); // URL 파라미터에서 ID 가져오기
+    const location = useLocation(); // 현재 위치 정보 가져오기
+    const navigate = useNavigate(); // 페이지 이동 함수 가져오기
+
+    // 위치 상태에서 게시물 가져오기
+    const { posts, editedTrip } = location.state || {};
+    const trip = editedTrip || (posts ? posts.find(post => post.id === Number(id)) : null);
+    const { 제목: title = '', 날짜: dateRange = '', 썸네일: thumbnail = '', 소유자: user_id = 'seorin', 내용: content = '' } = trip || {};
+
+    const [currentDay, setCurrentDay] = useState(1);
+    const [days, setDays] = useState([]);
+
+    // content 상태 정의
+    const [contentState, setContentState] = useState(content);
 
     // const [tripData, setTripData] = useState(null); // 초기 상태 null로 설정
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
-    const [days, setDays] = useState([]);
-    const [currentDay, setCurrentDay] = useState(1);
 
     // 삭제 모달 닫기 및 삭제 처리
     const handleModalClose = () => {
-        if (tripData) {
-            deletePost(tripData.itinerary_id); // tripData.id를 기준으로 삭제
+        if (trip) {
+            deletePost(trip.id);
             setModalOpen(false); // 모달 닫기
             navigate('/mytrip'); // 삭제 후 이동할 페이지
         }
@@ -179,9 +193,7 @@ export default function TripDetailPage( ) {
     
     // 수정 버튼 클릭 시 핸들러
     const handleEditClick = () => {
-        if (tripData) {
-            navigate(`/mytrip/editor/${itinerary_id}`, { state: { trip: tripData } }); // 편집 페이지로 이동
-        }
+        navigate(`/mytrip/editor/${id}`, { state: { trip } }); // 편집 페이지로 이동
     };
 
     // 삭제 버튼 클릭 시 핸들러
@@ -195,18 +207,18 @@ export default function TripDetailPage( ) {
     };
 
     useEffect(() => {
-        // state로 전달된 content 값을 가져옵니다.
+        // state로 전달된 content 값을 가져오기
         if (location.state && location.state.content) {
-          setContent(location.state.content);
+            setContentState(location.state.content);
         } else {
-          // localStorage에서 가져오는 방법
-          const savedContent = localStorage.getItem('editorValue');
-          if (savedContent) {
-            setContent(savedContent);
-          }
+            // localStorage에서 가져오는 방법
+            const savedContent = localStorage.getItem('editorValue');
+            if (savedContent) {
+                setContentState(savedContent);
+            }
         }
-      }, [location.state]);
-
+    }, [location.state]);
+    
   return (
       <div>
         <ButtonContainer>
@@ -223,42 +235,44 @@ export default function TripDetailPage( ) {
             navigateTo="/mytrip"
         />
 
-        <HeaderContainer thumbnail={tripData?.썸네일 || ''}>
-            <Title>{tripData?.title}</Title>
-            <UserId>{tripData?.소유자}</UserId>
-            <DateRange>{formatDate(tripData?.기간.split(' ~ ')[0])} ~ {formatDate(tripData?.기간.split(' ~ ')[1])}</DateRange>
+        <HeaderContainer thumbnail={thumbnail || ''}>
+            <Title>{title}</Title>
+            <UserId>{user_id}</UserId>
+            <DateRange>{dateRange}</DateRange>
         </HeaderContainer>
 
         <ContentContainer>
-            <MapContainer>
-                <Map />
-            </MapContainer>
+            <DetailContainer>
+                <MapContainer>
+                    <Map />
+                </MapContainer>
 
-            <TabContainer>
-                <DayTabs>
-                    {/* Swiper 컴포넌트를 사용하여 탭을 스와이프 가능하게 만들기 */}
-                    <Swiper
-                    spaceBetween={0} // 슬라이드 간 간격을 0으로 설정하여 탭들이 붙어서 보이게 함
-                    slidesPerView={3} // 한 화면에 3개의 탭을 보여줌
-                    onSlideChange={(swiper) => setActiveTab(swiper.realIndex)} // 슬라이드가 변경될 때 activeTab 업데이트
-                    loop={false} // loop 활성화로 무한 스와이프를 방지
-                    >
-                    {days.map((day, index) => (
-                        <SwiperSlide key={index}>
-                        <DayTab
-                            isSelected={activeTab === index}
-                            onClick={() => handleTabClick(index)}>
-                            {day}
-                        </DayTab>
-                        </SwiperSlide>
-                    ))}
-                    </Swiper>
-                </DayTabs>
-                {/* 콘텐츠 부분 */}
-                <Content>
-                    {`DAY ${activeTab + 1} Content`}
-                </Content>
-            </TabContainer>
+                <TabContainer>
+                    <DayTabs>
+                        {/* Swiper 컴포넌트를 사용하여 탭을 스와이프 가능하게 만들기 */}
+                        <Swiper
+                        spaceBetween={0} // 슬라이드 간 간격을 0으로 설정하여 탭들이 붙어서 보이게 함
+                        slidesPerView={3} // 한 화면에 3개의 탭을 보여줌
+                        onSlideChange={(swiper) => setActiveTab(swiper.realIndex)} // 슬라이드가 변경될 때 activeTab 업데이트
+                        loop={false} // loop 활성화로 무한 스와이프를 방지
+                        >
+                        {days.map((day, index) => (
+                            <SwiperSlide key={index}>
+                            <DayTab
+                                isSelected={activeTab === index}
+                                onClick={() => handleTabClick(index)}>
+                                {day}
+                            </DayTab>
+                            </SwiperSlide>
+                        ))}
+                        </Swiper>
+                    </DayTabs>
+                    {/* 콘텐츠 부분 */}
+                    <Content>
+                        {`DAY ${activeTab + 1} Content`}
+                    </Content>
+                </TabContainer>
+            </DetailContainer>
 
             <h2>상세 내용</h2>
             {/* editorValue 출력 */}

@@ -1,8 +1,11 @@
 let posts = [];
 
-// 초기에 기본 포스트를 설정하는 함수
-export const initializePosts = (initialPosts = []) => {
-    posts = initialPosts;
+// 초기 mockdata에서 포스트 추가하는 함수
+export const initializePosts = () => {
+    const existingPosts = getPosts();
+    existingPosts.forEach(post => {
+        addPost(post);
+    });
 };
 
 // 기존 포스트 가져오기
