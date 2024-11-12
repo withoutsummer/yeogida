@@ -1,51 +1,37 @@
 let posts = [];
-let shareTripPosts = []; // ShareTrip 포스트를 위한 배열 추가
+
+// 초기에 기본 포스트를 설정하는 함수
+export const initializePosts = (initialPosts = []) => {
+    posts = initialPosts;
+};
 
 // 기존 포스트 가져오기
 export const getPosts = () => {
     return posts;
 };
 
-// ShareTrip 포스트 가져오기
-export const getShareTripPosts = () => {
-    return shareTripPosts;
-};
-
 // 포스트 추가하기
-export const addPost = async (newPost) => {
-    const response = await fetch('https://yeogida.net/api/itineraries', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPost),
-    });
-
-    if (response.ok) {
-        const addedPost = await response.json();
-        posts.push(addedPost); // 새로운 MyTrip 포스트 추가
-    } else {
-        throw new Error('포스트 추가 실패');
+export const addPost = (newPost) => {
+    // newPost.thumbnail이 파일 객체인 경우, URL로 변환하여 저장
+    if (newPost.thumbnail instanceof File) {
+        newPost.thumbnail = URL.createObjectURL(newPost.thumbnail);
     }
+    posts.push(newPost);
 };
 
-// ShareTrip 포스트 추가하기
-export const addShareTripPost = (newPost) => {
-    shareTripPosts.push(newPost); // 새로운 ShareTrip 포스트 추가
+// 포스트 삭제하기 (ID로 찾아서 삭제)
+export const deletePost = (postId) => {
+    posts = posts.filter(post => post.id !== postId);
 };
 
-// 초기 mockdata에서 포스트 추가하는 함수
-export const initializePosts = async () => {
-    try {
-        const response = await fetch('https://yeogida.net/api/itineraries');
-        if (!response.ok) {
-            throw new Error('네트워크 응답이 실패했습니다.');
+// 포스트 수정하기 (ID로 찾아서 수정)
+export const updatePost = (updatedPost) => {
+    const index = posts.findIndex(post => post.id === updatedPost.id);
+    if (index !== -1) {
+        // newPost.thumbnail이 파일 객체인 경우, URL로 변환하여 저장
+        if (updatedPost.thumbnail instanceof File) {
+            updatedPost.thumbnail = URL.createObjectURL(updatedPost.thumbnail);
         }
-        const existingPosts = await response.json();
-        existingPosts.forEach(post => {
-            posts.push(post);
-        });
-    } catch (error) {
-        console.error('포스트 초기화 오류:', error);
+        posts[index] = { ...posts[index], ...updatedPost };
     }
 };

@@ -219,7 +219,7 @@ export default function Header() {
                                 if (isLoggedIn) {
                                     navigate('/mytrip');
                                 } else {
-                                    openModal('로그인이 필요합니다.', '/mytrip');
+                                    openModal('로그인이 필요합니다.', '/mytrip');   // 임시로 mytrip 연결
                                 }
                             }}>
                                 나의여행

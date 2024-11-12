@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import YesNoModal from '../components/YesNoModal';
 import CommentList from '../components/CommentList';
+import Map from '../components/Map'
+import { deletePost, getPosts } from '../mockdata/mytripMockData';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -100,6 +103,19 @@ const ContentContainer = styled.div`
   padding: 0 20px;
 `;
 
+const MapContainer = styled.div`
+  max-width: 950px;
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  flex-direction: column;  /* 탭과 콘텐츠를 세로로 배치 */
+  border: 1px solid #ddd;
+  width: 450px;
+  margin: 20px auto;
+  background-color: #EEF5FF;
+`;
+
 const DayTabs = styled.div`
   display: flex;
   border-bottom: 2px solid #E0E0E0;
@@ -129,97 +145,42 @@ const Content = styled.div`
 `;
 
 // 여행 상세 페이지 컴포넌트
-export default function TripDetailPage() {
-    const { id } = useParams(); // URL 파라미터에서 ID 가져오기
-    const location = useLocation(); // 현재 위치 정보 가져오기
-    const navigate = useNavigate(); // 페이지 이동 함수 가져오기
+export default function TripDetailPage( ) {
+    const { itinerary_id } = useParams(); // URL에서 itinerary_id 가져오기
+    const location = useLocation();
+    const [content, setContent] = useState("");
+    const { posts } = location.state || {}; // 전달된 posts 받아오기
+    const tripData = posts?.find(post => post.itinerary_id === itinerary_id); // posts에서 해당 일정 찾기
+    const navigate = useNavigate();
 
-    // 위치 상태에서 게시물 가져오기
-    const { posts, editedTrip } = location.state || {};
-    const trip = editedTrip || (posts ? posts.find(post => post.id === Number(id)) : null);
-    const { 제목: title = '', 날짜: dateRange = '', 썸네일: thumbnail = '', 소유자: user_id = 'Unknown', 내용: content = '' } = trip || {};
-
-    const [currentDay, setCurrentDay] = useState(1);
+    // const [tripData, setTripData] = useState(null); // 초기 상태 null로 설정
+    const [loading, setLoading] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
     const [days, setDays] = useState([]);
-    const [itineraryDetails, setItineraryDetails] = useState(null);
-    const [loading, setLoading] = useState(true); // 로딩 상태
-    const [modalOpen, setModalOpen] = useState(false); // 모달 열림 상태
+    const [currentDay, setCurrentDay] = useState(1);
 
+    // 삭제 모달 닫기 및 삭제 처리
     const handleModalClose = () => {
-        deleteItinerary(id); // 삭제 요청
-        setModalOpen(false); // 모달 닫기
+        if (tripData) {
+            deletePost(tripData.itinerary_id); // tripData.id를 기준으로 삭제
+            setModalOpen(false); // 모달 닫기
+            navigate('/mytrip'); // 삭제 후 이동할 페이지
+        }
     };
-
-    useEffect(() => {
-      if (dateRange) {
-        const [startDate, endDate] = dateRange.split(' ~ ').map(date => new Date(date.replace(/\//g, '-')));
-        const dayCount = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-        const dayTabs = Array.from({ length: dayCount }, (_, i) => `DAY ${i + 1}`);
-        setDays(dayTabs);
-      }
-    }, [dateRange]);
 
     const formatDate = (dateStr) => {
-      const date = new Date(dateStr);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}/${month}/${day}`;
-    };
-
-    // 여행 상세 API
-    const fetchItineraryDetails = async (itinerary_id) => {
-      try {
-          const response = await fetch(`https://yeogida.net/api/itineraries/${itinerary_id}`);
-          
-          // 응답이 성공적인 경우
-          if (!response.ok) {
-              throw new Error('일정 정보를 불러오는 데 실패했습니다.');
-          }
-  
-          const data = await response.json(); // JSON 형태로 변환
-            console.log(data); // 데이터 확인
-            return data; // 필요한 경우 반환
-        } catch (error) {
-            console.error('오류:', error);
-        }
-    };    
-
-    // API 호출
-    useEffect(() => {
-      const fetchDetails = async () => {
-          if (id) {
-              const details = await fetchItineraryDetails(id);
-              console.log(details);
-              setItineraryDetails(details);
-              setLoading(false); // 로딩 종료
-          }
+        const date = new Date(dateStr);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
       };
-
-      fetchDetails();
-    }, [id]);
-
+    
     // 수정 버튼 클릭 시 핸들러
     const handleEditClick = () => {
-        navigate(`/mytrip/editor/${id}`, { state: { trip } }); // 편집 페이지로 이동
-    };
-
-    // 삭제 요청 함수
-    const deleteItinerary = async (itinerary_id) => {
-        try {
-            const response = await fetch(`https://yeogida.net/api/itineraries/${itinerary_id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error('일정 삭제에 실패했습니다.');
-            }
-
-            alert('일정이 성공적으로 삭제되었습니다.');
-            navigate('/mytrip'); // 삭제 후 이동할 페이지
-        } catch (error) {
-            console.error('오류:', error);
-            alert('일정 삭제 중 오류가 발생했습니다.');
+        if (tripData) {
+            navigate(`/mytrip/editor/${itinerary_id}`, { state: { trip: tripData } }); // 편집 페이지로 이동
         }
     };
 
@@ -228,12 +189,25 @@ export default function TripDetailPage() {
         setModalOpen(true); // 모달 열기
     };
 
-    // 로딩 중일 때 처리
-    if (loading) {
-      return <div>로딩 중...</div>; // 로딩 중 메시지
-    }
+    const handleTabClick = (index) => {
+        setActiveTab(index);
+        setCurrentDay(index + 1);
+    };
 
-    return (
+    useEffect(() => {
+        // state로 전달된 content 값을 가져옵니다.
+        if (location.state && location.state.content) {
+          setContent(location.state.content);
+        } else {
+          // localStorage에서 가져오는 방법
+          const savedContent = localStorage.getItem('editorValue');
+          if (savedContent) {
+            setContent(savedContent);
+          }
+        }
+      }, [location.state]);
+
+  return (
       <div>
         <ButtonContainer>
             <NavButton onClick={handleEditClick}>수정하기</NavButton>
@@ -242,39 +216,58 @@ export default function TripDetailPage() {
 
         {/* 삭제하기 모달창 */}
         <YesNoModal
-          isOpen={modalOpen}
-          onRequestClose={handleModalClose}
-          title="일정을 삭제하시겠습니까?"
-          bodyText="삭제된 일정은 다시 복구할 수 없습니다."
-          navigateTo="/mytrip"
-        >
-        </YesNoModal>
+            isOpen={modalOpen}
+            onRequestClose={handleModalClose}
+            title="일정을 삭제하시겠습니까?"
+            bodyText="삭제된 일정은 다시 복구할 수 없습니다."
+            navigateTo="/mytrip"
+        />
 
-        <HeaderContainer thumbnail={itineraryDetails.thumbnail || ''}>
-            <Title>{itineraryDetails.title}</Title>
-            <UserId>{itineraryDetails.user_id}</UserId>
-            <DateRange>{formatDate(itineraryDetails.startdate)} ~ {formatDate(itineraryDetails.enddate)}</DateRange>
+        <HeaderContainer thumbnail={tripData?.썸네일 || ''}>
+            <Title>{tripData?.title}</Title>
+            <UserId>{tripData?.소유자}</UserId>
+            <DateRange>{formatDate(tripData?.기간.split(' ~ ')[0])} ~ {formatDate(tripData?.기간.split(' ~ ')[1])}</DateRange>
         </HeaderContainer>
 
         <ContentContainer>
-          <DayTabs>
-            {days.map((day, index) => (
-              <DayTab
-                key={index}
-                isSelected={currentDay === index + 1}
-                onClick={() => setCurrentDay(index + 1)}
-              >
-                {day}
-              </DayTab>
-            ))}
-          </DayTabs>
+            <MapContainer>
+                <Map />
+            </MapContainer>
 
-          <h2>상세 내용</h2>
-          <Content dangerouslySetInnerHTML={{ __html: itineraryDetails.description }} />
-          
-          <h2>댓글</h2>
-          <CommentList /> {/* 댓글 목록 렌더링 */}
-        </ContentContainer>
+            <TabContainer>
+                <DayTabs>
+                    {/* Swiper 컴포넌트를 사용하여 탭을 스와이프 가능하게 만들기 */}
+                    <Swiper
+                    spaceBetween={0} // 슬라이드 간 간격을 0으로 설정하여 탭들이 붙어서 보이게 함
+                    slidesPerView={3} // 한 화면에 3개의 탭을 보여줌
+                    onSlideChange={(swiper) => setActiveTab(swiper.realIndex)} // 슬라이드가 변경될 때 activeTab 업데이트
+                    loop={false} // loop 활성화로 무한 스와이프를 방지
+                    >
+                    {days.map((day, index) => (
+                        <SwiperSlide key={index}>
+                        <DayTab
+                            isSelected={activeTab === index}
+                            onClick={() => handleTabClick(index)}>
+                            {day}
+                        </DayTab>
+                        </SwiperSlide>
+                    ))}
+                    </Swiper>
+                </DayTabs>
+                {/* 콘텐츠 부분 */}
+                <Content>
+                    {`DAY ${activeTab + 1} Content`}
+                </Content>
+            </TabContainer>
+
+            <h2>상세 내용</h2>
+            {/* editorValue 출력 */}
+            <div 
+                dangerouslySetInnerHTML={{ __html: content }}  // HTML 태그가 실제로 렌더링
+            />
+            <h2>댓글</h2>
+            <CommentList /> {/* 댓글 목록 렌더링 */}
+          </ContentContainer>
       </div>
-    );
+  );
 }
