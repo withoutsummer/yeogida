@@ -166,7 +166,7 @@ export default function Sharetrip() {
     const offset = (page - 1) * limit; // 현재 페이지의 시작 index 계산
     const navigate = useNavigate();
     const [isListView, setIsListView] = useState(false);
-    const userName = 'seorin'; // 사용자 이름을 설정
+    const userName = 10; // 사용자 이름을 설정
     const [selectedButton, setSelectedButton] = useState('인기'); // 선택된 버튼을 추적하는 상태
 
     const handleTripClick = (id) => {

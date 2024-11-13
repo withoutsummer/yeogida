@@ -5,7 +5,9 @@ import 'react-quill/dist/quill.snow.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
 import YesNoModal from '../components/YesNoModal';
+import TripDetailPage from './TripDetailPage';
 import Map from '../components/Map'
+import { addPost } from '../mockdata/mytripMockData';
 
 const ButtonContainer = styled.div`
     display: flex;
@@ -123,9 +125,10 @@ const TabContainer = styled.div`
   flex-direction: column;  /* 탭과 콘텐츠를 세로로 배치 */
   border: 1px solid #ddd;
   width: 450px;
-  margin: 20px auto;
+  margin: 20px 0;
   background-color: #EEF5FF;
 `;
+
 const DayTabs = styled.div`
   display: flex;
   border-bottom: 1px solid #E0E0E0;
@@ -157,9 +160,7 @@ const EditorContainer = styled.div`
   display: flex;
   justify-content: space-between;
   max-width: 1400px;
-  margin: 0 auto;
-  margin-top: 20px;
-  margin-bottom: 100px;
+  margin: 20px auto;
   padding: 0 20px;
 `;
 
@@ -179,7 +180,44 @@ export default function Editor({ onChange = () => { } }) {
   const [modalMessage, setModalMessage] = useState(''); // 모달에 표시할 메시지
 
   const [itineraryId, setItineraryId] = useState(0);  // itinerary_id 상태
-  const [userId, setUserId] = useState(null); // 사용자 ID
+  const userId = 'seorin';
+
+  const [markers, setMarkers] = useState({}); // 각 Day에 대한 마커 정보 관리
+  const [places, setPlaces] = useState({}); // 각 Day에 추가된 장소들 관리
+
+  const [editorValue, setEditorValue] = useState(localStorage.getItem('editorValue') || ""); // 로컬스토리지에서 데이터 가져오기
+
+  // 마커 추가 함수
+  const handleAddMarker = (result) => {
+    const newMarker = {
+      title: result.title,
+      address: result.address,
+    };
+
+  // 현재 day에 해당하는 장소 정보 업데이트
+  setPlaces(prevPlaces => {
+    const updatedPlaces = { ...prevPlaces };
+    if (!updatedPlaces[currentDay]) {
+      updatedPlaces[currentDay] = [];
+    }
+    updatedPlaces[currentDay].push(newMarker);
+    return updatedPlaces;
+  });
+
+  // 마커 추가
+  setMarkers(prevMarkers => {
+    const updatedMarkers = { ...prevMarkers };
+    if (!updatedMarkers[currentDay]) {
+      updatedMarkers[currentDay] = [];
+    }
+    updatedMarkers[currentDay].push({
+      lat: result.lat,
+      lng: result.lng,
+      index: markers[currentDay]?.length || 0,
+    });
+    return updatedMarkers;
+  });
+};
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -217,10 +255,9 @@ export default function Editor({ onChange = () => { } }) {
     'align', 'color', 'background',
   ];
 
-  const handleContentChange = (content) => {
-    const newContent = [...value];
-    newContent[currentDay - 1] = content;
-    onChange(newContent);
+  // Quill 에디터의 변경 사항을 처리하는 함수
+  const handleEditorChange = (value) => {
+    setEditorValue(value);
   };
 
   const handleCancelClick = () => {
@@ -231,33 +268,6 @@ export default function Editor({ onChange = () => { } }) {
     setModalOpen(false); // 모달 닫기
   };
 
-  const fetchUserId = async () => {
-        try {
-            const response = await fetch('https://yeogida.net/mypage/account', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-    
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('HTTP 에러 발생:', response.status, errorText);
-                throw new Error(`사용자 정보 조회 실패: ${response.status}, ${errorText}`);
-            }
-    
-            const userData = await response.json();
-            console.log('사용자 정보:', userData);
-            return userData.user_id; // 실제 응답 객체에 따라 user_id를 반환하도록 수정
-        } catch (error) {
-            console.error('네트워크 오류 발생:', error);
-            throw error; // 오류를 호출한 쪽으로 전달
-        }
-  };
-
-  useEffect(() => {
-    fetchUserId();
-  }, []);
 
   // 구현 예정
   const handleEditClick = () => {
@@ -269,68 +279,77 @@ export default function Editor({ onChange = () => { } }) {
     setCurrentDay(index + 1);
   };
 
-  const submitTravelPlan = async (requestData) => {
-      try {
-          const formData = new FormData();
+  // const submitTravelPlan = async (requestData) => {
+  //     try {
+  //         const formData = new FormData();
           
-          // FormData에 텍스트 데이터 추가
-          formData.append('itinerary_id', requestData.itinerary_id);
-          formData.append('user_id', requestData.user_id);
-          formData.append('title', requestData.title);
-          formData.append('startdate', requestData.startdate);
-          formData.append('enddate', requestData.enddate);
-          formData.append('destination', requestData.destination);
-          formData.append('public_private', requestData.public_private);
-          formData.append('likenumber', requestData.likenumber);
-          formData.append('description', requestData.description);
-          formData.append('created_at', requestData.created_at);
-          formData.append('updated_at', requestData.updated_at);
+  //         // FormData에 텍스트 데이터 추가
+  //         formData.append('itinerary_id', requestData.itinerary_id);
+  //         formData.append('user_id', requestData.user_id);
+  //         formData.append('title', requestData.title);
+  //         formData.append('startdate', requestData.startdate);
+  //         formData.append('enddate', requestData.enddate);
+  //         formData.append('destination', requestData.destination);
+  //         formData.append('public_private', requestData.public_private);
+  //         formData.append('likenumber', requestData.likenumber);
+  //         formData.append('description', requestData.description);
+  //         formData.append('created_at', requestData.created_at);
+  //         formData.append('updated_at', requestData.updated_at);
           
-          // FormData에 파일 추가
-          if (requestData.thumbnail) {
-              formData.append('thumbnail', requestData.thumbnail);
-          }
+  //         // FormData에 파일 추가
+  //         if (requestData.thumbnail) {
+  //             formData.append('thumbnail', requestData.thumbnail);
+  //         }
 
-          const response = await fetch('https://yeogida.net/api/itineraries', {
-              method: 'POST',
-              body: formData, // FormData를 전송합니다.
-          });
+  //         const response = await fetch('https://yeogida.net/api/itineraries', {
+  //             method: 'POST',
+  //             body: formData, // FormData를 전송합니다.
+  //         });
 
-          if (!response.ok) {
-              const errorText = await response.text();
-              console.error('HTTP 에러 발생:', response.status, errorText);
-              throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-          }
+  //         if (!response.ok) {
+  //             const errorText = await response.text();
+  //             console.error('HTTP 에러 발생:', response.status, errorText);
+  //             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+  //         }
 
-          const result = await response.json();
-          console.log('여행 일정 등록 성공:', result);
-          navigate('/mytrip'); // 성공 시 나의 여행 페이지로 이동
-      } catch (error) {
-          console.error('네트워크 오류 발생:', error);
-          setModalMessage(`여행 일정 등록에 실패했습니다: ${error.message}`);
-      }
-  };
+  //         const result = await response.json();
+  //         console.log('여행 일정 등록 성공:', result);
+  //         navigate('/mytrip'); // 성공 시 나의 여행 페이지로 이동
+  //     } catch (error) {
+  //         console.error('네트워크 오류 발생:', error);
+  //         setModalMessage(`여행 일정 등록에 실패했습니다: ${error.message}`);
+  //     }
+  // };
 
   const handleSaveClick = async (e) => {
       e.preventDefault();
 
+      // 여행 계획 데이터를 생성
       const requestData = {
-          itinerary_id: itineraryId,
-          user_id: 10,
-          title,
-          startdate: dateRange.split(' ~ ')[0],
-          enddate: dateRange.split(' ~ ')[1],
-          destination: destinationArray.join(', '),
-          public_private: true,
-          thumbnail, // 파일 객체
-          likenumber: 0,
-          description: value[currentDay - 1] || '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          itinerary_id: itineraryId,  // 여행 일정 ID
+          user_id: userId,                 // 사용자 ID를 임시 고정
+          title,                       // 여행 제목
+          startdate: dateRange.split(' ~ ')[0],  // 여행 시작일
+          enddate: dateRange.split(' ~ ')[1],    // 여행 종료일
+          destination: destinationArray.join(', '),  // 여행지 목록
+          public_private: true,        // 공개 여부
+          likenumber: 0,               // 좋아요 수
+          commentnumber: 0,            // 댓글 수
+          thumbnail,                   // 썸네일 이미지
+          description: value[currentDay - 1] || '', // 여행 설명
+          created_at: new Date().toISOString(),    // 생성일
+          updated_at: new Date().toISOString(),    // 수정일
       };
 
-      await submitTravelPlan(requestData);
+      // 'addPost' 함수로 로컬 포스트 배열에 여행 계획 추가
+      addPost(requestData);
+
+      // 여행 일정 ID를 증가시켜서 다음 여행 계획의 ID를 준비
       setItineraryId(prevId => prevId + 1);
+
+      // editorValue를 localStorage에 저장
+      localStorage.setItem('editorValue', editorValue);
+      navigate(`/mytrip/${itineraryId}`, { state: { content: editorValue } }); // 페이지 이동 시 state로 전달
   };
 
   return (
@@ -364,7 +383,7 @@ export default function Editor({ onChange = () => { } }) {
 
       <EditorContainer>
         <MapContainer>
-          <Map />
+          <Map markers={markers[currentDay - 1] || []}/>
         </MapContainer>
 
         <TabContainer>
@@ -389,19 +408,22 @@ export default function Editor({ onChange = () => { } }) {
           </DayTabs>
           {/* 콘텐츠 부분 */}
           <Content>
-            {`DAY ${activeTab + 1} Content`}
+            {/* 해당 날짜에 추가된 장소를 탭에 맞게 표시 */}
+            {places[currentDay] && places[currentDay].map((place, idx) => (
+              <div key={idx}>{place.title} - {place.address}</div>
+            ))}
           </Content>
         </TabContainer>
       </EditorContainer>
 
       {/* Quill 에디터 */}
       <ReactQuill
-          style={{ width: "1400px", height: "600px", margin: "20px auto"}}
+          style={{ width: "1400px", height: "500px", margin: "0 auto 150px"}}
           theme="snow"
           modules={modules}
           formats={formats}
-          value={value[currentDay - 1] || ''}
-          onChange={handleContentChange}
+          value={editorValue}
+          onChange={handleEditorChange}
         />
     </div>
   );

@@ -74,7 +74,6 @@ const CommonModal = ({
             <div
                 style={{
                     fontSize: '16px',
-                    marginTop: '-24px',
                     marginBottom: '50px',
                     textAlign: 'center',
                 }}

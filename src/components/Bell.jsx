@@ -140,11 +140,11 @@ const Bell = () => {
     const [hovered, setHovered] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
-    const [userId, setUserId] = useState(null); // 사용자 ID
+    const [userId, setUserId] = useState(10); // 사용자 ID
     const [friendRequests, setFriendRequests] = useState([]);
     const [friendRequestCount, setFriendRequestCount] = useState(0);
 
-    const fetchUserId = async () => {
+    /*const fetchUserId = async () => {
         try {
             const response = await fetch('https://yeogida.net/mypage/account', {
                 method: 'GET',
@@ -167,6 +167,7 @@ const Bell = () => {
             throw error; // 오류를 호출한 쪽으로 전달
         }
     };    
+    */
 
     const handleBellClick = () => {
         setIsDropdownOpen(!isDropdownOpen); // 드롭다운 열기/닫기 토글
@@ -186,16 +187,25 @@ const Bell = () => {
         };
     }, [hovered, isDropdownOpen]);
 
-    // 특정 사용자의 모든 알림 조회
-    const fetchUserAlarms = async (userId) => {
-        try {
-            const response = await fetch(`https://yeogida.net/alarms/${userId}`);
-            if (!response.ok) throw new Error(`알림 조회 실패: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('API 호출 오류:', error);
-        }
-    };
+    // 가짜 데이터 설정
+    useEffect(() => {
+        // 친구 요청 가짜 데이터
+        setFriendRequests([
+            { id: 1, name: "sieun" },
+            { id: 2, name: "mijin" },
+            { id: 3, name: "seoyoung"}
+        ]);
+        setFriendRequestCount(3);
+
+        // 알림 가짜 데이터
+        setNotifications([
+            { id: 1, friendId: "고시은", message: "제주도 여행" },
+            { id: 2, friendId: "백서영", message: "경주 2박 3일" },
+        ]);
+    }, []);
+
+
+    /*
 
     // 여행 상세 API
     const fetchItineraryDetails = async (itinerary_id) => {
@@ -310,9 +320,11 @@ const Bell = () => {
         }
     };    
 
+    */
+   
     // 특정 알림 삭제
-    const handleReject = async (alarmId) => {
-        try {
+    const handleReject = async (id) => {
+        /*try {
             const response = await fetch(`https://yeogida.net/alarms/${alarmId}`, {
                 method: 'DELETE',
             });
@@ -326,7 +338,11 @@ const Bell = () => {
             }
         } catch (error) {
             console.error('API 호출 오류:', error);
-        }
+        }*/
+
+        setNotifications((prevNotifications) =>
+            prevNotifications.filter((notification) => notification.id !== id)
+        );
     };
 
     return (
@@ -374,7 +390,7 @@ const Bell = () => {
                                     <NotificationText>{notification.friendId}</NotificationText>
                                     <NotificationText>{notification.message}</NotificationText>
                                     <ButtonContainer>
-                                        <NotificationYesButton onClick={() => handleAccept(notification.id)}>수락</NotificationYesButton>
+                                        <NotificationYesButton onClick={() => navigate('/mytrip')}>수락</NotificationYesButton>
                                         <NotificationButton onClick={() => handleReject(notification.id)}>거절</NotificationButton>
                                     </ButtonContainer>
                                 </NotificationItem>

@@ -86,9 +86,10 @@ const ModalButton = styled.button`
 
 export default function Newtrip({ closeModal }) {
     const [sharedOptions, setSharedOptions] = useState([
-        { value: 'user1', label: 'user1' },
-        { value: 'user2', label: 'user2' },
-        { value: 'user3', label: 'user3' }
+        { value: 'none', label: '없음' },
+        { value: 'User1', label: 'User1' },
+        { value: 'User2', label: 'User2' },
+        { value: 'User3', label: 'User3' }
     ]);
 
     const [inputs, setInputs] = useState({
@@ -153,32 +154,32 @@ export default function Newtrip({ closeModal }) {
         });
     }
 
-    useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const response = await fetch('/mypage/friend?status=name', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                });
+    // useEffect(() => {
+    //     const fetchFriends = async () => {
+    //         try {
+    //             const response = await fetch('/mypage/friend?status=name', {
+    //                 method: 'GET',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //             });
                 
-                if (!response.ok) {
-                    console.error('친구 목록 불러오기 실패:', response.status);
-                    return;
-                }
+    //             if (!response.ok) {
+    //                 console.error('친구 목록 불러오기 실패:', response.status);
+    //                 return;
+    //             }
 
-                const friends = await response.json();
-                const options = friends.map(friend => ({
-                    value: friend.name,
-                    label: friend.name, // 표시할 라벨
-                }));
-                setSharedOptions(options);
-            } catch (error) {
-                console.error('네트워크 오류 발생:', error);
-            }
-        };
+    //             const friends = await response.json();
+    //             const options = friends.map(friend => ({
+    //                 value: friend.name,
+    //                 label: friend.name, // 표시할 라벨
+    //             }));
+    //             setSharedOptions(options);
+    //         } catch (error) {
+    //             console.error('네트워크 오류 발생:', error);
+    //         }
+    //     };
 
-        fetchFriends();
-    }, []);   
+    //     fetchFriends();
+    // }, []);   
 
     const handleModalClose = () => {
         setModalOpen(false);
