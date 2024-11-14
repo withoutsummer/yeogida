@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Newtrip from './Newtrip';
-import { getPosts } from '../mockdata/mytripMockData';
 import Tags from '../components/Tags';
 
 // Styled Components 정의
@@ -159,7 +158,7 @@ const EmptyCard = styled.div`
 
 
 export default function Sharetrip() {
-    const [posts, setPosts] = useState(getPosts());
+    const [posts, setPosts] = useState();
     const [activeButton, setActiveButton] = useState('popular');
     const [page, setPage] = useState(1); // 페이지 상태 추가
     const limit = 5; // 한 페이지에 보여줄 데이터 수

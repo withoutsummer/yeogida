@@ -21,7 +21,9 @@ const customStyles = {
     }),
     multiValueLabel: (base) => ({
         ...base,
-        color: '#fff' // 태그 텍스트 색상
+        color: '#fff', // 태그 텍스트 색상
+        fontSize: '16px',    // 태그 텍스트 크기
+        fontfamily: 'NanumGothic'    // 태그 텍스트 폰트
     }),
     multiValueRemove: (base) => ({
         ...base,
@@ -69,6 +71,7 @@ const customStyles = {
         ':active': {
             backgroundColor: '#59ABE6',
             color: '#fff'
+            
         }
     })
 };
