@@ -159,7 +159,7 @@ const EditorContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   margin-top: 20px;
-  margin-bottom: 100px;
+  margin-bottom: 20px;
   padding: 0 20px;
 `;
 
@@ -316,7 +316,7 @@ export default function Editor({ onChange = () => { } }) {
 
       const requestData = {
           itinerary_id: itineraryId,
-          user_id: 10,
+          user_id: userId,
           title,
           startdate: dateRange.split(' ~ ')[0],
           enddate: dateRange.split(' ~ ')[1],
@@ -396,7 +396,7 @@ export default function Editor({ onChange = () => { } }) {
 
       {/* Quill 에디터 */}
       <ReactQuill
-          style={{ width: "1400px", height: "600px", margin: "20px auto"}}
+          style={{ width: "1400px", height: "500px", margin: "0 auto 150px"}}
           theme="snow"
           modules={modules}
           formats={formats}

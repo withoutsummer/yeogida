@@ -75,9 +75,14 @@ export default function Login() {
                 console.log('입력된 비밀번호:', password);
 
                 // API 요청 및 응답 처리
-                const { response, status } = await loginUser(userId, password);
+                const { response, status, responseData } = await loginUser(
+                    userId,
+                    password
+                );
 
                 if (response) {
+                    // 로그인 성공
+                    localStorage.setItem('token', responseData.token);
                     navigate('/');
                 } else if (status === 401) {
                     // 인증 실패

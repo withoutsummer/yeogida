@@ -6,7 +6,7 @@ const TagInputContainer = styled.div`
     flex-direction: column;
     width: 100%;
     max-width: 300px;
-    margin-left:10px;
+    margin-left: 10px;
 `;
 
 const Tags = styled.div`
@@ -66,10 +66,10 @@ export default function TagInput({ tags, setTags }) {
     };
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && inputValue.trim()) {
+        if (e.key === 'Enter') {
             e.preventDefault();
             const trimmedValue = inputValue.trim();
-            if (!tags.includes(trimmedValue)) {
+            if (trimmedValue && !tags.includes(trimmedValue)) {
                 setTags([...tags, trimmedValue]);
                 setInputValue('');
             }

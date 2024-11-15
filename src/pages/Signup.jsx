@@ -217,8 +217,7 @@ function SignUp() {
     };
 
     // 이메일 체크 및 인증번호 요청 함수
-    const handleEmailCheck = async (event) => {
-        event.preventDefault();
+    const handleEmailCheck = async () => {
         const emailValue = watch('email');
         const nameValue = watch('userName');
         const isEmailValid = await trigger('email');
@@ -240,9 +239,6 @@ function SignUp() {
                 setIsEmailDisabled(true);
                 setTimer(180);
                 setIsTimerRunning(true);
-                setModalMessage(
-                    '인증번호를 발송했습니다. 이메일을 확인해주세요.'
-                );
                 setShowCertificationInput(true);
             }
         } catch (error) {
@@ -277,21 +273,13 @@ function SignUp() {
         setIsEmailDisabled(false);
     }, [watch('email')]);
 
-    const handleCertificationCheck = async (event, certificationNum) => {
-        event.preventDefault(); // 기본 제출 방지
-
+    const handleCertificationCheck = async (certificationNum) => {
         try {
             const response = await verifyCertificationCode(
                 watch('email'),
                 certificationNum
             );
-
-            // 200번 상태 코드 확인 후 성공 메시지 설정
-            if (response.status === 200) {
-                setModalMessage('인증에 성공하였습니다.');
-            } else {
-                setModalMessage(response.message); // 200이 아닐 때의 기본 메시지
-            }
+            setModalMessage(response.message);
             setIsModalOpen(true);
         } catch (error) {
             setModalMessage('인증에 실패했습니다. 다시 시도해주세요.');
@@ -497,7 +485,7 @@ function SignUp() {
                     {...register('phone', {
                         required: '숫자만 입력해주세요.',
                         pattern: {
-                            value: /^01(?:0|1|[6-9])-(?:\d{3}|\d{4})-\d{4}$/,
+                            value: /^01(?:0|1|[6-9])(?:\d{3}|\d{4})\d{4}$/,
                             message: '010-1234-5678 형식으로 입력해주세요.',
                         },
                     })}
@@ -506,28 +494,7 @@ function SignUp() {
                         e.target.value = e.target.value.replace(/[^0-9]/g, '');
                     }}
                     onChange={(e) => {
-                        // 입력값을 포맷에 맞게 변환
-                        const rawValue = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
-                        let formattedValue = rawValue;
-
-                        if (rawValue.length > 3 && rawValue.length <= 7) {
-                            formattedValue = `${rawValue.slice(
-                                0,
-                                3
-                            )}-${rawValue.slice(3)}`;
-                        } else if (rawValue.length > 7) {
-                            formattedValue = `${rawValue.slice(
-                                0,
-                                3
-                            )}-${rawValue.slice(3, 7)}-${rawValue.slice(
-                                7,
-                                11
-                            )}`;
-                        }
-
-                        e.target.value = formattedValue;
-
-                        // 유효성 검사 트리거
+                        // 값 변경 시 유효성 검사 트리거하지 않도록 수정
                         register('phone').onChange(e);
                         trigger('phone');
                     }}

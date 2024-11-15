@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Newtrip from './Newtrip';
-import { getPosts } from '../mockdata/mytripMockData';
 import Tags from '../components/Tags';
 
 // Styled Components 정의
@@ -159,14 +158,14 @@ const EmptyCard = styled.div`
 
 
 export default function Sharetrip() {
-    const [posts, setPosts] = useState(getPosts());
+    const [posts, setPosts] = useState();
     const [activeButton, setActiveButton] = useState('popular');
     const [page, setPage] = useState(1); // 페이지 상태 추가
     const limit = 5; // 한 페이지에 보여줄 데이터 수
     const offset = (page - 1) * limit; // 현재 페이지의 시작 index 계산
     const navigate = useNavigate();
     const [isListView, setIsListView] = useState(false);
-    const userName = 'seorin'; // 사용자 이름을 설정
+    const userName = 10; // 사용자 이름을 설정
     const [selectedButton, setSelectedButton] = useState('인기'); // 선택된 버튼을 추적하는 상태
 
     const handleTripClick = (id) => {

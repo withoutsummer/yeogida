@@ -129,6 +129,7 @@ function Map() {
   const { currentMyLocation } = useGeolocation();
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [markers, setMarkers] = useState([]); // 마커 상태 추가
 
   useEffect(() => {
     if (currentMyLocation.lat !== 0 && currentMyLocation.lng !== 0) {
@@ -150,46 +151,14 @@ function Map() {
     }
   }, [currentMyLocation]);
 
-  const handleSearch = async () => {
-    if (!searchQuery) return; // 검색어가 없으면 함수 종료
-
-    try {
-        console.log('장소 검색 요청 시작'); // 요청 시작 로그
-        console.log(`검색어: ${searchQuery}`); // 검색어 확인
-
-        const response = await fetch(`https://yeogida.net/api/places/search?query=${encodeURIComponent(searchQuery)}`);
-        
-        if (response.status === 404) {
-            console.error('검색 결과가 없습니다.');
-            setSearchResults([]); // 빈 결과를 표시
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error('네트워크 응답이 실패했습니다.');
-        }
-
-        const data = await response.json();
-        console.log('검색된 장소 결과:', data);
-
-        setSearchResults((data || []).map((item) => ({
-            title: item.title,
-            address: item.roadAddress,
-            lat: item.mapx,
-            lng: item.mapy,
-        })));
-
-        console.log('장소 검색 완료');
-    } catch (error) {
-        console.error('장소 검색 중 오류 발생:', error); // 오류 발생 로그
-    }
-  };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch(); // Enter 키 입력 시 검색 실행
-        }
-    };
+  // 예시 데이터 (부산 지역의 일부 장소)
+  const exampleSearchResults = [
+    { title: '부산 타워', address: '부산광역시 중구', lat: 35.1543, lng: 129.0603 },
+    { title: '부산 광안리 해수욕장', address: '부산광역시 수영구', lat: 35.1595, lng: 129.1395 },
+    { title: '부산 해운대', address: '부산광역시 해운대구', lat: 35.1587, lng: 129.1605 },
+    { title: '부산 자갈치 시장', address: '부산광역시 중구', lat: 35.0951, lng: 129.0301 },
+    { title: '부산 국제시장', address: '부산광역시 중구', lat: 35.0997, lng: 129.0312 },
+  ];
 
   const createCustomMarker = (index) => {
     return `
@@ -202,21 +171,92 @@ function Map() {
       </svg>
     `;
   };
-  
-  // 마커를 추가할 때
-  const addMarker = (lat, lng, index) => {
-    const markerContent = createCustomMarker(index);
-    
-    new naver.maps.Marker({
-      position: new naver.maps.LatLng(lat, lng),
-      map: mapRef.current,
-      icon: {
-        content: markerContent,
-        anchor: new naver.maps.Point(16, 40),
-      },
-    });
+
+  const handleAddMarker = (result) => {
+    const newMarker = {
+      ...result,
+      index: markers.length + 1, // 마커 번호는 현재 상태의 길이에 따라 순차적으로 증가
+    };
+    setMarkers([...markers, newMarker]); // 새로운 마커 상태에 추가
   };
-  
+
+  useEffect(() => {
+    // 지도에 마커 추가
+    if (mapRef.current) {
+      markers.forEach((marker) => {
+        const position = new naver.maps.LatLng(marker.lat, marker.lng);
+        new naver.maps.Marker({
+          position,
+          map: mapRef.current,
+          icon: {
+            content: createCustomMarker(marker.index),
+            size: new naver.maps.Size(32, 42),
+            anchor: new naver.maps.Point(16, 42),
+          },
+        });
+      });
+    }
+  }, [markers]);
+
+  const handleSearch = async () => {
+    if (!searchQuery) return;
+
+    // 예시 검색 로직
+    const filteredResults = exampleSearchResults.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    setSearchResults(filteredResults);
+
+    // 검색어에 '부산'이 포함되면, 부산의 중심으로 지도를 이동
+  if (searchQuery.toLowerCase().includes("부산") && mapRef.current) {
+    const busanLatLng = new naver.maps.LatLng(35.1796, 129.0756); // 부산의 위도와 경도
+    mapRef.current.setCenter(busanLatLng);
+    mapRef.current.setZoom(13); // 확대 수준 조정
+  }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // const handleSearch = async () => {
+  //   if (!searchQuery) return; // 검색어가 없으면 함수 종료
+
+  //   try {
+  //       console.log('장소 검색 요청 시작'); // 요청 시작 로그
+  //       console.log(`검색어: ${searchQuery}`); // 검색어 확인
+
+  //       const response = await fetch(`https://yeogida.net/api/places/search?query=${encodeURIComponent(searchQuery)}`);
+        
+  //       if (response.status === 404) {
+  //           console.error('검색 결과가 없습니다.');
+  //           setSearchResults([]); // 빈 결과를 표시
+  //           return;
+  //       }
+
+  //       if (!response.ok) {
+  //           throw new Error('네트워크 응답이 실패했습니다.');
+  //       }
+
+  //       const data = await response.json();
+  //       console.log('검색된 장소 결과:', data);
+
+  //       setSearchResults((data || []).map((item) => ({
+  //           title: item.title,
+  //           address: item.roadAddress,
+  //           lat: item.mapx,
+  //           lng: item.mapy,
+  //       })));
+
+  //       console.log('장소 검색 완료');
+  //   } catch (error) {
+  //       console.error('장소 검색 중 오류 발생:', error); // 오류 발생 로그
+  //   }
+  // };
+    
   return (
     <>
       <SearchContainer>
@@ -234,12 +274,12 @@ function Map() {
         {searchResults.length > 0 ? (
             <SearchResults>
               {searchResults.map((result, index) => (
-                <SearchResultItem key={index} onClick={() => addMarker(result.lat, result.lng, index + 1)}>
+                <SearchResultItem key={index} onClick={() => handleAddMarker(result)}>
                   <div className="text-container">
                     <span className="title">{result.title}</span>
                     <span className="address">{result.address}</span>
                   </div>
-                  <button className="add-button" onClick={() => addMarker(result.lat, result.lng, index + 1)}>
+                  <button className="add-button" onClick={() => handleAddMarker(result)}>
                     + 추가
                   </button>
                 </SearchResultItem>
