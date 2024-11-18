@@ -16,24 +16,19 @@ export const loginUser = async (userId, password) => {
         console.log('응답 상태 코드:', response.status);
         console.log('응답 헤더:', response.headers);
 
+        // 응답이 JSON인지 확인하고 처리
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             const responseData = await response.json();
-            if (response.ok) {
-                localStorage.setItem('token', responseData.token); // 로그인 후 토큰 저장
-                return {
-                    response: true,
-                    status: response.status,
-                    responseData,
-                };
-            }
             return {
-                response: false,
+                response: response.ok,
                 status: response.status,
-                error: responseData.message,
+                responseData,
             };
+        } else {
+            console.error('응답이 JSON 형식이 아닙니다:', contentType);
+            throw new Error('서버의 응답 형식이 올바르지 않습니다.');
         }
-        throw new Error('서버의 응답 형식이 올바르지 않습니다.');
     } catch (error) {
         console.error('로그인 요청 실패:', error);
         throw new Error('서버와의 연결에 문제가 발생했습니다.');
