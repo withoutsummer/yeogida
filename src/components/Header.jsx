@@ -140,18 +140,29 @@ export default function Header() {
     };
 
     // 초기 로그인 상태 확인
-
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        console.log('토큰 확인:', token);
-        if (token && isTokenValid(token)) {
-            console.log('토큰 유효함. 로그인 상태로 전환.');
-            setIsLoggedIn(true); // 로그인 상태로 전환
-        } else {
-            console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
-            setIsLoggedIn(false); // 로그아웃 상태
-            localStorage.removeItem('token'); // 만료된 토큰 제거
-        }
+        const checkLoginStatus = () => {
+            const token = localStorage.getItem('token');
+            console.log('토큰 확인:', token);
+            if (token && isTokenValid(token)) {
+                console.log('토큰 유효함. 로그인 상태로 전환.');
+                setIsLoggedIn(true);
+            } else {
+                console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
+                setIsLoggedIn(false);
+                localStorage.removeItem('token'); // 만료된 토큰 제거
+            }
+        };
+
+        // 로그인 상태 확인
+        checkLoginStatus();
+
+        // 로컬 스토리지 변경 감지
+        window.addEventListener('storage', checkLoginStatus);
+
+        return () => {
+            window.removeEventListener('storage', checkLoginStatus);
+        };
     }, []);
 
     // 로그아웃 확인 모달 열기
@@ -173,6 +184,7 @@ export default function Header() {
             } else {
                 console.error('로그아웃 실패:', result.error);
                 setModalMessage('로그아웃 실패: 서버 오류가 발생했습니다.');
+                setModalType(1);
                 setIsModalOpen(true); // 오류 메시지 모달 열기
             }
         } catch (error) {
