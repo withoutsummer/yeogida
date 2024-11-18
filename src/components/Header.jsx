@@ -127,10 +127,10 @@ export default function Header() {
     const [navigateTo, setNavigateTo] = useState('');
     const [modalType, setModalType] = useState(1); // 기본 모달 타입 설정
 
-    // 토큰이 유효한지 확인하는 함수
+    // 토큰 유효성 확인
     const isTokenValid = (token) => {
         try {
-            const payload = JSON.parse(atob(token.split('.')[1])); // JWT payload 디코딩
+            const payload = JSON.parse(atob(token.split('.')[1])); // JWT 디코딩
             const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
             return Date.now() < exp; // 현재 시간과 비교
         } catch (error) {
@@ -139,15 +139,18 @@ export default function Header() {
         }
     };
 
-    // 로그인 여부를 토큰으로 확인
+    // 초기 로그인 상태 확인
+
     useEffect(() => {
         const token = localStorage.getItem('token');
-
+        console.log('토큰 확인:', token);
         if (token && isTokenValid(token)) {
-            setIsLoggedIn(true);
+            console.log('토큰 유효함. 로그인 상태로 전환.');
+            setIsLoggedIn(true); // 로그인 상태로 전환
         } else {
-            setIsLoggedIn(false);
-            localStorage.removeItem('token'); // 만료된 토큰 삭제
+            console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
+            setIsLoggedIn(false); // 로그아웃 상태
+            localStorage.removeItem('token'); // 만료된 토큰 제거
         }
     }, []);
 
@@ -158,25 +161,28 @@ export default function Header() {
         setIsModalOpen(true);
     };
 
-    // 로그아웃 확인 후 실행되는 함수
+    // 로그아웃 로직
     const confirmLogout = async () => {
         try {
-            const { status } = await logoutUser();
-            if (status === 200) {
-                console.log('로그아웃 성공: 사용자 세션이 삭제되었습니다.');
-                localStorage.removeItem('token');
-                setIsLoggedIn(false);
-                navigate('/'); // 로그아웃 성공 시 메인 페이지로 리다이렉트
+            const result = await logoutUser(); // API 호출
+            if (result.status === 200) {
+                console.log('로그아웃 성공');
+                localStorage.removeItem('token'); // 로컬스토리지에서 토큰 삭제
+                setIsLoggedIn(false); // 상태 업데이트
+                navigate('/'); // 메인 페이지로 리다이렉트
             } else {
-                openModal('로그아웃 실패: 서버 오류가 발생했습니다.');
+                console.error('로그아웃 실패:', result.error);
+                setModalMessage('로그아웃 실패: 서버 오류가 발생했습니다.');
+                setIsModalOpen(true); // 오류 메시지 모달 열기
             }
         } catch (error) {
-            console.error('로그아웃 중 서버 오류가 발생했습니다:', error);
-            openModal('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            console.error('로그아웃 중 오류 발생:', error);
+            setModalMessage('서버 오류가 발생했습니다. 다시 시도해 주세요.');
+            setIsModalOpen(true); // 오류 메시지 모달 열기
         }
     };
 
-    // 모달
+    //모달
     const openModal = (message, navigateToPage = '') => {
         setModalMessage(message);
         setNavigateTo(navigateToPage);
@@ -185,6 +191,18 @@ export default function Header() {
     };
 
     const closeModal = () => setIsModalOpen(false);
+
+    const handleProtectedNavigation = (path) => {
+        console.log('로그인 상태:', isLoggedIn, '이동 경로:', path);
+        if (isLoggedIn) {
+            navigate(path);
+        } else {
+            setModalMessage('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            setModalType(1);
+            setNavigateTo('/login'); // 로그인 페이지로 리다이렉트
+            setIsModalOpen(true); // 모달 열기
+        }
+    };
 
     useEffect(() => {
         let timeout;
@@ -215,16 +233,9 @@ export default function Header() {
                         <Nav>
                             <ul>
                                 <li
-                                    onClick={() => {
-                                        if (isLoggedIn) {
-                                            navigate('/mytrip');
-                                        } else {
-                                            openModal(
-                                                '로그인이 필요합니다.',
-                                                '/login'
-                                            );
-                                        }
-                                    }}
+                                    onClick={() =>
+                                        handleProtectedNavigation('/mytrip')
+                                    }
                                 >
                                     나의여행
                                 </li>
@@ -247,50 +258,29 @@ export default function Header() {
                                         {viewDropdown && (
                                             <StyledDropdown>
                                                 <DropdownMenu
-                                                    onClick={() => {
-                                                        if (isLoggedIn) {
-                                                            navigate(
-                                                                '/mytrip/userinfo'
-                                                            );
-                                                        } else {
-                                                            openModal(
-                                                                '로그인이 필요합니다.',
-                                                                '/login'
-                                                            );
-                                                        }
-                                                    }}
+                                                    onClick={() =>
+                                                        handleProtectedNavigation(
+                                                            '/mytrip/userinfo'
+                                                        )
+                                                    }
                                                 >
                                                     회원정보 관리
                                                 </DropdownMenu>
                                                 <DropdownMenu
-                                                    onClick={() => {
-                                                        if (isLoggedIn) {
-                                                            navigate(
-                                                                '/mytrip/friend'
-                                                            );
-                                                        } else {
-                                                            openModal(
-                                                                '로그인이 필요합니다.',
-                                                                '/login'
-                                                            );
-                                                        }
-                                                    }}
+                                                    onClick={() =>
+                                                        handleProtectedNavigation(
+                                                            '/mytrip/friend'
+                                                        )
+                                                    }
                                                 >
                                                     친구목록
                                                 </DropdownMenu>
                                                 <DropdownMenu
-                                                    onClick={() => {
-                                                        if (isLoggedIn) {
-                                                            navigate(
-                                                                '/mytrip/scrap'
-                                                            );
-                                                        } else {
-                                                            openModal(
-                                                                '로그인이 필요합니다.',
-                                                                '/login'
-                                                            );
-                                                        }
-                                                    }}
+                                                    onClick={() =>
+                                                        handleProtectedNavigation(
+                                                            '/mytrip/scrap'
+                                                        )
+                                                    }
                                                 >
                                                     스크랩
                                                 </DropdownMenu>
@@ -336,8 +326,8 @@ export default function Header() {
                         isOpen={isModalOpen}
                         onRequestClose={closeModal}
                         title={modalMessage}
-                        navigateTo={navigateTo}
-                        type={modalType}
+                        type={modalType} // 모달 타입 설정
+                        onConfirm={confirmLogout} // 확인 시 로그아웃 함수 실행
                     />
                 </HeaderContainer>
             </HeaderStyle>
