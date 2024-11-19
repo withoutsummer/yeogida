@@ -5,6 +5,7 @@ import logo from '../assets/yeogida_logo.png';
 import Bell from '../components/Bell';
 import Button from '../components/Btn';
 import CommonModal from '../components/CommonModal';
+import { useAuth } from '../context/AuthContext'; // AuthContext 사용
 import { logoutUser } from '../api/Logout/LogoutApi';
 
 const HeaderStyle = styled.div`
@@ -119,51 +120,52 @@ export const Nav = styled.nav`
 
 export default function Header() {
     const navigate = useNavigate();
+    const { isLoggedIn, logout } = useAuth();
     const [viewDropdown, setViewDropdown] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
     const [modalType, setModalType] = useState(1); // 기본 모달 타입 설정
 
     // 토큰 유효성 확인
-    const isTokenValid = (token) => {
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1])); // JWT 디코딩
-            const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
-            return Date.now() < exp; // 현재 시간과 비교
-        } catch (error) {
-            console.error('토큰 파싱 중 오류 발생:', error);
-            return false;
-        }
-    };
+    // const isTokenValid = (token) => {
+    //     try {
+    //         const payload = JSON.parse(atob(token.split('.')[1])); // JWT 디코딩
+    //         const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
+    //         return Date.now() < exp; // 현재 시간과 비교
+    //     } catch (error) {
+    //         console.error('토큰 파싱 중 오류 발생:', error);
+    //         return false;
+    //     }
+    // };
 
     // 초기 로그인 상태 확인
-    useEffect(() => {
-        const checkLoginStatus = () => {
-            const token = localStorage.getItem('token');
-            console.log('토큰 확인:', token);
-            if (token && isTokenValid(token)) {
-                console.log('토큰 유효함. 로그인 상태로 전환.');
-                setIsLoggedIn(true);
-            } else {
-                console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
-                setIsLoggedIn(false);
-                localStorage.removeItem('token'); // 만료된 토큰 제거
-            }
-        };
+    // useEffect(() => {
+    //     const checkLoginStatus = () => {
+    //         const token = localStorage.getItem('token');
+    //         console.log('토큰 확인:', token);
+    //         if (token && isTokenValid(token)) {
+    //             console.log('토큰 유효함. 로그인 상태로 전환.');
+    //             setIsLoggedIn(true);
+    //         } else {
+    //             console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
+    //             setIsLoggedIn(false);
+    //             localStorage.removeItem('token'); // 만료된 토큰 제거
+    //         }
+    //     };
 
-        // 로그인 상태 확인
-        checkLoginStatus();
+    //     // 로그인 상태 확인
+    //     checkLoginStatus();
 
-        // 로컬 스토리지 변경 감지
-        window.addEventListener('storage', checkLoginStatus);
+    //     // 로컬 스토리지 변경 감지
+    //     window.addEventListener('storage', checkLoginStatus);
 
-        return () => {
-            window.removeEventListener('storage', checkLoginStatus);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('storage', checkLoginStatus);
+    //     };
+    // }, []);
 
     // 로그아웃 확인 모달 열기
     const handleLogout = () => {
@@ -178,8 +180,7 @@ export default function Header() {
             const result = await logoutUser(); // API 호출
             if (result.status === 200) {
                 console.log('로그아웃 성공');
-                localStorage.removeItem('token'); // 로컬스토리지에서 토큰 삭제
-                setIsLoggedIn(false); // 상태 업데이트
+                logout(); // AuthContext의 logout 함수 호출
                 navigate('/'); // 메인 페이지로 리다이렉트
             } else {
                 console.error('로그아웃 실패:', result.error);
@@ -195,14 +196,20 @@ export default function Header() {
     };
 
     //모달
-    const openModal = (message, navigateToPage = '') => {
-        setModalMessage(message);
-        setNavigateTo(navigateToPage);
-        setModalType(1); // 일반 메시지 모달
-        setIsModalOpen(true);
-    };
-
     const closeModal = () => setIsModalOpen(false);
+
+    const handleModalConfirm = () => {
+        if (modalType === 1 && navigateTo) {
+            // 타입 1: 페이지 전환
+            closeModal();
+            navigate(navigateTo); // 페이지 전환
+        } else if (modalType === 2) {
+            // 타입 2: 로그아웃
+            confirmLogout();
+        } else {
+            console.warn('정의되지 않은 modalType입니다:', modalType);
+        }
+    };
 
     const handleProtectedNavigation = (path) => {
         console.log('로그인 상태:', isLoggedIn, '이동 경로:', path);
@@ -339,7 +346,7 @@ export default function Header() {
                         onRequestClose={closeModal}
                         title={modalMessage}
                         type={modalType} // 모달 타입 설정
-                        onConfirm={confirmLogout} // 확인 시 로그아웃 함수 실행
+                        onConfirm={handleModalConfirm} // modalType에 따라 동작} // 확인 시 로그아웃 함수 실행
                     />
                 </HeaderContainer>
             </HeaderStyle>
