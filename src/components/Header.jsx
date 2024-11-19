@@ -121,51 +121,10 @@ export const Nav = styled.nav`
 export default function Header() {
     const navigate = useNavigate();
     const { isLoggedIn, logout } = useAuth();
-    const [viewDropdown, setViewDropdown] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    // const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [navigateTo, setNavigateTo] = useState('');
     const [modalType, setModalType] = useState(1); // 기본 모달 타입 설정
-
-    // 토큰 유효성 확인
-    // const isTokenValid = (token) => {
-    //     try {
-    //         const payload = JSON.parse(atob(token.split('.')[1])); // JWT 디코딩
-    //         const exp = payload.exp * 1000; // 만료 시간 (ms 단위)
-    //         return Date.now() < exp; // 현재 시간과 비교
-    //     } catch (error) {
-    //         console.error('토큰 파싱 중 오류 발생:', error);
-    //         return false;
-    //     }
-    // };
-
-    // 초기 로그인 상태 확인
-    // useEffect(() => {
-    //     const checkLoginStatus = () => {
-    //         const token = localStorage.getItem('token');
-    //         console.log('토큰 확인:', token);
-    //         if (token && isTokenValid(token)) {
-    //             console.log('토큰 유효함. 로그인 상태로 전환.');
-    //             setIsLoggedIn(true);
-    //         } else {
-    //             console.log('토큰 없음 또는 만료. 로그아웃 상태로 전환.');
-    //             setIsLoggedIn(false);
-    //             localStorage.removeItem('token'); // 만료된 토큰 제거
-    //         }
-    //     };
-
-    //     // 로그인 상태 확인
-    //     checkLoginStatus();
-
-    //     // 로컬 스토리지 변경 감지
-    //     window.addEventListener('storage', checkLoginStatus);
-
-    //     return () => {
-    //         window.removeEventListener('storage', checkLoginStatus);
-    //     };
-    // }, []);
 
     // 로그아웃 확인 모달 열기
     const handleLogout = () => {
@@ -177,25 +136,17 @@ export default function Header() {
     // 로그아웃 로직
     const confirmLogout = async () => {
         try {
-            const result = await logoutUser(); // API 호출
-            if (result.status === 200) {
-                console.log('로그아웃 성공');
-                logout(); // AuthContext의 logout 함수 호출
-                navigate('/'); // 메인 페이지로 리다이렉트
-            } else {
-                console.error('로그아웃 실패:', result.error);
-                setModalMessage('로그아웃 실패: 서버 오류가 발생했습니다.');
-                setModalType(1);
-                setIsModalOpen(true); // 오류 메시지 모달 열기
-            }
+            await logout(); // AuthContext의 logout 호출 (서버 로그아웃 포함)
+            navigate('/'); // 메인 페이지로 리다이렉트
         } catch (error) {
             console.error('로그아웃 중 오류 발생:', error);
             setModalMessage('서버 오류가 발생했습니다. 다시 시도해 주세요.');
+            setModalType(1);
             setIsModalOpen(true); // 오류 메시지 모달 열기
         }
     };
 
-    //모달
+    // 모달
     const closeModal = () => setIsModalOpen(false);
 
     const handleModalConfirm = () => {
@@ -211,32 +162,6 @@ export default function Header() {
         }
     };
 
-    const handleProtectedNavigation = (path) => {
-        console.log('로그인 상태:', isLoggedIn, '이동 경로:', path);
-        if (isLoggedIn) {
-            navigate(path);
-        } else {
-            setModalMessage('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-            setModalType(1);
-            setNavigateTo('/login'); // 로그인 페이지로 리다이렉트
-            setIsModalOpen(true); // 모달 열기
-        }
-    };
-
-    useEffect(() => {
-        let timeout;
-        if (!isHovered && viewDropdown) {
-            timeout = setTimeout(() => setViewDropdown(false), 300);
-        } else if (isHovered) {
-            setViewDropdown(true);
-            if (timeout) clearTimeout(timeout);
-        }
-
-        return () => {
-            if (timeout) clearTimeout(timeout);
-        };
-    }, [isHovered, viewDropdown]);
-
     return (
         <header>
             <HeaderStyle>
@@ -251,11 +176,7 @@ export default function Header() {
                     <NavBox>
                         <Nav>
                             <ul>
-                                <li
-                                    onClick={() =>
-                                        handleProtectedNavigation('/mytrip')
-                                    }
-                                >
+                                <li onClick={() => navigate('/mytrip')}>
                                     나의여행
                                 </li>
                                 <li
@@ -265,57 +186,13 @@ export default function Header() {
                                 >
                                     여행공유
                                 </li>
-                                <li>
-                                    {/* 원래 navigate('/login') 인데 당분간 로그인 체크 안하니까 바로 마이페이지로 넘어가도록 임시 수정함 */}
-                                    <MyPageContainer
-                                        tabIndex={-1}
-                                        onMouseEnter={() => setIsHovered(true)}
-                                        onMouseLeave={() => setIsHovered(false)}
-                                    >
-                                        마이페이지
-                                        {/* <FaChevronDown style={{ marginLeft: '5px' }} /> */}
-                                        {viewDropdown && (
-                                            <StyledDropdown>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        handleProtectedNavigation(
-                                                            '/mytrip/userinfo'
-                                                        )
-                                                    }
-                                                >
-                                                    회원정보 관리
-                                                </DropdownMenu>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        handleProtectedNavigation(
-                                                            '/mytrip/friend'
-                                                        )
-                                                    }
-                                                >
-                                                    친구목록
-                                                </DropdownMenu>
-                                                <DropdownMenu
-                                                    onClick={() =>
-                                                        handleProtectedNavigation(
-                                                            '/mytrip/scrap'
-                                                        )
-                                                    }
-                                                >
-                                                    스크랩
-                                                </DropdownMenu>
-                                            </StyledDropdown>
-                                        )}
-                                    </MyPageContainer>
-                                </li>
                             </ul>
                         </Nav>
                     </NavBox>
-                    <Bell />
-                    {/* Other Navigation Elements */}
                     <Btnstyle>
                         {isLoggedIn ? (
                             <Button
-                                onClick={handleLogout} // 로그아웃 버튼
+                                onClick={handleLogout}
                                 width="110px"
                                 height="50px"
                                 borderColor="#59abe6"
@@ -328,7 +205,7 @@ export default function Header() {
                             />
                         ) : (
                             <Button
-                                onClick={() => navigate('/login')} // 로그인 버튼
+                                onClick={() => navigate('/login')}
                                 width="110px"
                                 height="50px"
                                 borderColor="#59abe6"
@@ -345,8 +222,8 @@ export default function Header() {
                         isOpen={isModalOpen}
                         onRequestClose={closeModal}
                         title={modalMessage}
-                        type={modalType} // 모달 타입 설정
-                        onConfirm={handleModalConfirm} // modalType에 따라 동작} // 확인 시 로그아웃 함수 실행
+                        type={modalType}
+                        onConfirm={handleModalConfirm}
                     />
                 </HeaderContainer>
             </HeaderStyle>
