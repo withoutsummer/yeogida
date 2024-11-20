@@ -218,11 +218,12 @@ function SignUp() {
     };
 
     // 이메일 체크 및 인증번호 요청 함수
-    const handleEmailCheck = async () => {
-        const emailValue = getValues('email'); // getValues로 동기적으로 값 가져오기
-        const nameValue = getValues('userName');
 
-        // 유효성 검사를 비동기로 처리 후 결과를 기다림
+    const handleEmailCheck = async () => {
+        const emailValue = getValues('email'); // 이메일 가져오기
+        const nameValue = getValues('userName'); // 이름 가져오기
+
+        // 이메일과 이름 필드의 유효성 검사만 실행
         const isEmailValid = await trigger('email');
         const isNameValid = await trigger('userName');
 
@@ -242,15 +243,12 @@ function SignUp() {
                 setModalMessage(
                     '이메일로 인증번호를 전송했습니다. 이메일을 확인해주세요.'
                 );
-                setIsEmailDisabled(true);
-                setTimer(180);
-                setIsTimerRunning(true);
-                setShowCertificationInput(true);
+                setIsEmailDisabled(true); // 이메일 필드 비활성화
+                setTimer(180); // 타이머 초기화
+                setIsTimerRunning(true); // 타이머 시작
+                setShowCertificationInput(true); // 인증번호 필드 표시
             } else if (response.status === 409) {
                 setModalMessage('기존에 회원가입한 이메일입니다.');
-                setIsEmailDisabled(false);
-                setShowCertificationInput(false);
-                setIsTimerRunning(false);
             }
         } catch (error) {
             setModalMessage(
@@ -261,28 +259,6 @@ function SignUp() {
             setIsCheckingEmail(false);
         }
     };
-
-    // 타이머가 작동하는 동안 매초마다 시간을 감소시키는 useEffect
-    useEffect(() => {
-        if (isTimerRunning && timer > 0) {
-            const interval = setInterval(() => {
-                setTimer((prevTime) => prevTime - 1);
-            }, 1000);
-
-            return () => clearInterval(interval);
-        } else if (timer === 0) {
-            setIsTimerRunning(false);
-            setIsEmailDisabled(false); // 타이머 종료 시 버튼 활성화
-        }
-    }, [timer, isTimerRunning]);
-
-    useEffect(() => {
-        // 이메일 변경될 때 타이머와 버튼 상태 초기화
-        setTimer(180);
-        setIsTimerRunning(false);
-        setShowCertificationInput(false);
-        setIsEmailDisabled(false);
-    }, [watch('email')]);
 
     const handleCertificationCheck = async () => {
         const emailValue = getValues('email'); // 이메일 가져오기
@@ -295,13 +271,10 @@ function SignUp() {
         }
 
         try {
-            // API 요청 전 값 확인
             console.log('인증번호 확인 요청 데이터:', {
                 email: emailValue,
                 code: certificationCode,
             });
-
-            // API 호출
             const response = await verifyCertificationCode(
                 emailValue,
                 certificationCode
@@ -309,6 +282,9 @@ function SignUp() {
 
             if (response.status === 200 && response.responseData?.success) {
                 setModalMessage('인증 성공 하였습니다.');
+                setIsCertified(true); // 인증 성공 상태 업데이트
+                setIsTimerRunning(false); // 타이머 중지
+                setShowCertificationInput(false); // 인증번호 입력 필드 숨김
             } else {
                 setModalMessage(
                     response.responseData?.message ||
@@ -323,7 +299,30 @@ function SignUp() {
         }
     };
 
-    // 회원가입 처리
+    useEffect(() => {
+        if (isTimerRunning && timer > 0) {
+            const interval = setInterval(() => {
+                setTimer((prevTime) => prevTime - 1);
+            }, 1000);
+
+            return () => clearInterval(interval);
+        } else if (timer === 0) {
+            setIsTimerRunning(false);
+        }
+    }, [timer, isTimerRunning]);
+
+    useEffect(() => {
+        // 이메일 변경 시 타이머와 버튼 상태 초기화
+        if (!isCertified) {
+            // 인증 성공 이후에는 초기화하지 않음
+            setTimer(180);
+            setIsTimerRunning(false);
+            setShowCertificationInput(false);
+            setIsEmailDisabled(false);
+        }
+    }, [watch('email')]);
+
+    //회원가입 처리
     const onSubmit = async (
         userId,
         password,
@@ -334,6 +333,12 @@ function SignUp() {
         nickName,
         birth
     ) => {
+        if (password !== passwordCheck) {
+            setModalMessage('비밀번호가 일치하지 않습니다.');
+            setIsModalOpen(true);
+            return;
+        }
+
         const userData = {
             id: userId,
             password: password,
@@ -349,11 +354,15 @@ function SignUp() {
             const response = await signUp(userData);
             if (response.success) {
                 console.log('회원가입 성공:', response.message);
-                // 성공 처리 (e.g., 모달 띄우기 등)
+                setModalMessage('회원가입이 완료되었습니다.');
+                setIsModalOpen(true);
+            } else {
+                throw new Error(response.message || '회원가입에 실패했습니다.');
             }
         } catch (error) {
             console.error('회원가입 오류:', error.message);
-            // 오류 처리 (e.g., 에러 메시지 모달 등)
+            setModalMessage(error.message || '알 수 없는 오류가 발생했습니다.');
+            setIsModalOpen(true);
         }
     };
 
@@ -641,6 +650,10 @@ function SignUp() {
                     />
                     <BtnStyled>
                         <Button
+                            width="170px"
+                            height="65px"
+                            borderRadius="10px"
+                            fontSize="20px"
                             text="인증번호 확인"
                             type="button"
                             onClick={handleCertificationCheck} // 매개변수 없이 함수 호출
