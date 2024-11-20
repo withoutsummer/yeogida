@@ -91,6 +91,7 @@ function SignUp() {
         handleSubmit,
         watch, // watch 추가
         trigger,
+        getValues, // getValues를 추가로 가져옴
         formState: { isSubmitting, errors },
         control,
     } = useForm();
@@ -218,12 +219,16 @@ function SignUp() {
 
     // 이메일 체크 및 인증번호 요청 함수
     const handleEmailCheck = async () => {
-        const emailValue = watch('email');
-        const nameValue = watch('userName');
+        const emailValue = getValues('email'); // getValues로 동기적으로 값 가져오기
+        const nameValue = getValues('userName');
+
+        // 유효성 검사를 비동기로 처리 후 결과를 기다림
         const isEmailValid = await trigger('email');
         const isNameValid = await trigger('userName');
 
         if (!isEmailValid || !emailValue || !isNameValid || !nameValue) {
+            setModalMessage('올바른 이메일과 이름을 입력해주세요.');
+            setIsModalOpen(true);
             return;
         }
 
@@ -233,9 +238,10 @@ function SignUp() {
             console.log('이메일 중복 확인 요청:', emailValue, nameValue);
             const response = await checkEmailDuplicate(emailValue, nameValue);
 
-            setModalMessage(response.message);
-
             if (response.status === 200) {
+                setModalMessage(
+                    '이메일로 인증번호를 전송했습니다. 이메일을 확인해주세요.'
+                );
                 setIsEmailDisabled(true);
                 setTimer(180);
                 setIsTimerRunning(true);
@@ -274,15 +280,35 @@ function SignUp() {
     }, [watch('email')]);
 
     const handleCertificationCheck = async (certificationNum) => {
-        try {
-            const response = await verifyCertificationCode(
-                watch('email'),
-                certificationNum
-            );
-            setModalMessage(response.message);
+        const emailValue = getValues('email'); // getValues로 email 가져오기
+
+        // 이메일 또는 인증번호가 없을 경우 처리
+        if (!certificationNum || !emailValue) {
+            setModalMessage('인증번호와 이메일을 확인해주세요.');
             setIsModalOpen(true);
+            return;
+        }
+
+        try {
+            // 인증번호를 문자열로 변환하여 전달
+            const response = await verifyCertificationCode(
+                emailValue,
+                String(certificationNum)
+            );
+
+            // API 응답 처리
+            if (response.status === 200 && response.responseData?.success) {
+                setModalMessage('인증 성공 하였습니다.');
+            } else {
+                setModalMessage(
+                    response.responseData?.message ||
+                        '인증에 실패했습니다. 다시 시도해주세요.'
+                );
+            }
         } catch (error) {
-            setModalMessage('인증에 실패했습니다. 다시 시도해주세요.');
+            console.error('인증번호 확인 오류:', error);
+            setModalMessage('인증에 실패했습니다. 서버를 확인해주세요.');
+        } finally {
             setIsModalOpen(true);
         }
     };
@@ -579,14 +605,27 @@ function SignUp() {
 
                     <InputField
                         id="certificationNum"
-                        type="tel"
+                        type="text" // 숫자 입력을 허용하지만 문자열로 처리
                         placeholder="인증번호 6자리를 입력해주세요."
                         {...register('certificationNum', {
-                            maxLength: { value: 6 },
+                            maxLength: {
+                                value: 6,
+                                message: '6자리 인증번호를 입력해주세요.',
+                            },
+                            validate: {
+                                isNumber: (value) =>
+                                    /^[0-9]+$/.test(value) ||
+                                    '숫자만 입력 가능합니다.',
+                            },
                         })}
                         onChange={(e) => {
+                            // 항상 문자열로 처리
+                            e.target.value = e.target.value.replace(
+                                /[^0-9]/g,
+                                ''
+                            );
                             register('certificationNum').onChange(e);
-                            trigger('certificationNum'); // 유효성 검사 트리거
+                            trigger('certificationNum');
                         }}
                         aria-invalid={
                             errors.certificationNum ? 'true' : 'false'
