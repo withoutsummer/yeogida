@@ -246,6 +246,11 @@ function SignUp() {
                 setTimer(180);
                 setIsTimerRunning(true);
                 setShowCertificationInput(true);
+            } else if (response.status === 409) {
+                setModalMessage('기존에 회원가입한 이메일입니다.');
+                setIsEmailDisabled(false);
+                setShowCertificationInput(false);
+                setIsTimerRunning(false);
             }
         } catch (error) {
             setModalMessage(
@@ -281,6 +286,7 @@ function SignUp() {
 
     const handleCertificationCheck = async (certificationNum) => {
         const emailValue = getValues('email'); // getValues로 email 가져오기
+        const certificationCode = String(certificationNum).trim(); // 인증번호를 문자열로 변환하고 공백 제거
 
         // 이메일 또는 인증번호가 없을 경우 처리
         if (!certificationNum || !emailValue) {
@@ -290,16 +296,23 @@ function SignUp() {
         }
 
         try {
-            // 인증번호를 문자열로 변환하여 전달
+            // API 요청 전 데이터 로그
+            console.log('인증번호 확인 요청:', {
+                email: emailValue,
+                code: certificationCode,
+            });
+
+            // API 호출
             const response = await verifyCertificationCode(
                 emailValue,
-                String(certificationNum)
+                certificationCode
             );
 
             // API 응답 처리
             if (response.status === 200 && response.responseData?.success) {
                 setModalMessage('인증 성공 하였습니다.');
             } else {
+                // 서버에서 실패 메시지 반환 시 처리
                 setModalMessage(
                     response.responseData?.message ||
                         '인증에 실패했습니다. 다시 시도해주세요.'
