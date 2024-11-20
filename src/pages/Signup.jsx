@@ -246,6 +246,11 @@ function SignUp() {
                 setTimer(180);
                 setIsTimerRunning(true);
                 setShowCertificationInput(true);
+            } else if (response.status === 409) {
+                setModalMessage('기존에 회원가입한 이메일입니다.');
+                setIsEmailDisabled(false);
+                setShowCertificationInput(false);
+                setIsTimerRunning(false);
             }
         } catch (error) {
             setModalMessage(
@@ -279,24 +284,29 @@ function SignUp() {
         setIsEmailDisabled(false);
     }, [watch('email')]);
 
-    const handleCertificationCheck = async (certificationNum) => {
-        const emailValue = getValues('email'); // getValues로 email 가져오기
+    const handleCertificationCheck = async () => {
+        const emailValue = getValues('email'); // 이메일 가져오기
+        const certificationCode = getValues('certificationNum'); // 인증번호 가져오기
 
-        // 이메일 또는 인증번호가 없을 경우 처리
-        if (!certificationNum || !emailValue) {
+        if (!certificationCode || !emailValue) {
             setModalMessage('인증번호와 이메일을 확인해주세요.');
             setIsModalOpen(true);
             return;
         }
 
         try {
-            // 인증번호를 문자열로 변환하여 전달
+            // API 요청 전 값 확인
+            console.log('인증번호 확인 요청 데이터:', {
+                email: emailValue,
+                code: certificationCode,
+            });
+
+            // API 호출
             const response = await verifyCertificationCode(
                 emailValue,
-                String(certificationNum)
+                certificationCode
             );
 
-            // API 응답 처리
             if (response.status === 200 && response.responseData?.success) {
                 setModalMessage('인증 성공 하였습니다.');
             } else {
@@ -605,9 +615,10 @@ function SignUp() {
 
                     <InputField
                         id="certificationNum"
-                        type="text" // 숫자 입력을 허용하지만 문자열로 처리
+                        type="text"
                         placeholder="인증번호 6자리를 입력해주세요."
                         {...register('certificationNum', {
+                            required: '인증번호를 입력해주세요.',
                             maxLength: {
                                 value: 6,
                                 message: '6자리 인증번호를 입력해주세요.',
@@ -623,24 +634,17 @@ function SignUp() {
                             e.target.value = e.target.value.replace(
                                 /[^0-9]/g,
                                 ''
-                            );
-                            register('certificationNum').onChange(e);
-                            trigger('certificationNum');
+                            ); // 숫자만 허용
+                            register('certificationNum').onChange(e); // React Hook Form에 업데이트
+                            trigger('certificationNum'); // 유효성 검사 트리거
                         }}
-                        aria-invalid={
-                            errors.certificationNum ? 'true' : 'false'
-                        }
                     />
                     <BtnStyled>
                         <Button
-                            width="170px"
-                            height="65px"
-                            borderRadius="10px"
-                            fontSize="20px"
                             text="인증번호 확인"
-                            type="button" // 버튼 타입을 submit에서 button으로 변경
-                            onClick={handleCertificationCheck}
-                            disabled={!watch('certificationNum')}
+                            type="button"
+                            onClick={handleCertificationCheck} // 매개변수 없이 함수 호출
+                            disabled={!watch('certificationNum')} // 인증번호가 없으면 비활성화
                         />
                     </BtnStyled>
                     {/* 타이머가 작동 중일 때만 타이머 표시 */}

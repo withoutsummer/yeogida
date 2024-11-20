@@ -76,7 +76,12 @@ export const checkEmailDuplicate = async (email, userName) => {
 // 인증번호 확인 API
 export const verifyCertificationCode = async (email, code) => {
     const url = 'https://www.yeogida.net/users/verify-number';
-    const body = { email: String(email), code: String(code) };
+    const body = {
+        email: String(email).trim(),
+        code: String(code).trim(),
+    };
+
+    console.log('API 요청 데이터:', body); // 로그로 확인
     return await makeApiRequest(url, 'POST', body);
 };
 
