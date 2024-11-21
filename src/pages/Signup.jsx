@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../components/Btn';
 import CommonModal from '../components/CommonModal';
@@ -95,6 +96,8 @@ function SignUp() {
         formState: { isSubmitting, errors },
         control,
     } = useForm();
+
+    const navigate = useNavigate();
     const [isIdChecked, setIsIdChecked] = useState(false);
     const [isPhoneChecked, setIsPhoneChecked] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -218,7 +221,6 @@ function SignUp() {
     };
 
     // 이메일 체크 및 인증번호 요청 함수
-
     const handleEmailCheck = async () => {
         const emailValue = getValues('email'); // 이메일 가져오기
         const nameValue = getValues('userName'); // 이름 가져오기
@@ -310,7 +312,7 @@ function SignUp() {
         } else if (timer === 0) {
             setIsTimerRunning(false);
         }
-    }, [timer, isTimerRunning]);
+    }, [timer, isTimerRunning, isCertified]);
 
     useEffect(() => {
         // 이메일 변경 시 타이머와 버튼 상태 초기화
@@ -320,26 +322,33 @@ function SignUp() {
             setIsTimerRunning(false);
             setShowCertificationInput(false);
             setIsEmailDisabled(false);
-        } else if (timer === 0 || isCertified) {
-            // 인증 성공 시 타이머 강제 종료
-            setIsTimerRunning(false);
         }
     }, [watch('email')]);
 
+    useEffect(() => {
+        if (isTimerRunning && timer === 0) {
+            setModalMessage('인증 시간이 만료되었습니다. 다시 시도해주세요.');
+            setIsModalOpen(true);
+        }
+    }, [timer, isTimerRunning]);
+
     //회원가입 처리
-    const onSubmit = async (
-        userId,
-        password,
-        passwordCheck,
-        userName,
-        phone,
-        email,
-        nickName,
-        birth
-    ) => {
+    const onSubmit = async (data) => {
+        const {
+            userId,
+            password,
+            passwordCheck,
+            userName,
+            phone,
+            email,
+            nickName,
+            birth,
+        } = data;
         // 공백 제거 및 일치 여부 확인
-        const trimmedPassword = password.trim();
-        const trimmedPasswordCheck = passwordCheck.trim();
+        const trimmedPassword =
+            typeof password === 'string' ? password.trim() : '';
+        const trimmedPasswordCheck =
+            typeof passwordCheck === 'string' ? passwordCheck.trim() : '';
 
         if (trimmedPassword !== trimmedPasswordCheck) {
             setModalMessage('비밀번호가 일치하지 않습니다.');
@@ -349,8 +358,8 @@ function SignUp() {
 
         const userData = {
             id: userId,
-            password: password,
-            passwordCheck: passwordCheck,
+            password: trimmedPassword,
+            passwordCheck: trimmedPasswordCheck,
             name: userName,
             phonenumber: phone,
             email: email,
@@ -360,19 +369,40 @@ function SignUp() {
 
         try {
             const response = await signUp(userData);
-            if (response.success) {
+            if (response.status === 200) {
                 console.log('회원가입 성공:', response.message);
                 setModalMessage('회원가입이 완료되었습니다.');
+                setIsModalOpen(true);
+                setTimeout(() => {
+                    window.location.replace('/login');
+                }, 1500); // 회원가입 성공 시 1.5초 딜에이 후 로그인 페이지로 이동
+            } else if (response.status === 409) {
+                console.log('이미 회원가입 된 정보', response.message);
+                setModalMessage('이미 존재하는 회원정보 입니다.');
                 setIsModalOpen(true);
             } else {
                 throw new Error(response.message || '회원가입에 실패했습니다.');
             }
         } catch (error) {
             console.error('회원가입 오류:', error.message);
-            setModalMessage(error.message || '알 수 없는 오류가 발생했습니다.');
+
+            if (error.message.includes('NetworkError')) {
+                setModalMessage(
+                    '네트워크 연결이 원활하지 않습니다. 다시 시도해주세요.'
+                );
+            } else {
+                setModalMessage(
+                    error.message || '알 수 없는 오류가 발생했습니다.'
+                );
+            }
+
             setIsModalOpen(true);
         }
     };
+
+    //생년월일 유효성 설정
+    const today = new Date().toISOString().split('T')[0]; // 오늘 날짜
+    const minBirthDate = '1900-01-01'; // 최소 생년월일
 
     return (
         <FormContainer noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -718,6 +748,11 @@ function SignUp() {
                         pattern: {
                             value: /^\d{4}-\d{2}-\d{2}$/,
                             message: '유효한 생년월일을 입력해주세요.',
+                        },
+                        validate: {
+                            inValidRange: (value) =>
+                                (value >= minBirthDate && value <= today) ||
+                                '1900-01-01 ~ 오늘 날짜 사이여야 합니다.',
                         },
                     })}
                     onChange={(e) => {
