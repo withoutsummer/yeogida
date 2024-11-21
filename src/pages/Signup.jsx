@@ -356,16 +356,28 @@ function SignUp() {
             return;
         }
 
+        const formattedPhone = phone.replace(/\D/g, ''); // 숫자만 추출
+
         const userData = {
             id: userId,
             password: trimmedPassword,
             passwordCheck: trimmedPasswordCheck,
             name: userName,
-            phonenumber: phone,
+            phonenumber: formattedPhone,
             email: email,
             nickname: nickname,
             birth: birth,
         };
+
+        // 요청 데이터 확인용 로그
+        console.log('회원가입 요청 데이터:', userData);
+        console.log(
+            '데이터 타입 확인:',
+            Object.keys(userData).reduce((acc, key) => {
+                acc[key] = typeof userData[key];
+                return acc;
+            }, {})
+        );
 
         try {
             const response = await signUp(userData);
