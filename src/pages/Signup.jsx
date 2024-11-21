@@ -286,8 +286,8 @@ function SignUp() {
                 setModalMessage('인증 성공 하였습니다.');
                 setIsCertified(true); // 인증 성공 상태 업데이트
                 setIsTimerRunning(false); // 타이머 중지
-                setShowCertificationInput(false); // 인증번호 입력 필드 숨김
                 setTimer(0); // 타이머 초기화
+                setShowCertificationInput(false); // 인증번호 입력 필드 숨김
             } else {
                 setModalMessage(
                     response.responseData?.message ||
@@ -303,34 +303,39 @@ function SignUp() {
     };
 
     useEffect(() => {
+        // 타이머 동작: isTimerRunning이 true이고 timer가 0보다 크면 작동
         if (isTimerRunning && timer > 0) {
             const interval = setInterval(() => {
                 setTimer((prevTime) => prevTime - 1);
             }, 1000);
 
-            return () => clearInterval(interval);
-        } else if (timer === 0) {
-            setIsTimerRunning(false);
+            return () => clearInterval(interval); // 클린업 함수
         }
-    }, [timer, isTimerRunning, isCertified]);
 
-    useEffect(() => {
-        // 이메일 변경 시 타이머와 버튼 상태 초기화
-        if (!isCertified) {
-            // 인증 성공 이후에는 초기화하지 않음
-            setTimer(180);
+        // 타이머 종료 처리: timer가 0이 되면 중지
+        if (timer === 0) {
             setIsTimerRunning(false);
-            setShowCertificationInput(false);
-            setIsEmailDisabled(false);
-        }
-    }, [watch('email')]);
-
-    useEffect(() => {
-        if (isTimerRunning && timer === 0) {
             setModalMessage('인증 시간이 만료되었습니다. 다시 시도해주세요.');
             setIsModalOpen(true);
         }
     }, [timer, isTimerRunning]);
+
+    useEffect(() => {
+        // 인증 성공 시 상태 초기화
+        if (isCertified) {
+            setShowCertificationInput(false); // 인증번호 필드 숨김
+            setIsTimerRunning(false); // 타이머 중지
+            setTimer(0); // 타이머 초기화
+        }
+    }, [isCertified]);
+
+    useEffect(() => {
+        // 이메일 변경 시 상태 초기화
+        setTimer(180);
+        setIsTimerRunning(false);
+        setShowCertificationInput(false);
+        setIsEmailDisabled(false);
+    }, [watch('email')]);
 
     //회원가입 처리
     const onSubmit = async (data) => {
