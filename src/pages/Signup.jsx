@@ -285,6 +285,7 @@ function SignUp() {
                 setIsCertified(true); // 인증 성공 상태 업데이트
                 setIsTimerRunning(false); // 타이머 중지
                 setShowCertificationInput(false); // 인증번호 입력 필드 숨김
+                setTimer(0); // 타이머 초기화
             } else {
                 setModalMessage(
                     response.responseData?.message ||
@@ -319,6 +320,9 @@ function SignUp() {
             setIsTimerRunning(false);
             setShowCertificationInput(false);
             setIsEmailDisabled(false);
+        } else if (timer === 0 || isCertified) {
+            // 인증 성공 시 타이머 강제 종료
+            setIsTimerRunning(false);
         }
     }, [watch('email')]);
 
@@ -333,7 +337,11 @@ function SignUp() {
         nickName,
         birth
     ) => {
-        if (password !== passwordCheck) {
+        // 공백 제거 및 일치 여부 확인
+        const trimmedPassword = password.trim();
+        const trimmedPasswordCheck = passwordCheck.trim();
+
+        if (trimmedPassword !== trimmedPasswordCheck) {
             setModalMessage('비밀번호가 일치하지 않습니다.');
             setIsModalOpen(true);
             return;
@@ -618,7 +626,7 @@ function SignUp() {
                 )}
             </ErrorStyled>
             {/* 인증번호 */}
-            {showCertificationInput && (
+            {showCertificationInput && !isCertified && (
                 <InputContainer>
                     <Label></Label>
 
