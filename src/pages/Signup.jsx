@@ -341,7 +341,7 @@ function SignUp() {
             userName,
             phone,
             email,
-            nickName,
+            nickname,
             birth,
         } = data;
         // 공백 제거 및 일치 여부 확인
@@ -363,7 +363,7 @@ function SignUp() {
             name: userName,
             phonenumber: phone,
             email: email,
-            nickName: nickName,
+            nickname: nickname,
             birth: birth,
         };
 
@@ -714,22 +714,22 @@ function SignUp() {
                 </Label>
 
                 <InputField
-                    id="nickName"
+                    id="nickname"
                     type="text"
                     placeholder="닉네임"
-                    {...register('nickName', {
+                    {...register('nickname', {
                         required: '닉네임은 필수 입력입니다.',
                     })}
                     onChange={(e) => {
-                        register('nickName').onChange(e);
-                        trigger('nickName'); // 유효성 검사 트리거
+                        register('nickname').onChange(e);
+                        trigger('nickname'); // 유효성 검사 트리거
                     }}
-                    aria-invalid={errors.nickName ? 'true' : 'false'}
+                    aria-invalid={errors.nickname ? 'true' : 'false'}
                 />
             </InputContainer>
             <ErrorStyled>
-                {errors.nickName && (
-                    <ErrorMessage>{errors.nickName.message}</ErrorMessage>
+                {errors.nickname && (
+                    <ErrorMessage>{errors.nickname.message}</ErrorMessage>
                 )}
             </ErrorStyled>
 
